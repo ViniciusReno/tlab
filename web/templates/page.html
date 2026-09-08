@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tesouro Lab · Yield playground</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="/">TESOURO <span>LAB</span></a>
+  <span class="milestone">M1 / OFFLINE LAB</span>
+</header>
+<main>
+  <section class="intro">
+    <p class="eyebrow">THE YIELD PLAYGROUND</p>
+    <h1>What happens when<br>a bond's yield changes?</h1>
+    <p class="lead">Keep the date fixed. Change one assumption. See how a fixed-rate bond's price responds.</p>
+  </section>
+  <aside class="notice"><strong>Historical demo · not a current quote.</strong> Official worked example from 2012. The bond matured in 2015. This is a same-date educational scenario, not a forecast or investment recommendation.</aside>
+  <div class="workspace">
+    <section class="panel controls" aria-labelledby="controls-title">
+      <p class="eyebrow">01 / YOUR ASSUMPTIONS</p>
+      <h2 id="controls-title">Explore a scenario</h2>
+      <form action="/playground" method="get" id="scenario-form">
+        <input type="hidden" name="source" value="demo">
+        <label for="bond">Bond</label>
+        <select id="bond" name="bond">
+          <option value="prefixado:2015-01-01">Tesouro Prefixado 2015 · Fixed rate</option>
+        </select>
+        <label for="basis">Quote context</label>
+        <select id="basis" name="basis">
+          <option value="purchase" {{if eq (value .Values "basis") "purchase"}}selected{{end}}>Purchase quote · D+1</option>
+          <option value="mark_to_market" {{if eq (value .Values "basis") "mark_to_market"}}selected{{end}}>Portfolio valuation · unavailable in this fixture</option>
+          <option value="early_exit" {{if eq (value .Values "basis") "early_exit"}}selected{{end}}>Early redemption · unavailable in this fixture</option>
+        </select>
+        <label for="date">Official quote date</label>
+        <input id="date" name="date" type="text" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" value="{{value .Values "date"}}" placeholder="YYYY-MM-DD" required>
+        <label for="yield">Simulated annual yield (%)</label>
+        <input id="yield" name="yield" type="text" inputmode="decimal" pattern="[+\-]?[0-9]+(\.[0-9]+)?" title="Use a decimal point, for example 8.88. Yield must be greater than -100%." value="{{value .Values "yield"}}" required>
+        <label class="slider-label" for="yield-slider">Explore yields from 6.88% to 14.88%</label>
+        <input id="yield-slider" type="range" min="6.88" max="14.88" step="0.01" value="{{value .Values "yield"}}" aria-describedby="slider-note">
+        <p id="slider-note" class="hint">Use the number field for values outside the slider range.</p>
+        <label for="amount">Hypothetical gross amount (BRL, optional)</label>
+        <input id="amount" name="amount" type="text" inputmode="decimal" pattern="[0-9]+(\.[0-9]+)?" title="Enter a positive BRL amount using a decimal point, for example 10000.50." value="{{value .Values "amount"}}" placeholder="e.g. 10000">
+        <button class="primary" type="submit">Calculate scenario <span aria-hidden="true">→</span></button>
+        <p class="hint">Temporary demo only. No persistent portfolio is opened or changed.</p>
+      </form>
+    </section>
+    <section id="results" class="results" aria-live="polite" aria-atomic="false">
+      {{if .Error}}
+      <div class="panel error" role="alert"><h2>Scenario unavailable</h2><p>{{.Error}}</p><a href="/">Reset to the official example</a></div>
+      {{else}}
+      <div class="result-heading"><p class="eyebrow">02 / THE RESULT</p><span>Quote date {{.Result.QuoteDate}}</span></div>
+      <div class="metrics">
+        <article class="metric"><p>Official purchase price</p><h2>{{money .Result.BasePU}}</h2><small>Yield {{percent .Result.BaseYield}} · per bond</small></article>
+        <article class="metric accent"><p>Hypothetical scenario price</p><h2>{{money .Result.ScenarioPU}}</h2><small>Yield {{percent .Result.ScenarioYield}} · per bond</small></article>
+        <article class="metric"><p>Gross scenario change</p><h2>{{change .Result.Variation}}</h2><small>Relative to the official baseline</small></article>
+      </div>
+      <div class="panel explanation">
+        <h2>Why does the price respond?</h2>
+        <p>A fixed-rate bond pays a fixed nominal amount at maturity. Holding the remaining term constant, a lower yield corresponds to a higher price; a higher yield corresponds to a lower price.</p>
+        <p>Here, only the assumed yield changes. Settlement remains <strong>{{.Result.SettlementDate}}</strong>, with <strong>{{.Result.BusinessDays}} business days</strong> to maturity.</p>
+        {{if .Result.Amount}}<p class="amount-result">A hypothetical gross amount of <strong>{{money .Result.Amount}}</strong> becomes <strong>{{money .Result.ScenarioAmount}}</strong> in this scenario. Taxes and fees are not included.</p>{{end}}
+      </div>
+      <div class="panel chart-panel">
+        <div class="chart-heading"><h2>One date. Different yields.</h2><span>Hypothetical prices</span></div>
+        <svg viewBox="0 0 560 230" role="img" aria-labelledby="chart-title chart-description">
+          <title id="chart-title">Price decreases as the assumed yield increases</title>
+          <desc id="chart-description">Nine same-date scenarios around the official yield. Exact values and scenario links are in the table below.</desc>
+          <path class="axis" d="M40 15 V190 H530"></path>
+          <polyline class="curve" points="{{.Curve}}"></polyline>
+          <text x="40" y="218">Lower yield</text><text x="440" y="218">Higher yield</text>
+        </svg>
+        <div class="table-wrap"><table>
+          <caption>Default yield shocks · click a yield to inspect that scenario</caption>
+          <thead><tr><th scope="col">Change (bps)</th><th scope="col">Yield</th><th scope="col">Simulated price</th><th scope="col">Gross change</th></tr></thead>
+          <tbody>{{range .Points}}<tr><td>{{printf "%+d" .BasisPoints}}</td><td><a class="shock" href="{{shockURL $.Result .Yield}}" data-yield="{{yield .Yield}}">{{percent .Yield}}</a></td><td>{{money .PU}}</td><td>{{change .Variation}}</td></tr>{{end}}</tbody>
+        </table></div>
+        <p class="hint">100 basis points (bps) = 1 percentage point. These are hypothetical yield changes, not future market quotes.</p>
+      </div>
+      <details class="panel technical" id="technical">
+        <summary>Advanced · inspect the math and reproduce it</summary>
+        <dl>
+          <dt>Instrument</dt><dd>{{.Result.BondID}}</dd>
+          <dt>Source / context</dt><dd>{{.Result.Source}} / {{.Result.Basis}}</dd>
+          <dt>Official baseline PU / yield</dt><dd>{{decimal .Result.BasePU}} / {{decimal .Result.BaseYield}}</dd>
+          <dt>Scenario PU / yield</dt><dd>{{decimal .Result.ScenarioPU}} / {{decimal .Result.ScenarioYield}}</dd>
+          <dt>Quote / settlement / maturity</dt><dd>{{.Result.QuoteDate}} / {{.Result.SettlementDate}} / {{.Result.Maturity}}</dd>
+          <dt>Business days / convention</dt><dd>{{.Result.BusinessDays}} / 252 per year; settlement inclusive, maturity exclusive</dd>
+          {{if .Result.Quantity}}<dt>Hypothetical quantity</dt><dd>{{decimal .Result.Quantity}}</dd>{{end}}
+          <dt>Calendar / fixture</dt><dd>{{.Result.CalendarVersion}} / {{.Result.FixtureVersion}}</dd>
+          <dt>Calculation / build</dt><dd>{{.Result.CalculationVersion}} / {{.Result.BuildVersion}}</dd>
+        </dl>
+        <p><code>PU = official_PU × ((1 + official_yield) / (1 + simulated_yield))^(DU / 252)</code></p>
+        <p>The scenario is anchored to the official rounded price. An unchanged yield preserves that price. No intermediate display rounding is applied.</p>
+        <h3>Reproduce from the repository root</h3><pre><code>{{.Result.Command}}</code></pre>
+        <p><a href="/api/scenario?{{.Result.Values.Encode}}">Inspect the same result as JSON</a> · <a href="/playground?{{.Result.Values.Encode}}">Link to this scenario</a></p>
+        <p>Baseline: <a href="{{.Result.Provenance}}" rel="noreferrer">official Tesouro Direto methodology, pages 1–3</a>. Transcribed worked example, not a live CSV quote. Calendar: ANBIMA national holiday tables, verified coverage 2012–2015.</p>
+        <p>Sell/base quote fields are missing in this fixture. IPCA+, Selic, live synchronization, and portfolio editing are not implemented in M1.</p>
+      </details>
+      {{end}}
+    </section>
+  </div>
+</main>
+<footer><span>TESOURO LAB</span><p>Official inputs. Explicit assumptions. Inspectable math.</p><small>Educational use · gross values · no investment advice</small></footer>
+</body>
+</html>

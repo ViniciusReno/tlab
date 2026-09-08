@@ -1,0 +1,7 @@
+/tesouro-lab
+/tesouro-lab.exe
+/dist/
+*.db
+*.db-shm
+*.db-wal
+.DS_Store
