@@ -5,6 +5,8 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -28,6 +30,30 @@ const (
 type Service struct {
 	store    *sqlite.Store
 	calendar *calendar.Calendar
+	source   string
+}
+
+// DefaultDataDir follows the OS user configuration directory convention.
+func DefaultDataDir() (string, error) {
+	dir, err := os.UserConfigDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, "tesouro-lab"), nil
+}
+
+func OpenPersistent(ctx context.Context, directory string) (*Service, error) {
+	store, err := sqlite.OpenPersistent(ctx, directory, assets.Files)
+	if err != nil {
+		return nil, err
+	}
+	return &Service{store: store, source: "synced"}, nil
+}
+
+func (s *Service) Source() string { return s.source }
+
+func (s *Service) HasQuotes(ctx context.Context) (bool, error) {
+	return s.store.HasQuotes(ctx)
 }
 
 func OpenDemo(ctx context.Context) (*Service, error) {
@@ -57,7 +83,7 @@ func OpenDemo(ctx context.Context) (*Service, error) {
 		store.Close()
 		return nil, err
 	}
-	return &Service{store: store, calendar: cal}, nil
+	return &Service{store: store, calendar: cal, source: "demo"}, nil
 }
 
 func (s *Service) Close() error { return s.store.Close() }
@@ -161,6 +187,9 @@ type Result struct {
 }
 
 func (s *Service) DefaultRequest(ctx context.Context) (Request, error) {
+	if s.source != "demo" {
+		return Request{}, bond.SourceUnavailable
+	}
 	q, err := s.store.Quote(ctx, DemoBond, "")
 	if err != nil {
 		return Request{}, err
@@ -175,7 +204,10 @@ func (s *Service) Analyze(ctx context.Context, r Request) (Result, error) {
 	if err := r.validate(); err != nil {
 		return Result{}, err
 	}
-	if r.Source != "demo" {
+	if r.Source != s.source {
+		return Result{}, bond.SourceMismatch
+	}
+	if s.source != "demo" {
 		return Result{}, bond.SourceUnavailable
 	}
 	if !strings.HasPrefix(r.BondID, "prefixado:") {

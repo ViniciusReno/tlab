@@ -2,7 +2,7 @@
 
 A local educational lab for Brazilian government bonds, built around official data, transparent calculations, and hypothetical scenarios.
 
-**Status: M1 offline Prefixado demo implemented.** Run from source or build a local executable. No downloadable release has been published yet; the remaining V1 milestones are planned.
+**Status: M1 offline Prefixado demo and M2.1 persistent storage implemented.** Run from source or build a local executable. No downloadable release has been published yet; the remaining V1 milestones are planned.
 
 Tesouro Lab helps beginners understand bond prices and yield changes while letting technical readers inspect the same inputs, formulas, calendars, and results. It does not recommend investments, predict yields, or execute transactions.
 
@@ -39,6 +39,20 @@ Windows PowerShell:
 Open `http://127.0.0.1:8080`. Stop the application with Ctrl+C.
 
 The compiled demo works offline without Go. Demo changes are temporary: each process uses a private in-memory SQLite database and never opens your persistent portfolio or synchronized data. Use `demo --port 8081` if port 8080 is occupied.
+
+## Persistent local storage
+
+Run `go run ./cmd/tesouro-lab` (or `./tesouro-lab` after building) to create/open the local database and start the server. This M2.1 step shows an empty state; official synchronization and synchronized analysis are still unavailable. No demo quotes are copied into persistent storage.
+
+The database filename is `tesouro-lab.db`. The default directory follows Go's `os.UserConfigDir` convention:
+
+- macOS: `~/Library/Application Support/tesouro-lab`.
+- Linux: `$XDG_CONFIG_HOME/tesouro-lab`, or `~/.config/tesouro-lab` when unset.
+- Windows: `%AppData%/tesouro-lab`.
+
+Override it locally with `go run ./cmd/tesouro-lab --data-dir ./local-data --port 8081`. Relative paths resolve from the working directory. Stop with Ctrl+C; the database stays on disk. The demo rejects `--data-dir` and always uses private memory. HTTP parameters cannot select a data directory or switch sources.
+
+New directories/files request owner-only permissions on Unix; Windows access follows OS permissions. Existing directories and files retain their permissions. See [M2 implementation notes](docs/M2_IMPLEMENTATION.md).
 
 ## Run from source
 
@@ -78,7 +92,7 @@ All authored repository content and the application interface are in English. Of
 
 | Command | Purpose |
 |---|---|
-| `tesouro-lab` | Persistent mode is planned for M2; currently returns an explicit unavailable error |
+| `tesouro-lab [--data-dir PATH] [--port 8080]` | Start local persistent storage; show an empty state before data is imported |
 | `tesouro-lab demo` | Start the isolated offline demo |
 | `tesouro-lab sync` | Official synchronization is planned for M2; currently returns an explicit unavailable error |
 | `tesouro-lab analyze <bond-id> --source demo --yield <percent>` | Run the same scenario calculation used by the browser |

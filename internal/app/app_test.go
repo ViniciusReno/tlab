@@ -56,7 +56,7 @@ func TestDemoScenarioAndReproduction(t *testing.T) {
 	}
 	r.Date = ""
 	r.Source = "synced"
-	if _, err := s.Analyze(ctx, r); err != bond.SourceUnavailable {
+	if _, err := s.Analyze(ctx, r); err != bond.SourceMismatch {
 		t.Fatal(err)
 	}
 	r.Source = "demo"
@@ -95,6 +95,8 @@ func TestDemoDoesNotTouchUserData(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Setenv("XDG_DATA_HOME", path)
+	t.Setenv("XDG_CONFIG_HOME", path)
+	t.Setenv("APPDATA", path)
 	for i := 0; i < 2; i++ {
 		s, err := OpenDemo(context.Background())
 		if err != nil {
@@ -113,5 +115,35 @@ func TestDemoDoesNotTouchUserData(t *testing.T) {
 	content, err := os.ReadFile(path)
 	if err != nil || string(content) != "private portfolio sentinel" {
 		t.Fatal("user data changed")
+	}
+}
+
+func TestPersistentServiceRemainsEmptyAcrossDemo(t *testing.T) {
+	ctx := context.Background()
+	dir := t.TempDir()
+	s, err := OpenPersistent(ctx, dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := s.Close(); err != nil {
+		t.Fatal(err)
+	}
+	demo, err := OpenDemo(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := demo.Close(); err != nil {
+		t.Fatal(err)
+	}
+	s, err = OpenPersistent(ctx, dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	if has, err := s.HasQuotes(ctx); err != nil || has || s.Source() != "synced" {
+		t.Fatalf("persistent source contaminated: %v %v", has, err)
+	}
+	if _, err := s.DefaultRequest(ctx); err != bond.SourceUnavailable {
+		t.Fatalf("persistent mode selected demo default: %v", err)
 	}
 }

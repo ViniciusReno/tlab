@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/ViniciusReno/tlab/internal/app"
@@ -21,12 +22,14 @@ import (
 
 func Run(ctx context.Context, args []string, out, errOut io.Writer) int {
 	if len(args) == 0 {
-		fmt.Fprintln(errOut, "Persistent mode is planned for M2. Run: tesouro-lab demo")
-		return 1
+		return serve(ctx, args, out, errOut, false)
+	}
+	if strings.HasPrefix(args[0], "--") && args[0] != "--help" {
+		return serve(ctx, args, out, errOut, false)
 	}
 	switch args[0] {
 	case "help", "--help", "-h":
-		fmt.Fprintln(out, "Tesouro Lab — M1 offline Prefixado demo\n\nCommands:\n  demo [--port 8080]\n  analyze <bond-id> --yield <percent> [--source demo|synced] [--basis purchase|mark_to_market|early_exit] [--date YYYY-MM-DD] [--amount BRL]\n  version\n\nExample:\n  tesouro-lab analyze prefixado:2015-01-01 --source demo --yield 8.88\n\nLive synchronization and persistent portfolios are not implemented in M1.")
+		fmt.Fprintln(out, "Tesouro Lab — offline demo and local persistent storage\n\nCommands:\n  [--port 8080] [--data-dir PATH]   Start persistent mode (empty until synchronization is implemented)\n  demo [--port 8080]\n  analyze <bond-id> --yield <percent> [--source demo|synced] [--basis purchase|mark_to_market|early_exit] [--date YYYY-MM-DD] [--amount BRL]\n  version\n\nExample:\n  tesouro-lab analyze prefixado:2015-01-01 --source demo --yield 8.88\n\nDefault data directory: tesouro-lab under the OS user configuration directory.\nOfficial synchronization, synchronized analysis, and portfolios are not implemented yet.")
 		return 0
 	case "version":
 		if len(args) != 1 {
@@ -39,7 +42,7 @@ func Run(ctx context.Context, args []string, out, errOut io.Writer) int {
 	case "analyze":
 		return analyze(ctx, args[1:], out, errOut)
 	case "demo":
-		return demo(ctx, args[1:], out, errOut)
+		return serve(ctx, args[1:], out, errOut, true)
 	default:
 		return failure(errOut, bond.Unsupported)
 	}
@@ -100,10 +103,14 @@ func analyze(ctx context.Context, args []string, out, errOut io.Writer) int {
 	return 0
 }
 
-func demo(ctx context.Context, args []string, out, errOut io.Writer) int {
-	flags := flag.NewFlagSet("demo", flag.ContinueOnError)
+func serve(ctx context.Context, args []string, out, errOut io.Writer, demo bool) int {
+	flags := flag.NewFlagSet("tesouro-lab", flag.ContinueOnError)
 	flags.SetOutput(errOut)
 	port := flags.Int("port", 8080, "Loopback TCP port (1–65535)")
+	var directory string
+	if !demo {
+		flags.StringVar(&directory, "data-dir", "", "Local data directory (default: OS user configuration directory/tesouro-lab)")
+	}
 	if err := flags.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
 			return 0
@@ -113,9 +120,21 @@ func demo(ctx context.Context, args []string, out, errOut io.Writer) int {
 	if flags.NArg() != 0 || *port < 1 || *port > 65535 {
 		return failure(errOut, bond.InvalidInput)
 	}
-	service, err := app.OpenDemo(ctx)
+	var service *app.Service
+	var err error
+	if demo {
+		service, err = app.OpenDemo(ctx)
+	} else {
+		if directory == "" {
+			directory, err = app.DefaultDataDir()
+		}
+		if err == nil {
+			service, err = app.OpenPersistent(ctx, directory)
+		}
+	}
 	if err != nil {
-		return failure(errOut, err)
+		fmt.Fprintln(errOut, "Unable to initialize local storage. Check the data directory and file permissions.")
+		return 1
 	}
 	defer service.Close()
 	handler, err := web.New(service)
@@ -125,13 +144,17 @@ func demo(ctx context.Context, args []string, out, errOut io.Writer) int {
 	address := net.JoinHostPort("127.0.0.1", strconv.Itoa(*port))
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
-		fmt.Fprintln(errOut, "Unable to listen on "+address+". Check whether the port is already in use; try demo --port 8081.")
+		fmt.Fprintln(errOut, "Unable to listen on "+address+". Check whether the port is already in use; use --port 8081.")
 		return 1
 	}
 	server := &http.Server{Handler: handler, ReadTimeout: 5 * time.Second, ReadHeaderTimeout: 3 * time.Second, WriteTimeout: 10 * time.Second, IdleTimeout: 30 * time.Second, MaxHeaderBytes: 8192}
 	done := make(chan error, 1)
 	go func() { done <- server.Serve(listener) }()
-	fmt.Fprintf(out, "Tesouro Lab — historical demo data, temporary in-memory database\nOpen http://%s\nPress Ctrl+C to stop. No persistent portfolio is opened.\n", address)
+	if demo {
+		fmt.Fprintf(out, "Tesouro Lab — historical demo data, temporary in-memory database\nOpen http://%s\nPress Ctrl+C to stop. No persistent portfolio is opened.\n", address)
+	} else {
+		fmt.Fprintf(out, "Tesouro Lab — persistent local storage\nData directory: %s\nOpen http://%s\nPress Ctrl+C to stop. Local data is preserved.\n", directory, address)
+	}
 	select {
 	case err := <-done:
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {

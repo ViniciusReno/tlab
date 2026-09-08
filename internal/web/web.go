@@ -16,11 +16,13 @@ import (
 )
 
 type page struct {
-	Result app.Result
-	Points []app.Point
-	Curve  string
-	Error  string
-	Values url.Values
+	Result     app.Result
+	Points     []app.Point
+	Curve      string
+	Error      string
+	Values     url.Values
+	Persistent bool
+	HasQuotes  bool
 }
 
 func money(n float64) string {
@@ -60,14 +62,25 @@ func New(service *app.Service) (http.Handler, error) {
 			return
 		}
 		values, err := url.ParseQuery(r.URL.RawQuery)
+		if err == nil && service.Source() == "synced" && len(values) == 0 && r.URL.Path != "/api/scenario" {
+			hasQuotes, readErr := service.HasQuotes(r.Context())
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			p := page{Persistent: true, HasQuotes: hasQuotes}
+			if readErr != nil {
+				p.Error = "Unable to read local data. Restart the application and check the database file."
+				w.WriteHeader(http.StatusInternalServerError)
+			}
+			tmpl.ExecuteTemplate(w, "page.html", p)
+			return
+		}
 		var request app.Request
 		if err == nil && len(values) == 0 && r.URL.Path != "/api/scenario" {
 			request, err = service.DefaultRequest(r.Context())
 		} else if err == nil {
-			if values.Get("source") != "" && values.Get("source") != "demo" {
+			if values.Get("source") != "" && values.Get("source") != service.Source() {
 				err = bond.SourceMismatch
 			} else {
-				request, err = app.ParseRequest(values, "demo")
+				request, err = app.ParseRequest(values, service.Source())
 			}
 		}
 		var result app.Result
@@ -88,7 +101,7 @@ func New(service *app.Service) (http.Handler, error) {
 			json.NewEncoder(w).Encode(result)
 			return
 		}
-		p := page{Result: result, Values: values}
+		p := page{Result: result, Values: values, Persistent: service.Source() == "synced"}
 		if err == nil {
 			p.Values = result.Values()
 			p.Points, err = app.Shocks(result)

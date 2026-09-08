@@ -1,12 +1,14 @@
 # Next steps toward V1
 
-Last updated: 2026-09-06.
+Last updated: 2026-09-08.
 
 This is a continuation checklist, not a replacement for the [V1 specification](V1_SPEC.md). Follow [AGENTS.md](../AGENTS.md) when implementing changes. Unchecked items are pending; this document does not authorize publishing releases or changing V1 scope.
 
 ## Current checkpoint
 
 M1 implements the offline Prefixado demo: one Go module, embedded assets and fixtures, in-memory SQLite, versioned migration, isolated pricing/calendar logic, server-rendered English UI, and shared CLI/API calculations.
+
+M2.1 adds persistent database startup, migration reuse, a local empty state, and fixed server-source isolation. See [M2 implementation notes](M2_IMPLEMENTATION.md).
 
 See [M1 implementation notes](M1_IMPLEMENTATION.md) for behavior and validation already performed, and [fixture provenance](../data/demo/README.md) for sources and assumptions.
 
@@ -15,7 +17,7 @@ Important limitations to preserve until explicitly addressed:
 - The fixture is an official historical methodology example, not a live CKAN quote.
 - Only the purchase-context PU/yield pair is available; other contexts return `missing_quote`.
 - Verified calendar coverage is 2012–2015. Do not infer business days outside that range.
-- Persistent mode, synchronization, IPCA+, Selic, and portfolios are not implemented.
+- Synchronization, synchronized analysis, IPCA+, Selic, and portfolios are not implemented. Persistent mode currently exposes a database status/empty page only.
 - CI is configured but a successful GitHub run has not been verified. No release has been published.
 - Local checks covered macOS/arm64. Cross-platform release execution and automated browser interactions remain unverified.
 
@@ -23,7 +25,7 @@ Important limitations to preserve until explicitly addressed:
 
 Proceed in small, independently tested changes:
 
-1. **Persistent local storage.** Implement the specification's data-directory and database lifecycle for normal mode. Use versioned migrations, keep demo state isolated, and show an explicit empty state before the first successful sync.
+1. **Persistent local storage — completed (M2.1).** Normal startup opens `tesouro-lab.db` under the OS user configuration directory or `--data-dir`. Migrations are reused, demo remains isolated, and an empty database shows an explicit empty state. Tests cover reopens, failed migrations, invalid paths/databases, CLI shutdown, and HTTP source isolation.
 2. **Official datasource contract.** Verify the official CKAN resource and metadata at implementation time. Add small provenance-documented source fixtures; test actual headers, Brazilian dates/numbers, nullable fields, and unsupported instruments. Reassess the current demo parser's size limit against the real dataset without making downloads unbounded.
 3. **Explicit synchronization.** Implement `sync` with timeouts, bounded downloads, required-field validation, provenance, transactional upserts, and separately recorded sync status/errors. A failed download, parse, or write must preserve previous valid quotes. Do not add background synchronization or arbitrary URL inputs.
 4. **Verified calendars and quote contexts.** Expand calendar coverage using official ANBIMA sources and independent pricing fixtures. Validate purchase (`BuyPU` + `BuyYield`, D+1), mark-to-market (`BasePU` + `SellYield`, D0), and early redemption (`SellPU` + `SellYield`, D+1). Missing pairs remain unavailable.
@@ -68,7 +70,7 @@ M2 completion checks:
 ## Resume checklist
 
 1. Read this checkpoint, the relevant specification sections, and existing code/tests; do not assume this snapshot is still current.
-2. Start with the smallest M2 storage change above unless the maintainer changes priorities. Do not pull later-milestone infrastructure forward.
+2. Start with M2.2: verify the official datasource contract and add provenance-documented parser fixtures unless the maintainer changes priorities. Do not pull later-milestone infrastructure forward.
 3. Keep all repository content and application copy in English; maintainer conversations may remain in Portuguese.
 4. Preserve the single-binary Go architecture, loopback default, transparent math, and no-recommendation policy. Do not introduce a frontend runtime, mandatory Docker, cloud services, or V2 features.
 5. For code changes, run `go fmt ./...`, `go vet ./...`, `go test ./...`, and `go test -race ./...` where supported. Verify builds without CGO when relevant.

@@ -1,5 +1,7 @@
 # M1: offline Prefixado demo
 
+This document records the M1 checkpoint. [M2 implementation notes](M2_IMPLEMENTATION.md) describe subsequent changes to persistent startup.
+
 ## Available behavior
 
 The first milestone implements a runnable offline playground for the official Tesouro Prefixado worked example dated 2012-01-03. It includes an in-memory SQLite database, versioned SQL migration, Brazilian CSV normalization, bounded holiday calendar, pure scenario calculation, English server-rendered UI, local CSS/JavaScript, and CLI/API parity.

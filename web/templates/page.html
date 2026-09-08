@@ -5,14 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tesouro Lab · Yield playground</title>
   <link rel="stylesheet" href="/static/style.css">
-  <script src="/static/app.js" defer></script>
+  {{if not .Persistent}}<script src="/static/app.js" defer></script>{{end}}
 </head>
 <body>
 <header class="site-header">
   <a class="brand" href="/">TESOURO <span>LAB</span></a>
-  <span class="milestone">M1 / OFFLINE LAB</span>
+  <span class="milestone">{{if .Persistent}}LOCAL DATA{{else}}OFFLINE DEMO{{end}}</span>
 </header>
 <main>
+  {{if .Persistent}}
+  <section class="intro">
+    <p class="eyebrow">LOCAL MARKET DATA</p>
+    <h1>{{if .Error}}Data unavailable{{else if .HasQuotes}}Local database ready{{else}}No official quotes yet{{end}}</h1>
+    {{if .Error}}<p class="lead" role="alert">{{.Error}}</p>{{else if .HasQuotes}}<p class="lead">Stored data is preserved. Market browsing and synchronized analysis are not implemented yet.</p>{{else}}<p class="lead">Your local database is ready. No market data has been imported.</p>{{end}}
+  </section>
+  <section class="panel">
+    <h2>Explore the offline demo</h2>
+    <p>Stop this server with Ctrl+C, then run <code>tesouro-lab demo</code>. From source, run <code>go run ./cmd/tesouro-lab demo</code>.</p>
+    <p>The demo uses a separate temporary database. Your persistent data stays on disk.</p>
+    <p>Official synchronization with <code>tesouro-lab sync</code> is planned for a later M2 step and is not available in this build.</p>
+    {{if .Error}}<a href="/">Return to local data</a>{{end}}
+  </section>
+  {{else}}
   <section class="intro">
     <p class="eyebrow">THE YIELD PLAYGROUND</p>
     <h1>What happens when<br>a bond's yield changes?</h1>
@@ -103,6 +117,7 @@
       {{end}}
     </section>
   </div>
+  {{end}}
 </main>
 <footer><span>TESOURO LAB</span><p>Official inputs. Explicit assumptions. Inspectable math.</p><small>Educational use · gross values · no investment advice</small></footer>
 </body>

@@ -1,6 +1,6 @@
 # Contributing to Tesouro Lab
 
-Tesouro Lab currently implements the M1 offline Prefixado demo. See [implementation notes](docs/M1_IMPLEMENTATION.md) for available behavior and remaining limitations.
+Tesouro Lab currently implements the M1 offline Prefixado demo and M2.1 persistent storage. See [M2 notes](docs/M2_IMPLEMENTATION.md) for the local database lifecycle. See [implementation notes](docs/M1_IMPLEMENTATION.md) for available behavior and remaining limitations.
 
 ## Read first
 

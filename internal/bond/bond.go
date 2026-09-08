@@ -29,9 +29,9 @@ func Message(err error) string {
 	case Unsupported:
 		return "This instrument or feature is not supported in this milestone."
 	case SourceUnavailable:
-		return "Synchronized data is not available in M1. Start the offline demo."
+		return "Official synchronization and synchronized analysis are not implemented yet. Start the offline demo with tesouro-lab demo."
 	case SourceMismatch:
-		return "This server uses demo data. Select the demo source."
+		return "The requested source does not match this server. Start tesouro-lab demo for demo data or tesouro-lab for persistent data."
 	case CalendarOutOfRange:
 		return "The requested dates are outside verified calendar coverage (2012–2015)."
 	case NoRemainingTerm:

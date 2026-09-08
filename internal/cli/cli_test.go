@@ -5,8 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"math"
+	"net"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -56,6 +59,49 @@ func TestCLIAndHTTPParity(t *testing.T) {
 	}
 }
 
+type startupWriter struct {
+	bytes.Buffer
+	cancel context.CancelFunc
+}
+
+func (w *startupWriter) Write(p []byte) (int, error) {
+	n, err := w.Buffer.Write(p)
+	if strings.Contains(w.Buffer.String(), "Press Ctrl+C") {
+		w.cancel()
+	}
+	return n, err
+}
+
+func TestPersistentCLIStartupAndShutdown(t *testing.T) {
+	dir := t.TempDir()
+	for i := 0; i < 2; i++ {
+		listener, err := net.Listen("tcp", "127.0.0.1:0")
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, port, err := net.SplitHostPort(listener.Addr().String())
+		listener.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+		ctx, cancel := context.WithCancel(context.Background())
+		out := &startupWriter{cancel: cancel}
+		var errOut bytes.Buffer
+		code := cli.Run(ctx, []string{"--data-dir", dir, "--port", port}, out, &errOut)
+		cancel()
+		if code != 0 || !strings.Contains(out.String(), "http://127.0.0.1:"+port) || !strings.Contains(out.String(), "Local data is preserved") {
+			t.Fatalf("startup/shutdown: %d %s %s", code, out.String(), errOut.String())
+		}
+	}
+	if _, err := os.Stat(filepath.Join(dir, "tesouro-lab.db")); err != nil {
+		t.Fatal(err)
+	}
+	var out, errOut bytes.Buffer
+	if code := cli.Run(context.Background(), []string{"--data-dir", filepath.Join(dir, "tesouro-lab.db")}, &out, &errOut); code == 0 || !strings.Contains(errOut.String(), "Unable to initialize local storage") {
+		t.Fatalf("missing storage error: %d %s", code, errOut.String())
+	}
+}
+
 func TestHTTPErrorsAndAssets(t *testing.T) {
 	s, err := app.OpenDemo(context.Background())
 	if err != nil {
@@ -99,10 +145,11 @@ func TestHTTPErrorsAndAssets(t *testing.T) {
 
 func TestCLIRejectsUnavailableAndInvalidCommands(t *testing.T) {
 	for _, args := range [][]string{
-		nil, {"sync"}, {"unknown"}, {"analyze", app.DemoBond, "--yield", "8.88"},
+		{"sync"}, {"unknown"}, {"analyze", app.DemoBond, "--yield", "8.88"},
 		{"analyze", app.DemoBond, "--source", "demo", "--yield", "NaN"},
 		{"analyze", app.DemoBond, "--source", "demo", "--yield", "8.88", "extra"},
 		{"demo", "--port", "0"}, {"demo", "--port", "65536"},
+		{"--port", "0"}, {"demo", "--data-dir", "unused"},
 	} {
 		var out, errOut bytes.Buffer
 		if cli.Run(context.Background(), args, &out, &errOut) == 0 {

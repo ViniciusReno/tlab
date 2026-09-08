@@ -6,6 +6,9 @@ import (
 	"database/sql"
 	"fmt"
 	"io/fs"
+	"net/url"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -18,13 +21,49 @@ type Store struct{ db *sql.DB }
 
 // OpenMemory creates a connection-private database; it never reads a user data path.
 func OpenMemory(ctx context.Context, assets fs.FS) (*Store, error) {
-	db, err := sql.Open("sqlite", ":memory:")
+	return open(ctx, ":memory:", assets)
+}
+
+// OpenPersistent opens a fixed database filename in a locally selected directory.
+func OpenPersistent(ctx context.Context, directory string, assets fs.FS) (*Store, error) {
+	if directory == "" {
+		return nil, fmt.Errorf("data directory is required")
+	}
+	directory, err := filepath.Abs(directory)
+	if err != nil {
+		return nil, err
+	}
+	if err := os.MkdirAll(directory, 0700); err != nil {
+		return nil, err
+	}
+	path := filepath.Join(directory, "tesouro-lab.db")
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0600)
+	if err != nil {
+		return nil, err
+	}
+	if err := f.Close(); err != nil {
+		return nil, err
+	}
+	// Encode reserved URI characters so directory names cannot become SQLite options.
+	uriPath := filepath.ToSlash(path)
+	if !strings.HasPrefix(uriPath, "/") {
+		uriPath = "/" + uriPath
+	}
+	uri := url.URL{Scheme: "file", Path: uriPath}
+	return open(ctx, uri.String(), assets)
+}
+
+func open(ctx context.Context, dsn string, assets fs.FS) (*Store, error) {
+	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		return nil, err
 	}
 	db.SetMaxOpenConns(1)
 	s := &Store{db: db}
-	if _, err = db.ExecContext(ctx, "PRAGMA foreign_keys = ON"); err == nil {
+	if _, err = db.ExecContext(ctx, "PRAGMA busy_timeout = 5000"); err == nil {
+		_, err = db.ExecContext(ctx, "PRAGMA foreign_keys = ON")
+	}
+	if err == nil {
 		err = s.migrate(ctx, assets)
 	}
 	if err != nil {
@@ -35,6 +74,12 @@ func OpenMemory(ctx context.Context, assets fs.FS) (*Store, error) {
 }
 
 func (s *Store) Close() error { return s.db.Close() }
+
+func (s *Store) HasQuotes(ctx context.Context) (bool, error) {
+	var exists bool
+	err := s.db.QueryRowContext(ctx, "SELECT EXISTS(SELECT 1 FROM market_quotes)").Scan(&exists)
+	return exists, err
+}
 
 func (s *Store) migrate(ctx context.Context, assets fs.FS) error {
 	if _, err := s.db.ExecContext(ctx, "CREATE TABLE IF NOT EXISTS schema_migrations (version INTEGER PRIMARY KEY)"); err != nil {
