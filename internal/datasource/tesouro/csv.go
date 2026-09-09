@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/ViniciusReno/tlab/internal/bond"
 )
@@ -38,82 +39,116 @@ func sourceDate(s string) (time.Time, error) {
 	return d, nil
 }
 
-// Parse reads a bounded CSV. M1 accepts only the implemented no-coupon Prefixado.
+// MaxDatasetBytes bounds the official CSV (about 14 MiB at M2.2 verification).
+const MaxDatasetBytes = 32 << 20
+
+// Dataset reports excluded instrument rows explicitly; only Prefixado is imported in M2.
+type Dataset struct {
+	Quotes      []bond.Quote
+	Unsupported map[string]int
+}
+
+// Parse is the strict, small-fixture entry point used by the offline demo.
 func Parse(r io.Reader, source string) ([]bond.Quote, error) {
-	const limit = 1 << 20
+	result, err := parse(r, source, 1<<20, false)
+	return result.Quotes, err
+}
+
+// ParseDataset validates a mixed official CSV without approximating other instruments.
+// On failure it returns no partial results. It performs no network or storage I/O.
+func ParseDataset(r io.Reader, source string) (Dataset, error) {
+	return parse(r, source, MaxDatasetBytes, true)
+}
+
+func parse(r io.Reader, source string, limit int64, mixed bool) (Dataset, error) {
 	data, err := io.ReadAll(io.LimitReader(r, limit+1))
 	if err != nil {
-		return nil, err
+		return Dataset{}, err
 	}
-	if len(data) > limit || source == "" {
-		return nil, bond.InvalidInput
+	if int64(len(data)) > limit || strings.TrimSpace(source) == "" || !utf8.Valid(data) {
+		return Dataset{}, bond.InvalidInput
 	}
 	reader := csv.NewReader(strings.NewReader(strings.TrimPrefix(string(data), "\ufeff")))
 	reader.Comma = ';'
 	headers, err := reader.Read()
 	if err != nil {
-		return nil, bond.SchemaChanged
+		return Dataset{}, bond.SchemaChanged
 	}
 	indexes := map[string]int{}
 	for i, name := range headers {
 		if _, exists := indexes[name]; exists {
-			return nil, bond.SchemaChanged
+			return Dataset{}, bond.SchemaChanged
 		}
 		indexes[name] = i
 	}
 	required := []string{"Tipo Titulo", "Data Vencimento", "Data Base", "Taxa Compra Manha", "Taxa Venda Manha", "PU Compra Manha", "PU Venda Manha", "PU Base Manha"}
 	for _, name := range required {
 		if _, ok := indexes[name]; !ok {
-			return nil, bond.SchemaChanged
+			return Dataset{}, bond.SchemaChanged
 		}
 	}
-	var quotes []bond.Quote
+	result := Dataset{Unsupported: make(map[string]int)}
 	for {
 		row, err := reader.Read()
 		if err == io.EOF {
 			break
 		}
 		if err != nil {
-			return nil, bond.InvalidInput
+			return Dataset{}, bond.InvalidInput
 		}
 		field := func(name string) string { return row[indexes[name]] }
-		if field("Tipo Titulo") != "Tesouro Prefixado" {
-			return nil, bond.Unsupported
+		name := field("Tipo Titulo")
+		if strings.TrimSpace(name) == "" {
+			return Dataset{}, bond.InvalidInput
+		}
+		if name != "Tesouro Prefixado" && !mixed {
+			return Dataset{}, bond.Unsupported
 		}
 		maturity, err := sourceDate(field("Data Vencimento"))
 		if err != nil {
-			return nil, err
+			return Dataset{}, err
 		}
 		date, err := sourceDate(field("Data Base"))
 		if err != nil {
-			return nil, err
+			return Dataset{}, err
 		}
 		if !date.Before(maturity) {
-			return nil, bond.InvalidInput
+			return Dataset{}, bond.InvalidInput
+		}
+		if name != "Tesouro Prefixado" {
+			// Validate source syntax even for excluded rows. Do not create domain
+			// prices or apply Prefixado validity rules to unsupported instruments.
+			for _, column := range required[3:] {
+				if _, err := Number(field(column)); err != nil {
+					return Dataset{}, err
+				}
+			}
+			result.Unsupported[name]++
+			continue
 		}
 		q := bond.Quote{Bond: bond.Bond{ID: "prefixado:" + maturity.Format(time.DateOnly), Kind: "prefixado", Name: field("Tipo Titulo"), Maturity: maturity}, Date: date, Source: source}
 		targets := []**float64{&q.BuyYield, &q.SellYield, &q.BuyPU, &q.SellPU, &q.BasePU}
 		for i, name := range required[3:] {
 			n, err := Number(field(name))
 			if err != nil {
-				return nil, err
+				return Dataset{}, err
 			}
 			if n != nil {
 				if i < 2 {
 					*n /= 100
 					if !bond.ValidYield(*n) {
-						return nil, bond.InvalidInput
+						return Dataset{}, bond.InvalidInput
 					}
 				} else if !bond.Positive(*n) {
-					return nil, bond.InvalidInput
+					return Dataset{}, bond.InvalidInput
 				}
 			}
 			*targets[i] = n
 		}
-		quotes = append(quotes, q)
+		result.Quotes = append(result.Quotes, q)
 	}
-	if len(quotes) == 0 {
-		return nil, bond.MissingQuote
+	if len(result.Quotes) == 0 && len(result.Unsupported) == 0 {
+		return Dataset{}, bond.MissingQuote
 	}
-	return quotes, nil
+	return result, nil
 }

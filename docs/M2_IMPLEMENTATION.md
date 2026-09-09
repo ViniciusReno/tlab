@@ -30,4 +30,17 @@ New deterministic tests cover persisted quotes across reopen, migration idempote
 
 This step does not implement CKAN access, synchronization, synchronized scenarios, market history, freshness, or expanded calendars. `sync` and `analyze --source synced` remain explicitly unavailable. A database already containing quotes shows a status page; browsing is still pending. No browser interaction or cross-platform execution was verified in this step. CI and release publication remain unverified.
 
-Next bounded step: verify the official CKAN datasource contract and add small provenance-documented parser fixtures (M2.2). See [next steps](NEXT_STEPS.md).
+The subsequent M2.2 checkpoint is recorded below. See [next steps](NEXT_STEPS.md).
+
+## M2.2 — official datasource contract (2026-09-08)
+
+Verified the official CKAN API, metadata PDF, and downloaded CSV. Added unmodified API metadata and a ten-row raw CSV extract with hashes, line numbers, provenance, and source license attribution. See the [contract](OFFICIAL_DATASOURCE.md) and [fixture notes](../internal/datasource/tesouro/testdata/README.md).
+
+`ParseDataset` reads up to 32 MiB, validates source formatting, returns no-coupon Prefixado quotes, and counts excluded instrument names. The strict demo parser retains its 1 MiB limit and embedded data. No dependencies, database migrations, financial formulas, or calendar rules changed.
+
+A one-off local check of the downloaded 14,474,206-byte CSV passed: 28,080 accepted Prefixado rows and 147,788 excluded rows. The temporary check was removed; routine tests use only committed fixtures and synthetic edge cases. The CKAN historical row and the demo methodology example differ, so their provenance and values remain separate. This is ingestion validation, not independent scenario validation.
+
+The next bounded step is M2.3 synchronization. CKAN discovery/download, sync status, and transactional integration remain pending; `sync` and synchronized analysis are still unavailable.
+
+
+M2.2 final validation on 2026-09-09 (macOS/arm64): `go fmt ./...`, `go vet ./...`, `go test ./...`, `go test -race ./...`, `CGO_ENABLED=0 go build -trimpath -o /private/tmp/tlab-m22-parser ./cmd/tesouro-lab`, and `git diff --check`. Sandbox restrictions initially blocked Go cache access and the existing CLI loopback test; the required checks were rerun with access. Cross-platform execution and remote CI were not verified.

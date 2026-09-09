@@ -2,7 +2,7 @@
 
 A local educational lab for Brazilian government bonds, built around official data, transparent calculations, and hypothetical scenarios.
 
-**Status: M1 offline Prefixado demo and M2.1 persistent storage implemented.** Run from source or build a local executable. No downloadable release has been published yet; the remaining V1 milestones are planned.
+**Status: M1 offline Prefixado demo, M2.1 persistent storage, and M2.2 datasource parsing implemented.** Run from source or build a local executable. No downloadable release has been published yet; the remaining V1 milestones are planned.
 
 Tesouro Lab helps beginners understand bond prices and yield changes while letting technical readers inspect the same inputs, formulas, calendars, and results. It does not recommend investments, predict yields, or execute transactions.
 
@@ -133,6 +133,7 @@ The [CI workflow](.github/workflows/ci.yml) covers formatting, static analysis, 
 
 - [V1 specification](docs/V1_SPEC.md): product scope, calculations, data semantics, and acceptance criteria.
 - [M1 implementation](docs/M1_IMPLEMENTATION.md): available behavior, package boundaries, validation, and limitations.
+- [Official datasource contract](docs/OFFICIAL_DATASOURCE.md): verified CKAN/CSV contract and parser limitations.
 - [Next steps](docs/NEXT_STEPS.md): current checkpoint and ordered implementation checklist through V1.
 - [Contributing](CONTRIBUTING.md): language policy, development workflow, checks, and review expectations.
 - [Agent instructions](AGENTS.md): mandatory rules for automated contributors.
