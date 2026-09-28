@@ -280,20 +280,36 @@
     "bond_id": "prefixado:2027-01-01",
     "quote_date": "2024-11-19",
     "basis": "early_exit",
-    "settlement_date": "2024-11-21",
-    "business_days": 529,
+    "settlement_date": "2024-11-19",
+    "business_days": 530,
     "days_by_year": {
-      "2024": 28,
+      "2024": 29,
       "2025": 252,
       "2026": 249
     },
     "calendar_version": "anbima-2002-2032-v1",
     "base_pu": 765.76,
     "base_yield": 0.1353,
-    "theoretical_pu": 766.1457540959225,
-    "truncated_difference": 0.38,
-    "validation_status": "calculation_not_validated",
-    "shocks": []
+    "theoretical_pu": 765.7600514281711,
+    "truncated_difference": 0.0,
+    "validation_status": "validated",
+    "shocks": [
+      {
+        "yield": 0.1253,
+        "pu": 780.1421531841862,
+        "variation": 0.018781541454484765
+      },
+      {
+        "yield": 0.1353,
+        "pu": 765.76,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.1453,
+        "pu": 751.76565032995,
+        "variation": -0.018275111875848876
+      }
+    ]
   },
   {
     "bond_id": "prefixado:2032-01-01",
@@ -375,10 +391,10 @@
     "bond_id": "prefixado:2032-01-01",
     "quote_date": "2026-09-04",
     "basis": "early_exit",
-    "settlement_date": "2026-09-08",
-    "business_days": 1331,
+    "settlement_date": "2026-09-04",
+    "business_days": 1332,
     "days_by_year": {
-      "2026": 79,
+      "2026": 80,
       "2027": 251,
       "2028": 248,
       "2029": 249,
@@ -388,9 +404,25 @@
     "calendar_version": "anbima-2002-2032-v1",
     "base_pu": 490.42,
     "base_yield": 0.1443,
-    "theoretical_pu": 490.6899084547349,
-    "truncated_difference": 0.26,
-    "validation_status": "calculation_not_validated",
-    "shocks": []
+    "theoretical_pu": 490.42751192335743,
+    "truncated_difference": 0.0,
+    "validation_status": "validated",
+    "shocks": [
+      {
+        "yield": 0.1343,
+        "pu": 513.7089537612195,
+        "variation": 0.047487773258063526
+      },
+      {
+        "yield": 0.1443,
+        "pu": 490.42,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.1543,
+        "pu": 468.37588629877575,
+        "variation": -0.044949459037609066
+      }
+    ]
   }
 ]

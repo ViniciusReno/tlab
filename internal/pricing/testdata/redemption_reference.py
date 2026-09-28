@@ -1,4 +1,4 @@
-"""Independent evidence for a proposed settlement amendment, not runtime policy.
+"""Independent evidence for the approved settlement amendment, not runtime policy.
 
 Print fixed expectations with 60-digit Decimal arithmetic; no production Go code.
 """

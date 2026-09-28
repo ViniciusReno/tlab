@@ -11,8 +11,8 @@ import (
 	"github.com/ViniciusReno/tlab/internal/datasource/tesouro"
 )
 
-// This test preserves contradictory evidence; it does not authorize a new
-// runtime settlement convention or certify the mismatching official rows.
+// This test preserves both matching and contradictory evidence independently
+// of the approved runtime convention. Mismatching rows remain unavailable.
 func TestRedemptionTransitionEvidence(t *testing.T) {
 	cal := expandedCalendar(t)
 	f, err := os.Open("testdata/redemption-transition.csv")

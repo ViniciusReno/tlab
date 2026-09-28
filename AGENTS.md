@@ -240,7 +240,7 @@ Never treat the three official PUs as interchangeable:
 
 ```text
 PU Compra = purchase quote, D+1
-PU Venda  = early-redemption quote, D+1
+PU Venda  = morning early-redemption quote, D+1 before 2021-09-13; D0 thereafter
 PU Base   = mark-to-market valuation, D0
 ```
 
@@ -319,8 +319,10 @@ Supported zero-coupon scenarios are anchored to the official PU/yield pair for t
 ```text
 purchase:       BuyPU  + BuyYield  + D+1
 mark_to_market: BasePU + SellYield + D0
-early_exit:     SellPU + SellYield + D+1
+early_exit:     SellPU + SellYield + D+1 before 2021-09-13; D0 thereafter
 ```
+
+The maintainer-approved M2 settlement amendment models morning quotes under normal market conditions. Synchronized Prefixado early-redemption scenarios must first validate the standalone theoretical PU, truncated to two decimals, against SellPU with absolute difference <= BRL 0.01. Mismatches return `calculation_not_validated`; never fit the convention to the price or alter the verified calendar. After-13:00 requests and suspended trading are not modeled. See `docs/M2_SETTLEMENT_DECISION.md`.
 
 Use:
 

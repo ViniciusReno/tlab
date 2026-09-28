@@ -6,14 +6,14 @@ Attribution: Tesouro Nacional / Tesouro Transparente. These source extracts reta
 
 ## Official inputs and verified terms
 
-`scenarios.json` fixes quote context, settlement, calendar version, independent DU, annual DU contributions, original normalized PU/yield, standalone theoretical PU, and expected nonzero-shock outputs. Yields are annual decimal fractions and PU is BRL per bond. All three contexts use the locked V1 contract: purchase uses BuyPU/BuyYield/D+1, mark-to-market uses BasePU/SellYield/D0, and early redemption uses SellPU/SellYield/D+1.
+`scenarios.json` fixes quote context, settlement, calendar version, independent DU, annual DU contributions, original normalized PU/yield, standalone theoretical PU, and expected nonzero-shock outputs. Yields are annual decimal fractions and PU is BRL per bond. Purchase uses BuyPU/BuyYield/D+1, mark-to-market uses BasePU/SellYield/D0, and morning early redemption uses SellPU/SellYield/D+1 before 2021-09-13 and D0 thereafter under the approved settlement amendment.
 
 | Quote date | Maturity | D+1 settlement | D+1 DU | D0 DU | Standalone validation |
 |---|---|---|---:|---:|---|
 | 2012-01-03 | 2015-01-01 | 2012-01-04 | 755 | 756 | All three contexts |
 | 2016-02-05 | 2018-01-01 | 2016-02-10 | 475 | 476 | All three contexts; Carnival boundary |
-| 2024-11-19 | 2027-01-01 | 2024-11-21 | 529 | 530 | Purchase and base; November 20 holiday |
-| 2026-09-04 | 2032-01-01 | 2026-09-08 | 1331 | 1332 | Purchase and base; weekend and September 7 holiday |
+| 2024-11-19 | 2027-01-01 | 2024-11-21 | 529 | 530 | All three contexts; November 20 holiday |
+| 2026-09-04 | 2032-01-01 | 2026-09-08 | 1331 | 1332 | All three contexts; weekend and September 7 holiday |
 
 The raw 2012 CKAN quote is distinct from the original methodology demo. All expectations here use the CKAN values, without replacing the demo baseline.
 
@@ -35,21 +35,12 @@ python3 internal/pricing/testdata/reference.py
 
 Go tests load the committed values directly. Standalone validation truncates to two decimals and requires absolute difference <= BRL 0.01. Scenario PU and zero-shock tolerances are absolute BRL 1e-9; yield/fractional-change tolerances are 1e-12. No intermediate display rounding is used. Nonzero shocks must detect both +1 and -1 DU errors in PU and variation.
 
-## Known source/specification discrepancy
+## Resolved settlement discrepancy and remaining historical limits
 
-The two recent early-redemption cases are explicitly marked `calculation_not_validated` and contain no accepted shock expectations. They are regression evidence of a failed standalone validation, not fixtures made to pass by changing the calendar or tolerance:
+The previous unconditional D+1 rule missed the recent 2024 and 2026 SellPUs by BRL 0.38 and BRL 0.26 respectively. The approved morning-quote D0 rule now validates both records, with independent zero and ±100 bps shock expectations in `scenarios.json`. The original official CSV is unchanged. The [approved decision](../../../docs/M2_SETTLEMENT_DECISION.md) explains why the metadata's unconditional D+1 wording is no longer the runtime contract.
 
-| Quote / maturity | Official SellPU | D+1 theoretical PU, truncated | Difference |
-|---|---:|---:|---:|
-| 2024-11-19 / 2027-01-01 | BRL 765.76 | BRL 766.14 | BRL 0.38 |
-| 2026-09-04 / 2032-01-01 | BRL 490.42 | BRL 490.68 | BRL 0.26 |
+`redemption-transition.csv` preserves ten additional raw official records from 2021-09-10 and 2021-09-13, with source/extract hashes and original line numbers in `redemption-transition-provenance.json`. They retain Tesouro Nacional attribution and ODbL terms. `redemption_reference.py` prints independent 60-digit expectations stored in `redemption-transition.json`; normal Go tests consume fixed values without network access or Python.
 
-Those source SellPUs equal BasePU and match the standalone D0 calculation after truncation. The [metadata PDF](https://www.tesourotransparente.gov.br/ckan/dataset/df56aa42-484a-4a59-8184-7676580c81e3/resource/1a8eb2e3-4902-4a38-a1eb-6410f23d90de/download/taxa.pdf) still describes SellPU as D+1. An [official announcement dated 2021-09-13](https://www.gov.br/tesouronacional/pt-br/noticias/tesouro-direto-passa-a-ter-resgate-no-mesmo-dia/) describes D0 redemption for requests before 13:00 under normal market conditions. This is evidence worth investigating; that announcement alone does not establish a universal historical mapping for the CSV column.
+The transition evidence compares both conventions and deliberately retains failures. Three maturities validate D+1 before the transition and D0 after it. Four longer-maturity records fail with the unchanged verified calendar and remain `calculation_not_validated` in the application. Diagnostic shocks for those mismatching rows are mathematical evidence only, not enabled scenarios. The application selects settlement by date and then validates the official SellPU; it never picks whichever convention fits a price.
 
-The locked V1 D+1 rule is preserved. The production basis resolver follows that rule; it is not a runtime standalone-validation gate and does not reinterpret recent rows as D0. M2.5b enables synchronized purchase/base scenarios. The application service blocks all synchronized early-redemption scenarios with `calculation_not_validated` after resolving the required pair and term, including older rows, until an explicit historical settlement contract is validated. It does not infer a safe transition date. Before enabling recent early-redemption scenarios, reconcile the source contract with the maintainer and add official transition fixtures; do not silently change settlement, widen tolerances, or infer a historical switch from PU equality. Purchase/base validation and historical early-redemption validation remain useful independently of this unresolved case.
-
-## Transition evidence added during the M2 closure review
-
-`redemption-transition.csv` preserves ten additional raw official records from 2021-09-10 and 2021-09-13, with source/extract hashes and original line numbers in `redemption-transition-provenance.json`. They retain Tesouro Nacional attribution and the ODbL terms above. `redemption_reference.py` prints independent 60-digit expectations stored in `redemption-transition.json`; normal Go tests use those fixed values without network access or Python.
-
-These fixtures compare both settlement conventions and deliberately preserve failures. Diagnostic shocks for a mismatching baseline do not certify its settlement contract. Three maturities support a D+1-to-D0 transition; two longer maturities also expose a historical-calendar discrepancy. See the [proposed decision](../../../docs/M2_SETTLEMENT_DECISION.md). Production early-redemption scenarios remain blocked pending approval and implementation; these fixtures alone do not change runtime policy.
+Historical knowledge of future holidays can differ from the current fixture. No holiday is removed and no historical calendar is inferred to force a match. The six matching transition records and four original quote-context fixtures cover both directions of hypothetical yield shocks. PU tolerances remain BRL 1e-9 for scenario comparisons and BRL 0.01 for truncated standalone validation; fractional variation uses 1e-12.

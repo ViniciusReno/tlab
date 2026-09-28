@@ -2,7 +2,7 @@
 
 A local educational lab for Brazilian government bonds, built around official data, transparent calculations, and hypothetical scenarios.
 
-**Status: M1 offline Prefixado demo, M2 official synchronization, market/history browsing, and M2.5b synchronized purchase/base scenarios implemented.** M2.4 calendar/context validation retains an unresolved early-redemption discrepancy; synchronized early-redemption scenarios remain unavailable. Run from source or build a local executable. No downloadable release has been published yet; the remaining V1 milestones are planned.
+**Status: M1 and M2 implemented.** Official synchronization, market/history, dataset-age warnings, and Prefixado scenarios are available. Morning early-redemption scenarios use the approved historical settlement rule and per-record PU validation; mismatching rows remain explicitly unavailable. Run from source or build a local executable. No downloadable release has been published; M3–M5 remain planned.
 
 Tesouro Lab helps beginners understand bond prices and yield changes while letting technical readers inspect the same inputs, formulas, calendars, and results. It does not recommend investments, predict yields, or execute transactions.
 
@@ -42,7 +42,7 @@ The compiled demo works offline without Go. Demo changes are temporary: each pro
 
 ## Persistent local storage
 
-Run `go run ./cmd/tesouro-lab` (or `./tesouro-lab` after building) to create/open the local database and start the server. Persistent mode opens the market screen with locally stored quotes, or an empty state before import. Purchase and official base PU scenarios use the stored quotes. No demo quotes are copied into persistent storage.
+Run `go run ./cmd/tesouro-lab` (or `./tesouro-lab` after building) to create/open the local database and start the server. Persistent mode opens the market screen with locally stored quotes, or an empty state before import. Purchase, official base PU, and validated morning early-redemption scenarios use the stored quotes. No demo quotes are copied into persistent storage.
 
 The database filename is `tesouro-lab.db`. The default directory follows Go's `os.UserConfigDir` convention:
 
@@ -68,13 +68,13 @@ The command discovers the official CSV through CKAN, imports no-coupon Prefixado
 
 Repeated imports update the same bond/date records without duplicates. Missing fields remain unavailable. Failed downloads, parsing, or database writes preserve prior quotes and produce a failed report and nonzero exit code. Run status is stored separately in `sync_runs`; no background sync or HTTP sync endpoint exists. Demo mode remains isolated and offline.
 
-Downloads require internet access and are limited to the official HTTPS host, 1 MiB of metadata, 32 MiB of CSV, and 60 seconds per HTTP request including redirects and body reading. Reload the market screen after importing. M2.4 adds a verified 2002–2032 calendar and independent context fixtures; the demo retains its original 2012–2015 calendar. Recent early-redemption quotes do not yet validate under the locked D+1 rule. See the [validation evidence](internal/pricing/testdata/README.md).
+Downloads require internet access and are limited to the official HTTPS host, 1 MiB of metadata, 32 MiB of CSV, and 60 seconds per HTTP request including redirects and body reading. Reload the market screen after importing. M2.4 adds a verified 2002–2032 calendar and independent context fixtures; the demo retains its original 2012–2015 calendar. Morning early-redemption scenarios use D+1 before 2021-09-13 and D0 thereafter, with per-record validation. Historical calendar discrepancies can leave individual scenarios unavailable. See the [validation evidence](internal/pricing/testdata/README.md).
 
 ### Browse market and history
 
 Open `/market` (also the persistent server's home page). The default list shows non-matured Prefixado bonds with the latest stored purchase quote and its official date. States distinguish the dataset's latest date, older quotes, missing purchase fields, and unknown freshness when successful-import metadata is absent. Import time is displayed separately and never treated as a market date.
 
-Choose **Include matured bonds** to find historical titles. Matured rows show their maturity date and direct you to history instead of displaying a current price. Select a bond to view `/history?bond=<bond-id>`, with 100 records per page and an **Older records** link. Missing dates and fields are never filled. Advanced details expose the distinct buy/sell/base fields and each record's source/import timestamp. Both views work offline after synchronization and without JavaScript. Purchase and official base PU scenario links preserve the exact quote date and context, including historical scenarios for matured bonds.
+Choose **Include matured bonds** to find historical titles. Matured rows show their maturity date and direct you to history instead of displaying a current price. Select a bond to view `/history?bond=<bond-id>`, with 100 records per page and an **Older records** link. Missing dates and fields are never filled. Advanced details expose the distinct buy/sell/base fields and each record's source/import timestamp. Both views work offline after synchronization and without JavaScript. Purchase, official base PU, and early-redemption scenario links preserve the exact quote date and context, including historical scenarios for matured bonds.
 
 ### Dataset age
 
@@ -96,7 +96,7 @@ Docker may become an optional convenience later. It is not the primary installat
 
 ## V1 scope
 
-The table describes the target V1, not today's complete feature set. Prefixado demo scenarios and synchronized market/history browsing are implemented; IPCA+, Selic, synchronized early-redemption scenarios, and portfolios are not yet available.
+The table describes the target V1, not today's complete feature set. Prefixado demo scenarios and synchronized market/history browsing are implemented; IPCA+, Selic, and portfolios are not yet available. Early-redemption rows that fail validation remain unavailable.
 
 | Instrument | Supported behavior |
 |---|---|
@@ -125,7 +125,7 @@ All authored repository content and the application interface are in English. Of
 | `tesouro-lab sync [--data-dir PATH]` | Import official Prefixado quotes and print a JSON success/failure report |
 | `tesouro-lab analyze <bond-id> --source demo|synced --yield <percent>` | Run the same scenario calculation used by the browser |
 
-`analyze` accepts `--source demo|synced`, `--basis purchase|mark_to_market|early_exit`, `--date YYYY-MM-DD`, and an optional `--amount` in BRL. For example, `--yield 12.00` means 12% per year. The source defaults to `synced`, reading existing local quotes without syncing. Use `--data-dir PATH` for a custom synchronized database; demo analysis rejects this flag. The default context is purchase and the default date is the latest available quote for the bond. The resolved quote date is reported. An explicit missing date or incomplete context returns `missing_quote`, without searching backward. The demo fixture has no base/sell quotes; those contexts return `missing_quote`. Synchronized early redemption returns `calculation_not_validated` when the required quote pair and term are present, pending settlement validation. Analysis never triggers synchronization automatically.
+`analyze` accepts `--source demo|synced`, `--basis purchase|mark_to_market|early_exit`, `--date YYYY-MM-DD`, and an optional `--amount` in BRL. For example, `--yield 12.00` means 12% per year. The source defaults to `synced`, reading existing local quotes without syncing. Use `--data-dir PATH` for a custom synchronized database; demo analysis rejects this flag. The default context is purchase and the default date is the latest available quote for the bond. The resolved quote date is reported. An explicit missing date or incomplete context returns `missing_quote`, without searching backward. The demo fixture has no base/sell quotes; those contexts return `missing_quote`. Synchronized early redemption validates the selected SellPU/yield against the standalone theoretical PU (truncated to two decimals, tolerance BRL 0.01), then uses the official SellPU for the anchored scenario. A mismatch returns `calculation_not_validated` without substituting another quote or calendar. Analysis never triggers synchronization automatically.
 
 After synchronization, reproduce a hypothetical scenario using an exact historical quote (the record must exist locally):
 
@@ -144,10 +144,12 @@ The source dataset distinguishes three unit prices (PU):
 | Source field | Meaning | Settlement |
 |---|---|---|
 | `PU Compra Manha` | Purchase quote | Next financial-market business day, D+1 |
-| `PU Venda Manha` | Early-redemption quote | Next financial-market business day, D+1 |
+| `PU Venda Manha` | Morning early-redemption quote | D+1 before 2021-09-13; D0 on/after that date |
 | `PU Base Manha` | Portfolio mark-to-market valuation | Quote date, D0 |
 
 Portfolio valuation uses the official base unit price. Hypothetical early redemption uses the official sell unit price. Every current-looking value includes its official quote date; the import timestamp is not a market date. Portfolio and early-exit values are gross.
+
+The early-redemption model covers morning quotes under normal market conditions. It does not model after-13:00 requests, suspended trading, or actual execution. The [approved settlement decision](docs/M2_SETTLEMENT_DECISION.md) documents the evidence and historical-calendar limitations. Results expose the settlement convention and version separately from the unchanged pricing formula.
 
 Source metadata, formulas, and limitations are documented in the [V1 specification](docs/V1_SPEC.md).
 
@@ -156,7 +158,7 @@ Source metadata, formulas, and limitations are documented in the [V1 specificati
 | Milestone | Demonstrable outcome |
 |---|---|
 | M1 — Implemented Prefixado demo | One command starts an offline demo; a user can change a yield and reproduce the result through the CLI |
-| M2 — Official data and dates | Idempotent synchronization, history, explicit quote contexts, and accurate freshness states |
+| M2 — Implemented official data and dates | Idempotent synchronization, history, explicit quote contexts, and accurate freshness states |
 | M3 — IPCA+ and Selic | Validated real-yield scenarios for IPCA+; explicitly limited Selic display/valuation |
 | M4 — Local portfolio | Quantity-only positions, optional acquisition cost, and gross Prefixado hold/early-exit comparison |
 | M5 — V1 completion | Market, Playground, Portfolio, and Learn screens; accessibility and release validation; all acceptance criteria met |

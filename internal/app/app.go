@@ -190,20 +190,22 @@ func (r Request) validate() error {
 
 type Result struct {
 	pricing.Result
-	BondID             string `json:"bond_id"`
-	Name               string `json:"name"`
-	Source             string `json:"source"`
-	Basis              string `json:"basis"`
-	QuoteDate          string `json:"quote_date"`
-	SettlementDate     string `json:"settlement_date"`
-	Maturity           string `json:"maturity"`
-	Provenance         string `json:"provenance"`
-	CalendarVersion    string `json:"calendar_version"`
-	FixtureVersion     string `json:"fixture_version,omitempty"`
-	ImportedAt         string `json:"imported_at,omitempty"`
-	DataDirectory      string `json:"data_directory,omitempty"`
-	CalculationVersion string `json:"calculation_version"`
-	BuildVersion       string `json:"build_version"`
+	BondID               string `json:"bond_id"`
+	Name                 string `json:"name"`
+	Source               string `json:"source"`
+	Basis                string `json:"basis"`
+	QuoteDate            string `json:"quote_date"`
+	SettlementDate       string `json:"settlement_date"`
+	Maturity             string `json:"maturity"`
+	Provenance           string `json:"provenance"`
+	CalendarVersion      string `json:"calendar_version"`
+	FixtureVersion       string `json:"fixture_version,omitempty"`
+	ImportedAt           string `json:"imported_at,omitempty"`
+	DataDirectory        string `json:"data_directory,omitempty"`
+	CalculationVersion   string `json:"calculation_version"`
+	SettlementVersion    string `json:"settlement_version"`
+	SettlementConvention string `json:"settlement_convention"`
+	BuildVersion         string `json:"build_version"`
 }
 
 func (s *Service) DefaultRequest(ctx context.Context) (Request, error) {
@@ -238,9 +240,10 @@ func (s *Service) Analyze(ctx context.Context, r Request) (Result, error) {
 	if err != nil {
 		return Result{}, err
 	}
-	// No historical transition is inferred from quote equality or announcement dates.
 	if s.source == "synced" && r.Basis == "early_exit" {
-		return Result{}, bond.CalculationNotValidated
+		if err := pricing.ValidateRedemption(basis); err != nil {
+			return Result{}, err
+		}
 	}
 	calculated, err := pricing.Scenario(pricing.Input{BasePU: basis.PU, BaseYield: basis.Yield, ScenarioYield: r.Yield, BusinessDays: basis.BusinessDays, Amount: r.Amount})
 	if err != nil {
@@ -252,7 +255,7 @@ func (s *Service) Analyze(ctx context.Context, r Request) (Result, error) {
 	}
 	return Result{Result: calculated, BondID: q.Bond.ID, Name: q.Bond.Name, Source: r.Source, Basis: r.Basis,
 		QuoteDate: q.Date.Format(time.DateOnly), SettlementDate: basis.Settlement.Format(time.DateOnly), Maturity: q.Bond.Maturity.Format(time.DateOnly),
-		Provenance: q.Source, ImportedAt: q.ImportedAt, DataDirectory: s.directory, CalendarVersion: s.calendar.Version, FixtureVersion: fixtureVersion, CalculationVersion: pricing.Version, BuildVersion: BuildVersion}, nil
+		Provenance: q.Source, ImportedAt: q.ImportedAt, DataDirectory: s.directory, CalendarVersion: s.calendar.Version, FixtureVersion: fixtureVersion, CalculationVersion: pricing.Version, SettlementVersion: pricing.SettlementVersion, SettlementConvention: basis.Convention, BuildVersion: BuildVersion}, nil
 }
 
 func Decimal(n float64) string { return strconv.FormatFloat(n, 'f', -1, 64) }

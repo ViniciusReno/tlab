@@ -65,8 +65,8 @@
   {{if not .Error}}
   <details class="panel technical">
     <summary>Advanced · official fields and provenance</summary>
-    <p>PU means unit price per bond. Official buy quote (PU Compra): purchase, D+1. Official sell quote (PU Venda): early redemption, D+1 under the locked V1 metadata convention. Official base PU (PU Base): mark-to-market valuation, D0. These fields are distinct and never substituted.</p>
-    <p>Recent sell quotes have a documented settlement-validation discrepancy. Values below are raw official fields; they do not imply validated early-redemption calculations.</p>
+    <p>PU means unit price per bond. Official buy quote (PU Compra): purchase, D+1. Official sell quote (PU Venda): morning early redemption, D+1 before 2021-09-13 and D0 on/after that date. Official base PU (PU Base): mark-to-market valuation, D0. These fields are distinct and never substituted.</p>
+    <p>Early-redemption scenarios require per-record validation. Historical calendar discrepancies can make a scenario unavailable even when the raw quote exists. Morning-quote scenarios do not model after-13:00 requests or suspended trading.</p>
     {{if .IsHistory}}{{range .History.Quotes}}{{template "quoteDetails" .}}{{end}}{{else}}{{range .Market.Quotes}}{{template "quoteDetails" .Quote}}{{end}}{{end}}
   </details>
   {{end}}
@@ -91,5 +91,6 @@
 {{end}}
 {{define "scenarioLinks"}}
 {{with scenarioURL . "purchase"}}<a href="{{.}}">Purchase quote scenario</a>{{else}}Purchase scenario unavailable{{end}}<br>
-{{with scenarioURL . "mark_to_market"}}<a href="{{.}}">Official base PU scenario</a>{{else}}Base PU scenario unavailable{{end}}
+{{with scenarioURL . "mark_to_market"}}<a href="{{.}}">Official base PU scenario</a>{{else}}Base PU scenario unavailable{{end}}<br>
+{{with scenarioURL . "early_exit"}}<a href="{{.}}">Check early-redemption scenario</a>{{else}}Early-redemption scenario unavailable{{end}}
 {{end}}

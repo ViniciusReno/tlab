@@ -1,6 +1,6 @@
-# M2 settlement decision — proposed, not approved
+# M2 settlement decision — approved
 
-Prepared on 2026-09-28. The locked V1 specification and runtime behavior remain unchanged. M2 cannot be marked complete until the maintainer accepts a resolution of its early-redemption requirement.
+Prepared and approved by the maintainer on 2026-09-28. The maintainer requested commit of the existing checkpoint before implementation; that checkpoint is `75ea157`. The amendment below now governs V1 and is implemented with per-record validation.
 
 ## Evidence
 
@@ -23,7 +23,7 @@ Longer maturities expose a separate historical-calendar issue:
 
 Investigation found that adding back the November 20 business days in 2024 and 2025 makes these four differences zero. This is consistent with the later introduction of the national holiday by [Law 14,759 of 2023](https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14759.htm). It is an explanatory hypothesis, not authorization to remove official holidays or reconstruct a historical calendar from prices. No such adjustment was made to production or the accepted fixtures.
 
-## Proposed amendment for maintainer approval
+## Approved amendment
 
 1. Amend V1 sections 8.8 in AGENTS.md and 14.3/17.4 in V1_SPEC.md, plus corresponding documentation: morning-quote early-redemption scenarios use SellPU/SellYield with D+1 before 2021-09-13 and D0 on/after that date. Purchase remains BuyPU/BuyYield/D+1; mark-to-market remains BasePU/SellYield/D0. Preserve these distinct official fields even where their numbers coincide.
 2. For synchronized Prefixado early-redemption scenarios, require standalone validation of the selected SellPU/yield and resolved DU before enabling the anchored scenario. Apply the existing truncated-PU tolerance of BRL 0.01 without widening it. Return `calculation_not_validated` for mismatches, including historical-calendar discrepancies. Do not select whichever convention happens to fit the row.
@@ -33,10 +33,10 @@ Investigation found that adding back the November 20 business days in 2024 and 2
 
 This proposal is intentionally limited to Prefixado M2. IPCA+ will need its own validated evidence in M3. M4 hold-versus-early-exit must use the approved settlement contract and retain unavailable states.
 
-## Alternative
+## Alternative considered (not selected)
 
 Keep all synchronized early-redemption scenarios blocked and explicitly defer their delivery as a milestone exception. This also needs maintainer acceptance to call M2 complete; it must not be described as full early-redemption support.
 
 ## Review validation
 
-The evidence test and repository checks passed locally: `go fmt ./...`, `go vet ./...`, `go test ./...`, `go test -race ./...`, and `git diff --check`. Formatting was rerun with cache access after a sandbox restriction. No production pricing, settlement policy, or calendar fixture was changed. No release, remote CI run, or cross-platform execution was performed.
+The evidence test and repository checks passed locally: `go fmt ./...`, `go vet ./...`, `go test ./...`, `go test -race ./...`, and `git diff --check`. Formatting was rerun with cache access after a sandbox restriction. These were the pre-approval evidence checks. Subsequent implementation changes the settlement policy and per-record gate, while preserving the pricing formula and calendar fixture; see M2_IMPLEMENTATION.md for closure validation. No release, remote CI run, or cross-platform execution was performed.

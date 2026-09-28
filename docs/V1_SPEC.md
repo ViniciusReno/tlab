@@ -249,7 +249,7 @@ PU Base Manha
 The official metadata assigns different settlement semantics to the three PU fields:
 
 - `PU Compra Manha`: investor purchase price, D+1 settlement;
-- `PU Venda Manha`: investor early-redemption price, D+1 settlement;
+- `PU Venda Manha`: investor morning early-redemption price, D+1 before 2021-09-13 and D0 thereafter (section 14.3);
 - `PU Base Manha`: mark-to-market valuation price, D0 settlement, using the sell rate.
 
 These fields are not interchangeable.
@@ -527,7 +527,7 @@ type MarketQuote struct {
     BuyYield    *float64
     SellYield   *float64
     BuyPU       *float64  // D+1
-    SellPU      *float64  // D+1
+    SellPU      *float64  // Morning redemption: D+1 before 2021-09-13, D0 thereafter
     BasePU      *float64  // D0 mark-to-market PU
     Source      string
     ImportedAt  time.Time
@@ -766,15 +766,20 @@ settlement = next Brazilian financial-market business day (D+1)
 
 ### 14.3 Hypothetical early exit
 
-For a user exploring an early redemption:
+For a user exploring a morning early-redemption quote under normal market conditions:
 
 ```text
 base_yield = official sell yield
 base_pu    = official sell PU
-settlement = next Brazilian financial-market business day (D+1)
+settlement = next financial-market business day (D+1) before 2021-09-13
+settlement = quote date (D0) on/after 2021-09-13
 ```
 
-This is not the same as portfolio MTM.
+This maintainer-approved amendment is supported by the official operational announcement and transition quote fixtures in [the settlement decision](M2_SETTLEMENT_DECISION.md). The metadata PDF's unconditional D+1 description is retained as source evidence, not applied as the current runtime rule. The mapping applies to morning quotes; it does not model requests after 13:00, suspended trading, or actual execution.
+
+For synchronized Prefixado early-redemption scenarios, first compute the standalone theoretical PU with the resolved term, truncate to two decimals, and require an absolute difference from official SellPU <= BRL 0.01. Otherwise return `calculation_not_validated`. Preserve numeric/maturity/calendar errors when their preconditions fail. Do not try a different settlement convention, substitute BasePU, widen tolerances, or remove holidays to fit the quote. Historical calendar discrepancies remain explicitly unavailable.
+
+Only then run the anchored scenario using the original official SellPU, not the theoretical validation PU. This is distinct from portfolio MTM even when SellPU equals BasePU. The IPCA+ milestone requires separate instrument-specific validation before enabling early-redemption scenarios.
 
 ### 14.4 Portfolio yield-shock scenario
 
@@ -896,7 +901,8 @@ Rules:
 - holidays come from a versioned local calendar fixture based on the ANBIMA national financial-market holiday calendar;
 - pricing day count is from settlement date **inclusive** to maturity date **exclusive**;
 - D+1 means the next date considered a business day by that calendar;
-- `PU Compra` and `PU Venda` scenarios use D+1 settlement;
+- `PU Compra` scenarios use D+1 settlement;
+- `PU Venda` morning scenarios use the date-dependent D+1/D0 contract in section 14.3;
 - `PU Base` mark-to-market scenarios use D0 settlement (`settlement_date = quote_date`);
 - no live calendar dependency is required at scenario runtime.
 
@@ -1077,7 +1083,7 @@ Advanced mode additionally shows when available:
 - purchase PU;
 - purchase yield;
 - current base PU (D0);
-- current sell PU (D+1);
+- current sell PU (morning settlement under section 14.3);
 - current sell yield;
 - quote date;
 - scenario settlement date;
@@ -1115,7 +1121,7 @@ gross_nominal_maturity_amount = q × BRL 1,000.00
 
 ### Path B — hypothetical early exit on the quote date
 
-Use the official sell PU (D+1), not PU Base:
+Use the official sell PU with the validated morning settlement contract in section 14.3, not PU Base:
 
 ```text
 gross_early_exit_value = quantity × official_sell_pu
@@ -1125,13 +1131,13 @@ Always show the official quote date.
 
 ### Break-even reinvestment
 
-Calculate the annualized gross reinvestment rate that would make the gross early-exit value reach the Prefixado nominal maturity amount over the remaining D+1-to-maturity business-day period:
+Calculate the annualized gross reinvestment rate that would make the gross early-exit value reach the Prefixado nominal maturity amount over the remaining validated settlement-to-maturity business-day period:
 
 ```text
 break_even_rate = (maturity_amount / early_exit_value)^(252 / DU) - 1
 ```
 
-where `DU` is counted from D+1 settlement inclusive to maturity exclusive.
+where `DU` is counted from the settlement resolved under section 14.3 inclusive to maturity exclusive.
 
 The comparison requires a positive finite quantity and official sell PU, positive finite maturity and early-exit amounts, settlement before maturity, and verified `DU > 0`. Apply the same `no_remaining_term` and `calculation_out_of_range` rules as the scenario engine. A contractual maturity amount may still be explained separately when the comparison is unavailable; do not display an annualized break-even rate for a zero or negative remaining term.
 

@@ -22,7 +22,7 @@ The downloaded CSV is UTF-8 without BOM, semicolon-delimited, with LF endings. T
 | `Taxa Compra Manha` | Purchase yield |
 | `Taxa Venda Manha` | Early-redemption / base-valuation yield |
 | `PU Compra Manha` | Purchase PU, D+1 |
-| `PU Venda Manha` | Early-redemption PU, D+1 |
+| `PU Venda Manha` | Morning early-redemption PU; metadata says D+1, runtime uses the approved date-dependent contract below |
 | `PU Base Manha` | Mark-to-market PU, D0 |
 
 Header order may change and extra columns are ignored; all eight columns must exist with unique names. Empty numeric cells remain unavailable, without replacing missing context pairs. Duplicate headers, duplicate supported bond/date rows, invalid UTF-8, malformed dates/numbers/row lengths, and nonpositive Prefixado PUs fail with no partial result. Duplicate rows are rejected rather than selecting an order-dependent winner; corrections between successful imports update the same natural key. Historical records are accepted based on their quote and maturity dates; today's date is irrelevant to parsing.
@@ -33,7 +33,7 @@ Unsupported rows still require valid dates, numeric syntax, and finite values, b
 
 ## Limits
 
-The fixtures validate ingestion only. They do not extend verified calendar coverage, validate new pricing scenarios, enable synchronized analysis, or change embedded demo values. M2.4 calendar/context validation is recorded in the [independent fixtures](../internal/pricing/testdata/README.md), including the unresolved recent SellPU/D+1 discrepancy. Ingestion retains all raw quote contexts without claiming every row has validated standalone pricing. M2.3 stores the CKAN endpoint, resource ID, final download URL, import timestamp, excluded counts, and maximum validated source quote date in each successful sync run. The maximum date includes excluded instruments. Quotes retain their final source URL and import timestamp. Failed runs preserve prior quotes and successful-run metadata. The local import timestamp does not establish market freshness; M2.5 market/history views distinguish missing, older, latest-in-dataset, and unknown-freshness states. M2.5c adds the conservative dataset-age warning documented below.
+The fixtures validate ingestion only. They do not extend verified calendar coverage, validate new pricing scenarios, enable synchronized analysis, or change embedded demo values. M2.4 calendar/context validation is recorded in the [independent fixtures](../internal/pricing/testdata/README.md), including the evidence for the approved SellPU settlement amendment and remaining historical-calendar limitations. Ingestion retains all raw quote contexts without claiming every row has validated standalone pricing. M2.3 stores the CKAN endpoint, resource ID, final download URL, import timestamp, excluded counts, and maximum validated source quote date in each successful sync run. The maximum date includes excluded instruments. Quotes retain their final source URL and import timestamp. Failed runs preserve prior quotes and successful-run metadata. The local import timestamp does not establish market freshness; M2.5 market/history views distinguish missing, older, latest-in-dataset, and unknown-freshness states. M2.5c adds the conservative dataset-age warning documented below.
 
 
 ## Dataset-age warning policy
@@ -49,3 +49,10 @@ The [official resource description](https://www.tesourotransparente.gov.br/ckan/
 For example, on local 2026-09-10 the expected base date is 2026-09-09. A stored 2026-09-08 dataset is one business day behind and does not warn. A 2026-09-04 dataset is two business days behind (September 8 and 9) and does warn; the weekend and September 7 holiday add no lag. This does not alter per-bond `latest`, `older_quote`, `no_quote`, or `matured` states. A bond can be latest within a dataset that itself appears stale.
 
 The embedded `anbima-2002-2032-v1` calendar is unchanged. The warning works offline, does not trigger sync, and does not certify that a quote is live when no warning is shown.
+
+
+## Approved morning-redemption settlement contract
+
+The maintainer approved the [M2 settlement amendment](M2_SETTLEMENT_DECISION.md) on 2026-09-28. The metadata's unconditional SellPU D+1 wording conflicts with the 2021 operational change and the transition records. Runtime Prefixado morning-redemption scenarios now use D+1 before 2021-09-13 and D0 thereafter, and require per-record standalone PU validation (truncated to cents; BRL 0.01 tolerance). The original official SellPU remains the scenario anchor. Historical-calendar mismatches return `calculation_not_validated`; raw history stays visible. This does not model actual execution, after-13:00 requests, or suspended trading. Purchase and BasePU contexts remain unchanged.
+
+The metadata PDF also explicitly states publication on the first business day after secondary-market close. This supports the previous-business-day reference in the dataset-age policy; no intraday publication time is assumed.

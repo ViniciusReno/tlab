@@ -63,12 +63,6 @@ func TestSyncedScenariosAgainstIndependentFixtures(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.BondID+"/"+tc.Basis, func(t *testing.T) {
 			r := Request{BondID: tc.BondID, Source: "synced", Basis: tc.Basis, Date: tc.QuoteDate, Yield: tc.BaseYield}
-			if tc.Basis == "early_exit" {
-				if _, err := s.Analyze(ctx, r); err != bond.CalculationNotValidated {
-					t.Fatalf("redemption gate: %v", err)
-				}
-				return
-			}
 			for _, shock := range tc.Shocks {
 				r.Yield = shock.Yield
 				out, err := s.Analyze(ctx, r)

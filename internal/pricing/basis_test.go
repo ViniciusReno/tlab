@@ -204,6 +204,9 @@ func TestQuoteContextMaturityAndCalendarBounds(t *testing.T) {
 		want                    error
 	}{
 		{"2016-02-05", "2016-02-10", "purchase", bond.NoRemainingTerm},
+		{"2026-09-04", "2026-09-08", "early_exit", nil},
+		{"2026-09-08", "2026-09-08", "early_exit", bond.NoRemainingTerm},
+		{"2026-09-05", "2026-09-08", "early_exit", bond.NoRemainingTerm},
 		{"2016-02-05", "2016-02-10", "early_exit", bond.NoRemainingTerm},
 		{"2016-02-05", "2016-02-10", "mark_to_market", nil},
 		{"2016-02-05", "2016-02-09", "purchase", bond.NoRemainingTerm},
@@ -225,5 +228,26 @@ func TestQuoteContextMaturityAndCalendarBounds(t *testing.T) {
 				t.Fatalf("got %v want %v", err, tc.want)
 			}
 		})
+	}
+}
+
+func TestRedemptionValidationInputsAndTolerance(t *testing.T) {
+	for _, tc := range []struct {
+		basis Basis
+		want  error
+	}{
+		{Basis{PU: 1000, Yield: 0, BusinessDays: 1}, nil},
+		{Basis{PU: 999.99, Yield: 0, BusinessDays: 1}, nil},
+		{Basis{PU: 999.98, Yield: 0, BusinessDays: 1}, bond.CalculationNotValidated},
+		{Basis{PU: 0, Yield: 0, BusinessDays: 1}, bond.InvalidInput},
+		{Basis{PU: math.NaN(), Yield: 0, BusinessDays: 1}, bond.InvalidInput},
+		{Basis{PU: math.Inf(1), Yield: 0, BusinessDays: 1}, bond.InvalidInput},
+		{Basis{PU: 1000, Yield: math.NaN(), BusinessDays: 1}, bond.InvalidInput},
+		{Basis{PU: 1000, Yield: 0, BusinessDays: 0}, bond.NoRemainingTerm},
+		{Basis{PU: 1000, Yield: -0.9999999999999999, BusinessDays: 10000}, bond.CalculationOutOfRange},
+	} {
+		if err := ValidateRedemption(tc.basis); err != tc.want {
+			t.Fatalf("%+v: got %v want %v", tc.basis, err, tc.want)
+		}
 	}
 }

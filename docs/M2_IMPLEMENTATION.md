@@ -196,3 +196,31 @@ Fixed-date tests cover the warning threshold, same-date quotes, weekends, Carniv
 ### Remaining scope
 
 The early-redemption settlement discrepancy remains unresolved, and those synchronized calculations stay blocked. The warning is an estimate of local data age, not proof of a source outage or a guarantee that a displayed quote is live. No live sync, automated browser interaction, cross-platform execution, remote CI, or release publication was verified in this step.
+
+## M2 closure — approved morning early-redemption contract (2026-09-28)
+
+The maintainer approved the settlement amendment after reviewing official transition records and requested a checkpoint commit first (`75ea157`). M2 is now implemented under that approved contract. `AGENTS.md` and V1 specification sections 14.3/17.4, together with dependent quote/portfolio documentation, describe D+1 before 2021-09-13 and D0 on/after that date for morning early-redemption scenarios under normal market conditions.
+
+The pure basis resolver selects the convention by quote date. Synchronized Prefixado early-redemption requests then validate the standalone theoretical PU, truncated to cents, against the original official SellPU with a BRL 0.01 tolerance. A mismatch returns `calculation_not_validated`; no alternative settlement, BasePU substitution, holiday exception, or tolerance relaxation is attempted. Accepted requests use the original official SellPU in the unchanged anchored scenario formula.
+
+CLI, JSON, and browser results expose `settlement_convention` and `settlement_version` (`morning-redemption-2021-v1`), alongside the unchanged formula and calendar versions. Market/history provide explicit early-redemption links; the playground labels D0/D+1 and explains the morning/normal-market limitation. Generated commands retain exact source, context, date, and numeric inputs. The original offline demo output and fixture remain unchanged numerically.
+
+### Evidence and validation
+
+Ten official transition records cover five maturities on each of 2021-09-10 and 2021-09-13. Six pass the selected date-dependent convention; four longer-maturity records remain blocked because the current verified calendar does not reproduce their historical PUs. All rows are preserved, including failures. Independent Decimal expectations cover zero shock and both nonzero directions. The existing 2024/2026 official SellPU fixtures now validate using D0 with fixed independent shock expectations. No source CSV or calendar holiday was edited.
+
+Passed locally on macOS/arm64:
+
+- `go fmt ./...`
+- `go vet ./...`
+- `go test ./...`
+- `go test -race ./...`
+- `CGO_ENABLED=0 go build -trimpath -o /private/tmp/tlab-m2-closure ./cmd/tesouro-lab`
+- `/private/tmp/tlab-m2-closure analyze prefixado:2015-01-01 --source demo --basis purchase --date 2012-01-03 --yield 8.88`
+- `git diff --check`
+
+Tests cover date-dependent settlement, missing SellPU without fallback, both shock directions, unchanged-yield anchors, per-record mismatch rejection through service/CLI/API/HTML, context labels and reproduction metadata, D0 maturity/calendar boundaries, validation input/range errors, and the unchanged purchase/base/demo paths. Formatting and build needed cache access after sandbox restrictions.
+
+### Explicit remaining limitations
+
+M2 completion accepts unavailable historical redemption records when validation fails. Reconstructing historical holiday knowledge is not implemented. After-13:00 requests, suspended trading, actual execution, taxes, and fees are not modeled. IPCA+ requires independent instrument-specific evidence in M3; it does not inherit the Prefixado standalone validator. No live sync, automated browser interaction, cross-platform execution, remote CI run, or release publication was performed as part of this closure.

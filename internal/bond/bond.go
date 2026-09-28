@@ -33,7 +33,7 @@ func Message(err error) string {
 	case SourceUnavailable:
 		return "The official source is unavailable. The offline demo remains available with tesouro-lab demo."
 	case CalculationNotValidated:
-		return "Synchronized early-redemption scenarios are unavailable while the official settlement convention is being validated. Purchase and official base PU scenarios remain available."
+		return "This official early-redemption quote does not validate with the selected settlement and verified calendar. Its scenario is unavailable; no quote or calendar is substituted."
 	case SyncFailed:
 		return "Synchronization failed. Previously stored quotes are preserved; inspect the sync report and retry."
 	case SourceMismatch:

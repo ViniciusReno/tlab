@@ -1,6 +1,7 @@
 package pricing
 
 import (
+	"math"
 	"time"
 
 	"github.com/ViniciusReno/tlab/internal/bond"
@@ -14,9 +15,12 @@ type Basis struct {
 	Yield        float64
 	Settlement   time.Time
 	BusinessDays int
+	Convention   string
 }
 
-// ResolveBasis applies the locked V1 D0/D+1 contract at the selected historical
+const SettlementVersion = "morning-redemption-2021-v1"
+
+// ResolveBasis applies the approved V1 D0/D+1 contract at the selected historical
 // quote date. It performs no I/O and does not consult the machine's current date.
 func ResolveBasis(q bond.Quote, context string, cal *calendar.Calendar) (Basis, error) {
 	if q.Bond.Kind != "prefixado" {
@@ -47,7 +51,9 @@ func ResolveBasis(q bond.Quote, context string, cal *calendar.Calendar) (Basis, 
 		return Basis{}, bond.NoRemainingTerm
 	}
 	var err error
-	if context != "mark_to_market" {
+	convention := "D0"
+	if context == "purchase" || (context == "early_exit" && q.Date.Format(time.DateOnly) < "2021-09-13") {
+		convention = "D+1"
 		settlement, err = cal.Next(q.Date)
 		if err != nil {
 			return Basis{}, err
@@ -57,5 +63,24 @@ func ResolveBasis(q bond.Quote, context string, cal *calendar.Calendar) (Basis, 
 	if err != nil {
 		return Basis{}, err
 	}
-	return Basis{PU: *pu, Yield: *yield, Settlement: settlement, BusinessDays: days}, nil
+	return Basis{PU: *pu, Yield: *yield, Settlement: settlement, BusinessDays: days, Convention: convention}, nil
+}
+
+// ValidateRedemption keeps unresolved source/calendar discrepancies unavailable.
+// It never chooses a settlement convention by fitting the official price.
+func ValidateRedemption(b Basis) error {
+	if !bond.Positive(b.PU) {
+		return bond.InvalidInput
+	}
+	pu, err := PrefixadoPU(b.Yield, b.BusinessDays)
+	if err != nil {
+		return err
+	}
+	if !bond.Finite(pu * 100) {
+		return bond.CalculationOutOfRange
+	}
+	if math.Abs(math.Trunc(pu*100)/100-b.PU) > 0.01 {
+		return bond.CalculationNotValidated
+	}
+	return nil
 }

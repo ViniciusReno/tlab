@@ -40,7 +40,7 @@ def reference():
             for basis, settlement, pu_column, yield_column in [
                 ("purchase", next_day, "PU Compra Manha", "Taxa Compra Manha"),
                 ("mark_to_market", date, "PU Base Manha", "Taxa Venda Manha"),
-                ("early_exit", next_day, "PU Venda Manha", "Taxa Venda Manha"),
+                ("early_exit", date if date >= dt.date(2021, 9, 13) else next_day, "PU Venda Manha", "Taxa Venda Manha"),
             ]:
                 pu, base_yield = number(row[pu_column]), number(row[yield_column]) / 100
                 days = business_days(settlement, maturity)

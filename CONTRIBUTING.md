@@ -1,6 +1,6 @@
 # Contributing to Tesouro Lab
 
-Tesouro Lab currently implements the M1 offline Prefixado demo and M2.1–M2.3 persistent storage, official parsing, and explicit synchronization. M2.4 adds an expanded calendar and independent context validation; the recent early-redemption discrepancy remains unresolved. M2.5 adds market/history browsing and synchronized purchase/base scenarios with shared CLI/API/browser calculations. All synchronized early-redemption scenarios remain gated. See [M2 notes](docs/M2_IMPLEMENTATION.md) for the local database lifecycle. See [implementation notes](docs/M1_IMPLEMENTATION.md) for available behavior and remaining limitations.
+Tesouro Lab currently implements the M1 offline Prefixado demo and M2.1–M2.3 persistent storage, official parsing, and explicit synchronization. M2.4 adds an expanded calendar and independent context validation; the historical settlement discrepancy is resolved by the approved M2 amendment, with per-record validation. M2.5 adds market/history browsing and synchronized purchase/base scenarios with shared CLI/API/browser calculations. M2 closure enables morning early-redemption scenarios under the approved date-dependent settlement contract and per-record PU validation; mismatching records remain unavailable. See [M2 notes](docs/M2_IMPLEMENTATION.md) for the local database lifecycle. See [implementation notes](docs/M1_IMPLEMENTATION.md) for available behavior and remaining limitations.
 
 ## Read first
 

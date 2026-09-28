@@ -79,6 +79,8 @@ func newHandler(service *app.Service, now func() time.Time) (http.Handler, error
 			pu, yield := q.BuyPU, q.BuyYield
 			if basis == "mark_to_market" {
 				pu, yield = q.BasePU, q.SellYield
+			} else if basis == "early_exit" {
+				pu, yield = q.SellPU, q.SellYield
 			}
 			if pu == nil || yield == nil || q.Date.IsZero() {
 				return ""

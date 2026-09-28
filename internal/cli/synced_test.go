@@ -60,6 +60,7 @@ func TestSyncedCLIAPIHTMLAndMarketLinks(t *testing.T) {
 	}{
 		{"purchase", "13.31", "BRL 516.85", "Official purchase price · D+1", 516.8482044401487, 1331},
 		{"mark_to_market", "13.43", "BRL 513.71", "Official base PU · D0", 513.7089537612195, 1332},
+		{"early_exit", "13.43", "BRL 513.71", "Official early-redemption PU · D0", 513.7089537612195, 1332},
 	} {
 		t.Run(tc.basis, func(t *testing.T) {
 			args := []string{"analyze", "prefixado:2032-01-01", "--data-dir", dir, "--yield", tc.yield, "--amount", "10000"}
@@ -112,8 +113,8 @@ func TestSyncedCLIAPIHTMLAndMarketLinks(t *testing.T) {
 	page := httptest.NewRecorder()
 	h.ServeHTTP(page, httptest.NewRequest("GET", "/history?bond=prefixado:2032-01-01", nil))
 	links := regexp.MustCompile(`href="(/playground\?[^"]+)"`).FindAllStringSubmatch(page.Body.String(), -1)
-	if len(links) != 2 {
-		t.Fatalf("missing purchase/base links: %s", page.Body.String())
+	if len(links) != 3 {
+		t.Fatalf("missing purchase/base/redemption links: %s", page.Body.String())
 	}
 	for _, link := range links {
 		target := html.UnescapeString(link[1])
@@ -133,7 +134,6 @@ func TestSyncedCLIAPIHTMLAndMarketLinks(t *testing.T) {
 	}
 	for _, tc := range []struct{ extra, code string }{
 		{"&date=2026-09-05", "missing_quote"},
-		{"&basis=early_exit", "calculation_not_validated"},
 		{"&source=demo", "source_mismatch"},
 		{"&data-dir=somewhere", "invalid_input"},
 	} {
@@ -156,5 +156,54 @@ func TestSyncedCLIAPIHTMLAndMarketLinks(t *testing.T) {
 	h.ServeHTTP(r, httptest.NewRequest("GET", "/playground?"+v.Encode(), nil))
 	if r.Code != 200 || !strings.Contains(r.Body.String(), "BRL 500.00") || !strings.Contains(r.Body.String(), "default shock range is unavailable") || strings.Contains(r.Body.String(), "NaN") {
 		t.Fatalf("optional grid hid valid result: %d %s", r.Code, r.Body.String())
+	}
+	transition, err := os.Open("../pricing/testdata/redemption-transition.csv")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer transition.Close()
+	rows, err := tesouro.ParseDataset(transition, "https://www.tesourotransparente.gov.br/ckan/")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := store.Upsert(ctx, rows.Quotes); err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct {
+		date, yield, convention string
+		want                    float64
+	}{
+		{"2021-09-10", "9.09", "D+1", 785.0360952493704},
+		{"2021-09-13", "9.23", "D0", 782.241348739505},
+	} {
+		var stdout, stderr bytes.Buffer
+		args := []string{"analyze", "prefixado:2024-07-01", "--source", "synced", "--basis", "early_exit", "--date", tc.date, "--yield", tc.yield, "--data-dir", dir}
+		if code := cli.Run(ctx, args, &stdout, &stderr); code != 0 {
+			t.Fatalf("historical CLI: %s", stderr.String())
+		}
+		var result app.Result
+		if err := json.Unmarshal(stdout.Bytes(), &result); err != nil {
+			t.Fatal(err)
+		}
+		if math.Abs(result.ScenarioPU-tc.want) > 1e-9 || result.SettlementConvention != tc.convention {
+			t.Fatalf("historical result: %+v", result)
+		}
+		page := httptest.NewRecorder()
+		h.ServeHTTP(page, httptest.NewRequest("GET", "/playground?"+result.Values().Encode(), nil))
+		body := html.UnescapeString(page.Body.String())
+		if page.Code != 200 || !strings.Contains(body, "Official early-redemption PU · "+tc.convention) || !strings.Contains(body, result.Command()) || !strings.Contains(body, "morning-redemption-2021-v1") {
+			t.Fatalf("historical HTML: %d %s", page.Code, body)
+		}
+	}
+	for _, path := range []string{"/api/scenario", "/playground"} {
+		page := httptest.NewRecorder()
+		h.ServeHTTP(page, httptest.NewRequest("GET", path+"?bond=prefixado:2025-01-01&basis=early_exit&date=2021-09-10&yield=9.2", nil))
+		if page.Code != 422 || !strings.Contains(page.Body.String(), "does not validate") {
+			t.Fatalf("historical mismatch not blocked: %d %s", page.Code, page.Body.String())
+		}
+	}
+	var stdout, stderr bytes.Buffer
+	if code := cli.Run(ctx, []string{"analyze", "prefixado:2025-01-01", "--basis", "early_exit", "--date", "2021-09-10", "--yield", "9.2", "--data-dir", dir}, &stdout, &stderr); code == 0 || !strings.Contains(stderr.String(), "calculation_not_validated") {
+		t.Fatalf("CLI mismatch not blocked: %s", stderr.String())
 	}
 }
