@@ -44,8 +44,10 @@ const MaxDatasetBytes = 32 << 20
 
 // Dataset reports excluded instrument rows explicitly; only Prefixado is imported in M2.
 type Dataset struct {
-	Quotes      []bond.Quote
-	Unsupported map[string]int
+	Quotes       []bond.Quote
+	Unsupported  map[string]int
+	RecordsRead  int
+	MaxQuoteDate time.Time
 }
 
 // Parse is the strict, small-fixture entry point used by the offline demo.
@@ -88,6 +90,7 @@ func parse(r io.Reader, source string, limit int64, mixed bool) (Dataset, error)
 		}
 	}
 	result := Dataset{Unsupported: make(map[string]int)}
+	seen := make(map[string]bool)
 	for {
 		row, err := reader.Read()
 		if err == io.EOF {
@@ -115,6 +118,10 @@ func parse(r io.Reader, source string, limit int64, mixed bool) (Dataset, error)
 		if !date.Before(maturity) {
 			return Dataset{}, bond.InvalidInput
 		}
+		result.RecordsRead++
+		if date.After(result.MaxQuoteDate) {
+			result.MaxQuoteDate = date
+		}
 		if name != "Tesouro Prefixado" {
 			// Validate source syntax even for excluded rows. Do not create domain
 			// prices or apply Prefixado validity rules to unsupported instruments.
@@ -127,6 +134,11 @@ func parse(r io.Reader, source string, limit int64, mixed bool) (Dataset, error)
 			continue
 		}
 		q := bond.Quote{Bond: bond.Bond{ID: "prefixado:" + maturity.Format(time.DateOnly), Kind: "prefixado", Name: field("Tipo Titulo"), Maturity: maturity}, Date: date, Source: source}
+		key := q.Bond.ID + "/" + date.Format(time.DateOnly)
+		if seen[key] {
+			return Dataset{}, bond.InvalidInput
+		}
+		seen[key] = true
 		targets := []**float64{&q.BuyYield, &q.SellYield, &q.BuyPU, &q.SellPU, &q.BasePU}
 		for i, name := range required[3:] {
 			n, err := Number(field(name))

@@ -1,0 +1,396 @@
+[
+  {
+    "bond_id": "prefixado:2015-01-01",
+    "quote_date": "2012-01-03",
+    "basis": "purchase",
+    "settlement_date": "2012-01-04",
+    "business_days": 755,
+    "days_by_year": {
+      "2012": 249,
+      "2013": 253,
+      "2014": 253
+    },
+    "calendar_version": "anbima-2002-2032-v1",
+    "base_pu": 734.86,
+    "base_yield": 0.1083,
+    "theoretical_pu": 734.8610211507132,
+    "truncated_difference": 0.0,
+    "validation_status": "validated",
+    "shocks": [
+      {
+        "yield": 0.0983,
+        "pu": 755.088814523098,
+        "variation": 0.027527439951960882
+      },
+      {
+        "yield": 0.1083,
+        "pu": 734.86,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.1183,
+        "pu": 715.347582132586,
+        "variation": -0.02655256493402007
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2015-01-01",
+    "quote_date": "2012-01-03",
+    "basis": "mark_to_market",
+    "settlement_date": "2012-01-03",
+    "business_days": 756,
+    "days_by_year": {
+      "2012": 250,
+      "2013": 253,
+      "2014": 253
+    },
+    "calendar_version": "anbima-2002-2032-v1",
+    "base_pu": 733.36,
+    "base_yield": 0.1089,
+    "theoretical_pu": 733.3695090989327,
+    "truncated_difference": 0.0,
+    "validation_status": "validated",
+    "shocks": [
+      {
+        "yield": 0.0989,
+        "pu": 753.5634896504123,
+        "variation": 0.027549211370148763
+      },
+      {
+        "yield": 0.1089,
+        "pu": 733.36,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.1189,
+        "pu": 713.8723273319438,
+        "variation": -0.026573132797065937
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2015-01-01",
+    "quote_date": "2012-01-03",
+    "basis": "early_exit",
+    "settlement_date": "2012-01-04",
+    "business_days": 755,
+    "days_by_year": {
+      "2012": 249,
+      "2013": 253,
+      "2014": 253
+    },
+    "calendar_version": "anbima-2002-2032-v1",
+    "base_pu": 733.67,
+    "base_yield": 0.1089,
+    "theoretical_pu": 733.6703935442277,
+    "truncated_difference": 0.0,
+    "validation_status": "validated",
+    "shocks": [
+      {
+        "yield": 0.0989,
+        "pu": 753.8549299689448,
+        "variation": 0.027512273868285284
+      },
+      {
+        "yield": 0.1089,
+        "pu": 733.67,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.1189,
+        "pu": 714.1995326420289,
+        "variation": -0.02653845374346929
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2018-01-01",
+    "quote_date": "2016-02-05",
+    "basis": "purchase",
+    "settlement_date": "2016-02-10",
+    "business_days": 475,
+    "days_by_year": {
+      "2016": 226,
+      "2017": 249
+    },
+    "calendar_version": "anbima-2002-2032-v1",
+    "base_pu": 766.64,
+    "base_yield": 0.1514,
+    "theoretical_pu": 766.6434417840187,
+    "truncated_difference": 0.0,
+    "validation_status": "validated",
+    "shocks": [
+      {
+        "yield": 0.1414,
+        "pu": 779.3494392188653,
+        "variation": 0.016578106045686835
+      },
+      {
+        "yield": 0.1514,
+        "pu": 766.64,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.1614,
+        "pu": 754.2450586980491,
+        "variation": -0.01616787710261779
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2018-01-01",
+    "quote_date": "2016-02-05",
+    "basis": "mark_to_market",
+    "settlement_date": "2016-02-05",
+    "business_days": 476,
+    "days_by_year": {
+      "2016": 227,
+      "2017": 249
+    },
+    "calendar_version": "anbima-2002-2032-v1",
+    "base_pu": 765.58,
+    "base_yield": 0.1519,
+    "theoretical_pu": 765.5865722963608,
+    "truncated_difference": 0.0,
+    "validation_status": "validated",
+    "shocks": [
+      {
+        "yield": 0.1419,
+        "pu": 778.2932161587312,
+        "variation": 0.016605993049362784
+      },
+      {
+        "yield": 0.1519,
+        "pu": 765.58,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.1619,
+        "pu": 753.1816675070723,
+        "variation": -0.01619469225022548
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2018-01-01",
+    "quote_date": "2016-02-05",
+    "basis": "early_exit",
+    "settlement_date": "2016-02-10",
+    "business_days": 475,
+    "days_by_year": {
+      "2016": 226,
+      "2017": 249
+    },
+    "calendar_version": "anbima-2002-2032-v1",
+    "base_pu": 766.01,
+    "base_yield": 0.1519,
+    "theoretical_pu": 766.0163107376958,
+    "truncated_difference": 0.0,
+    "validation_status": "validated",
+    "shocks": [
+      {
+        "yield": 0.1419,
+        "pu": 778.7034130968406,
+        "variation": 0.016570819045235066
+      },
+      {
+        "yield": 0.1519,
+        "pu": 766.01,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.1619,
+        "pu": 753.6305536015359,
+        "variation": -0.0161609461997417
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2027-01-01",
+    "quote_date": "2024-11-19",
+    "basis": "purchase",
+    "settlement_date": "2024-11-21",
+    "business_days": 529,
+    "days_by_year": {
+      "2024": 28,
+      "2025": 252,
+      "2026": 249
+    },
+    "calendar_version": "anbima-2002-2032-v1",
+    "base_pu": 767.84,
+    "base_yield": 0.1341,
+    "theoretical_pu": 767.8484963790778,
+    "truncated_difference": 0.0,
+    "validation_status": "validated",
+    "shocks": [
+      {
+        "yield": 0.1241,
+        "pu": 782.2491959261878,
+        "variation": 0.018765883421269777
+      },
+      {
+        "yield": 0.1341,
+        "pu": 767.84,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.1441,
+        "pu": 753.8192517034386,
+        "variation": -0.018259986841739743
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2027-01-01",
+    "quote_date": "2024-11-19",
+    "basis": "mark_to_market",
+    "settlement_date": "2024-11-19",
+    "business_days": 530,
+    "days_by_year": {
+      "2024": 29,
+      "2025": 252,
+      "2026": 249
+    },
+    "calendar_version": "anbima-2002-2032-v1",
+    "base_pu": 765.76,
+    "base_yield": 0.1353,
+    "theoretical_pu": 765.7600514281711,
+    "truncated_difference": 0.0,
+    "validation_status": "validated",
+    "shocks": [
+      {
+        "yield": 0.1253,
+        "pu": 780.1421531841862,
+        "variation": 0.018781541454484765
+      },
+      {
+        "yield": 0.1353,
+        "pu": 765.76,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.1453,
+        "pu": 751.76565032995,
+        "variation": -0.018275111875848876
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2027-01-01",
+    "quote_date": "2024-11-19",
+    "basis": "early_exit",
+    "settlement_date": "2024-11-21",
+    "business_days": 529,
+    "days_by_year": {
+      "2024": 28,
+      "2025": 252,
+      "2026": 249
+    },
+    "calendar_version": "anbima-2002-2032-v1",
+    "base_pu": 765.76,
+    "base_yield": 0.1353,
+    "theoretical_pu": 766.1457540959225,
+    "truncated_difference": 0.38,
+    "validation_status": "calculation_not_validated",
+    "shocks": []
+  },
+  {
+    "bond_id": "prefixado:2032-01-01",
+    "quote_date": "2026-09-04",
+    "basis": "purchase",
+    "settlement_date": "2026-09-08",
+    "business_days": 1331,
+    "days_by_year": {
+      "2026": 79,
+      "2027": 251,
+      "2028": 248,
+      "2029": 249,
+      "2030": 252,
+      "2031": 252
+    },
+    "calendar_version": "anbima-2002-2032-v1",
+    "base_pu": 493.41,
+    "base_yield": 0.1431,
+    "theoretical_pu": 493.41673640300183,
+    "truncated_difference": 0.0,
+    "validation_status": "validated",
+    "shocks": [
+      {
+        "yield": 0.1331,
+        "pu": 516.8482044401487,
+        "variation": 0.047502491721182656
+      },
+      {
+        "yield": 0.1431,
+        "pu": 493.41,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.1531,
+        "pu": 471.2251226417926,
+        "variation": -0.04496235860279966
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2032-01-01",
+    "quote_date": "2026-09-04",
+    "basis": "mark_to_market",
+    "settlement_date": "2026-09-04",
+    "business_days": 1332,
+    "days_by_year": {
+      "2026": 80,
+      "2027": 251,
+      "2028": 248,
+      "2029": 249,
+      "2030": 252,
+      "2031": 252
+    },
+    "calendar_version": "anbima-2002-2032-v1",
+    "base_pu": 490.42,
+    "base_yield": 0.1443,
+    "theoretical_pu": 490.42751192335743,
+    "truncated_difference": 0.0,
+    "validation_status": "validated",
+    "shocks": [
+      {
+        "yield": 0.1343,
+        "pu": 513.7089537612195,
+        "variation": 0.047487773258063526
+      },
+      {
+        "yield": 0.1443,
+        "pu": 490.42,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.1543,
+        "pu": 468.37588629877575,
+        "variation": -0.044949459037609066
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2032-01-01",
+    "quote_date": "2026-09-04",
+    "basis": "early_exit",
+    "settlement_date": "2026-09-08",
+    "business_days": 1331,
+    "days_by_year": {
+      "2026": 79,
+      "2027": 251,
+      "2028": 248,
+      "2029": 249,
+      "2030": 252,
+      "2031": 252
+    },
+    "calendar_version": "anbima-2002-2032-v1",
+    "base_pu": 490.42,
+    "base_yield": 0.1443,
+    "theoretical_pu": 490.6899084547349,
+    "truncated_difference": 0.26,
+    "validation_status": "calculation_not_validated",
+    "shocks": []
+  }
+]

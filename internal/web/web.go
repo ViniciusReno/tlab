@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	assets "github.com/ViniciusReno/tlab"
 	"github.com/ViniciusReno/tlab/internal/app"
@@ -16,13 +17,15 @@ import (
 )
 
 type page struct {
-	Result     app.Result
-	Points     []app.Point
-	Curve      string
-	Error      string
-	Values     url.Values
-	Persistent bool
-	HasQuotes  bool
+	Result            app.Result
+	Points            []app.Point
+	Curve             string
+	Error             string
+	Values            url.Values
+	Persistent        bool
+	HasQuotes         bool
+	SelectionRequired bool
+	ShockError        string
 }
 
 func money(n float64) string {
@@ -35,6 +38,10 @@ func money(n float64) string {
 }
 
 func New(service *app.Service) (http.Handler, error) {
+	return newHandler(service, time.Now)
+}
+
+func newHandler(service *app.Service, now func() time.Time) (http.Handler, error) {
 	tmpl, err := template.New("page.html").Funcs(template.FuncMap{
 		"money":   money,
 		"percent": func(n float64) string { return fmt.Sprintf("%.2f%%", n*100) },
@@ -47,7 +54,39 @@ func New(service *app.Service) (http.Handler, error) {
 		},
 		"yield": func(n float64) string { return app.Decimal(n * 100) },
 		"value": func(v url.Values, key string) string { return v.Get(key) },
-	}).ParseFS(assets.Files, "web/templates/page.html")
+		"date": func(t time.Time) string {
+			if t.IsZero() {
+				return "Unavailable"
+			}
+			return t.Format(time.DateOnly)
+		},
+		"quoteMoney": func(n *float64) string {
+			if n == nil {
+				return "Unavailable"
+			}
+			return money(*n)
+		},
+		"quoteYield": func(n *float64) string {
+			if n == nil {
+				return "Unavailable"
+			}
+			return fmt.Sprintf("%.2f%%", *n*100)
+		},
+		"historyURL": func(id, before string) string {
+			return "/history?" + url.Values{"bond": {id}, "before": {before}}.Encode()
+		},
+		"scenarioURL": func(q bond.Quote, basis string) string {
+			pu, yield := q.BuyPU, q.BuyYield
+			if basis == "mark_to_market" {
+				pu, yield = q.BasePU, q.SellYield
+			}
+			if pu == nil || yield == nil || q.Date.IsZero() {
+				return ""
+			}
+			v := url.Values{"bond": {q.Bond.ID}, "source": {"synced"}, "basis": {basis}, "date": {q.Date.Format(time.DateOnly)}, "yield": {app.Decimal(*yield * 100)}}
+			return "/playground?" + v.Encode()
+		},
+	}).ParseFS(assets.Files, "web/templates/*.html")
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +104,7 @@ func New(service *app.Service) (http.Handler, error) {
 		if err == nil && service.Source() == "synced" && len(values) == 0 && r.URL.Path != "/api/scenario" {
 			hasQuotes, readErr := service.HasQuotes(r.Context())
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")
-			p := page{Persistent: true, HasQuotes: hasQuotes}
+			p := page{Persistent: true, HasQuotes: hasQuotes, SelectionRequired: true}
 			if readErr != nil {
 				p.Error = "Unable to read local data. Restart the application and check the database file."
 				w.WriteHeader(http.StatusInternalServerError)
@@ -104,13 +143,19 @@ func New(service *app.Service) (http.Handler, error) {
 		p := page{Result: result, Values: values, Persistent: service.Source() == "synced"}
 		if err == nil {
 			p.Values = result.Values()
-			p.Points, err = app.Shocks(result)
-			if err == nil {
+			var shockErr error
+			p.Points, shockErr = app.Shocks(result)
+			if shockErr != nil {
+				p.ShockError = "The default shock range is unavailable for this baseline. The selected scenario above remains valid."
+			} else {
 				// SVG coordinates only; financial values are calculated in app/pricing.
 				min, max := p.Points[len(p.Points)-1].PU, p.Points[0].PU
 				for i, point := range p.Points {
 					x := 40 + float64(i)*60
-					y := 20 + (max-point.PU)/(max-min)*160
+					y := 100.0
+					if max > min {
+						y = 20 + (max-point.PU)/(max-min)*160
+					}
 					p.Curve += fmt.Sprintf("%.2f,%.2f ", x, y)
 				}
 			}
@@ -125,7 +170,15 @@ func New(service *app.Service) (http.Handler, error) {
 			return
 		}
 	}
-	mux.HandleFunc("GET /{$}", render)
+	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
+		if service.Source() == "synced" {
+			renderMarket(w, r, service, tmpl, now())
+			return
+		}
+		render(w, r)
+	})
+	mux.HandleFunc("GET /market", func(w http.ResponseWriter, r *http.Request) { renderMarket(w, r, service, tmpl, now()) })
+	mux.HandleFunc("GET /history", func(w http.ResponseWriter, r *http.Request) { renderMarket(w, r, service, tmpl, now()) })
 	mux.HandleFunc("GET /playground", render)
 	mux.HandleFunc("GET /api/scenario", render)
 	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServerFS(static)))

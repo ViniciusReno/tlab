@@ -1,0 +1,13 @@
+{
+  "retrieved": "2026-09-10",
+  "source": "https://www.tesourotransparente.gov.br/ckan/dataset/df56aa42-484a-4a59-8184-7676580c81e3/resource/796d2059-14e9-44e3-80c9-2d9e30b405c1/download/precotaxatesourodireto.csv",
+  "source_bytes": 14483428,
+  "source_sha256": "8eeb0fb2550a2702f9433272255584ffa6acfc004e2c11a89887505272cd07ad",
+  "source_lines": [
+    118615,
+    93303,
+    25995,
+    123
+  ],
+  "fixture_sha256": "48a3ef89eb48359178ac50cc554cc1cce869ee50771c86b6a64c3551c8ace592"
+}

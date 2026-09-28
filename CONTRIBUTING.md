@@ -1,6 +1,6 @@
 # Contributing to Tesouro Lab
 
-Tesouro Lab currently implements the M1 offline Prefixado demo and M2.1 persistent storage. See [M2 notes](docs/M2_IMPLEMENTATION.md) for the local database lifecycle. See [implementation notes](docs/M1_IMPLEMENTATION.md) for available behavior and remaining limitations.
+Tesouro Lab currently implements the M1 offline Prefixado demo and M2.1–M2.3 persistent storage, official parsing, and explicit synchronization. M2.4 adds an expanded calendar and independent context validation; the recent early-redemption discrepancy remains unresolved. M2.5 adds market/history browsing and synchronized purchase/base scenarios with shared CLI/API/browser calculations. All synchronized early-redemption scenarios remain gated. See [M2 notes](docs/M2_IMPLEMENTATION.md) for the local database lifecycle. See [implementation notes](docs/M1_IMPLEMENTATION.md) for available behavior and remaining limitations.
 
 ## Read first
 
@@ -39,6 +39,10 @@ go test ./...
 ```
 
 Run `go test -race ./...` where supported and relevant. Automated checks must also verify a build without CGO. Keep routine tests deterministic and offline; separate explicitly requested live-source integration tests.
+
+Sync tests replace the HTTP transport with committed official metadata/CSV fixtures; routine tests never contact the live source. For a manual live check, run `go run ./cmd/tesouro-lab sync --data-dir PATH` against a separate temporary directory and record the actual report. Do not use a personal database for test imports.
+
+The optional `python3 internal/pricing/testdata/reference.py` command prints the independent high-precision context expectations for review. Python is not required for Go tests or application use. Never regenerate expected values at Go test runtime. See [context validation and the known source discrepancy](internal/pricing/testdata/README.md).
 
 Financial changes require documented assumptions, official baseline provenance, independently checked expected results, explicit floating-point tolerances, and relevant edge cases. Calendar changes require revalidation against affected official fixtures. Simple/advanced views and CLI/browser delivery must use the same calculation.
 

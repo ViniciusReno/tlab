@@ -132,30 +132,37 @@ func (s *Store) Upsert(ctx context.Context, quotes []bond.Quote) error {
 		return err
 	}
 	defer tx.Rollback()
+	if err := upsert(ctx, tx, quotes); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
+func upsert(ctx context.Context, tx *sql.Tx, quotes []bond.Quote) error {
 	for _, q := range quotes {
 		if q.Bond.ID == "" || q.Source == "" || q.Date.IsZero() || q.Bond.Maturity.IsZero() {
 			return bond.InvalidInput
 		}
-		_, err = tx.ExecContext(ctx, `INSERT INTO bonds(id,kind,name,maturity) VALUES (?,?,?,?)
+		_, err := tx.ExecContext(ctx, `INSERT INTO bonds(id,kind,name,maturity) VALUES (?,?,?,?)
             ON CONFLICT(id) DO UPDATE SET kind=excluded.kind,name=excluded.name,maturity=excluded.maturity`,
 			q.Bond.ID, q.Bond.Kind, q.Bond.Name, q.Bond.Maturity.Format(time.DateOnly))
 		if err != nil {
 			return err
 		}
-		_, err = tx.ExecContext(ctx, `INSERT INTO market_quotes(bond_id,quote_date,buy_yield,sell_yield,buy_pu,sell_pu,base_pu,source)
-            VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(bond_id,quote_date) DO UPDATE SET
+		_, err = tx.ExecContext(ctx, `INSERT INTO market_quotes(bond_id,quote_date,buy_yield,sell_yield,buy_pu,sell_pu,base_pu,source,imported_at)
+            VALUES (?,?,?,?,?,?,?,?,?) ON CONFLICT(bond_id,quote_date) DO UPDATE SET
             buy_yield=excluded.buy_yield,sell_yield=excluded.sell_yield,buy_pu=excluded.buy_pu,
-            sell_pu=excluded.sell_pu,base_pu=excluded.base_pu,source=excluded.source`,
-			q.Bond.ID, q.Date.Format(time.DateOnly), q.BuyYield, q.SellYield, q.BuyPU, q.SellPU, q.BasePU, q.Source)
+            sell_pu=excluded.sell_pu,base_pu=excluded.base_pu,source=excluded.source,imported_at=excluded.imported_at`,
+			q.Bond.ID, q.Date.Format(time.DateOnly), q.BuyYield, q.SellYield, q.BuyPU, q.SellPU, q.BasePU, q.Source, q.ImportedAt)
 		if err != nil {
 			return err
 		}
 	}
-	return tx.Commit()
+	return nil
 }
 
 func (s *Store) Quote(ctx context.Context, id, date string) (bond.Quote, error) {
-	query := `SELECT b.id,b.kind,b.name,b.maturity,q.quote_date,q.buy_yield,q.sell_yield,q.buy_pu,q.sell_pu,q.base_pu,q.source
+	query := `SELECT b.id,b.kind,b.name,b.maturity,q.quote_date,q.buy_yield,q.sell_yield,q.buy_pu,q.sell_pu,q.base_pu,q.source,COALESCE(q.imported_at,'')
         FROM market_quotes q JOIN bonds b ON b.id=q.bond_id WHERE b.id=?`
 	args := []any{id}
 	if date != "" {
@@ -163,10 +170,14 @@ func (s *Store) Quote(ctx context.Context, id, date string) (bond.Quote, error) 
 		args = append(args, date)
 	}
 	query += " ORDER BY q.quote_date DESC LIMIT 1"
+	return scanQuote(s.db.QueryRowContext(ctx, query, args...))
+}
+
+func scanQuote(row interface{ Scan(...any) error }) (bond.Quote, error) {
 	var q bond.Quote
 	var maturity, quoteDate string
-	err := s.db.QueryRowContext(ctx, query, args...).Scan(&q.Bond.ID, &q.Bond.Kind, &q.Bond.Name, &maturity, &quoteDate,
-		&q.BuyYield, &q.SellYield, &q.BuyPU, &q.SellPU, &q.BasePU, &q.Source)
+	err := row.Scan(&q.Bond.ID, &q.Bond.Kind, &q.Bond.Name, &maturity, &quoteDate,
+		&q.BuyYield, &q.SellYield, &q.BuyPU, &q.SellPU, &q.BasePU, &q.Source, &q.ImportedAt)
 	if err == sql.ErrNoRows {
 		return q, bond.MissingQuote
 	}
@@ -177,6 +188,8 @@ func (s *Store) Quote(ctx context.Context, id, date string) (bond.Quote, error) 
 	if err != nil {
 		return q, fmt.Errorf("stored maturity: %w", err)
 	}
-	q.Date, err = bond.ParseDate(quoteDate)
+	if quoteDate != "" {
+		q.Date, err = bond.ParseDate(quoteDate)
+	}
 	return q, err
 }

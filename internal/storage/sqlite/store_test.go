@@ -25,7 +25,7 @@ func TestMigrationsUpsertRollbackAndIsolation(t *testing.T) {
 		t.Fatal(err)
 	}
 	var migrations int
-	if err := s.db.QueryRow("SELECT count(*) FROM schema_migrations").Scan(&migrations); err != nil || migrations != 1 {
+	if err := s.db.QueryRow("SELECT count(*) FROM schema_migrations").Scan(&migrations); err != nil || migrations != 2 {
 		t.Fatalf("migrations %d %v", migrations, err)
 	}
 	data, err := assets.Files.ReadFile("data/demo/prefixado.csv")
@@ -105,7 +105,7 @@ func TestPersistentReopenAndMigrationRollback(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer s.Close()
-	broken := fstest.MapFS{"migrations/002_broken.sql": &fstest.MapFile{Data: []byte("CREATE TABLE rollback_probe(id INTEGER); INVALID SQL;")}}
+	broken := fstest.MapFS{"migrations/003_broken.sql": &fstest.MapFile{Data: []byte("CREATE TABLE rollback_probe(id INTEGER); INVALID SQL;")}}
 	if err := s.migrate(ctx, broken); err == nil {
 		t.Fatal("accepted broken migration")
 	}
@@ -118,7 +118,7 @@ func TestPersistentReopenAndMigrationRollback(t *testing.T) {
 		t.Fatalf("quote not preserved: %+v %v", q, err)
 	}
 	var count int
-	if err := s.db.QueryRow("SELECT count(*) FROM schema_migrations").Scan(&count); err != nil || count != 1 {
+	if err := s.db.QueryRow("SELECT count(*) FROM schema_migrations").Scan(&count); err != nil || count != 2 {
 		t.Fatalf("migration reapplied: %d %v", count, err)
 	}
 	if has, err := s.HasQuotes(ctx); err != nil || !has {
@@ -150,5 +150,27 @@ func TestPersistentRejectsInvalidDirectoryAndDatabase(t *testing.T) {
 	data, err := os.ReadFile(path)
 	if err != nil || string(data) != "not a SQLite database" {
 		t.Fatal("invalid database was replaced")
+	}
+}
+
+func TestMarketRetainsBondsWithoutQuotes(t *testing.T) {
+	ctx := context.Background()
+	s, err := OpenMemory(ctx, assets.Files)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	_, err = s.db.ExecContext(ctx, `INSERT INTO bonds(id,kind,name,maturity)
+		VALUES ('prefixado:2032-01-01','prefixado','Synthetic test bond','2032-01-01')`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	m, err := s.Market(ctx)
+	if err != nil || len(m.Quotes) != 1 {
+		t.Fatalf("market: %+v %v", m, err)
+	}
+	q := m.Quotes[0]
+	if !q.Date.IsZero() || q.BuyPU != nil || q.BuyYield != nil || q.BasePU != nil || q.Source != "" || q.ImportedAt != "" || m.DatasetMaxQuoteDate != "" {
+		t.Fatalf("missing values were inferred: %+v", m)
 	}
 }

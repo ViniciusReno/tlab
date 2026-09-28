@@ -5,5 +5,5 @@ import "embed"
 
 // Files contains local assets, versioned migrations, and attributed demo data.
 //
-//go:embed migrations/*.sql data/demo/* web/templates/*.html web/static/*
+//go:embed migrations/*.sql data/demo/* data/calendar/*.json web/templates/*.html web/static/*
 var Files embed.FS

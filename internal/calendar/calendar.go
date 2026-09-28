@@ -47,6 +47,10 @@ func Load(r io.Reader) (*Calendar, error) {
 
 func day(d time.Time) time.Time              { return time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, time.UTC) }
 func (c *Calendar) covered(d time.Time) bool { return !d.Before(c.start) && !d.After(c.end) }
+
+// Covers reports verified date coverage, regardless of whether d is a business day.
+func (c *Calendar) Covers(d time.Time) bool { return c.covered(day(d)) }
+
 func (c *Calendar) business(d time.Time) bool {
 	return d.Weekday() != time.Saturday && d.Weekday() != time.Sunday && !c.holidays[d.Format(time.DateOnly)]
 }
@@ -58,6 +62,23 @@ func (c *Calendar) Next(d time.Time) (time.Time, error) {
 	}
 	for {
 		d = d.AddDate(0, 0, 1)
+		if !c.covered(d) {
+			return time.Time{}, bond.CalendarOutOfRange
+		}
+		if c.business(d) {
+			return d, nil
+		}
+	}
+}
+
+// Previous returns the last verified business day strictly before d.
+func (c *Calendar) Previous(d time.Time) (time.Time, error) {
+	d = day(d)
+	if !c.covered(d) {
+		return time.Time{}, bond.CalendarOutOfRange
+	}
+	for {
+		d = d.AddDate(0, 0, -1)
 		if !c.covered(d) {
 			return time.Time{}, bond.CalendarOutOfRange
 		}

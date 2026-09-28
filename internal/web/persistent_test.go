@@ -34,7 +34,7 @@ func TestPersistentEmptyStateAndSourceIsolation(t *testing.T) {
 	}
 	for _, tc := range []struct{ query, code string }{
 		{"bond=" + app.DemoBond + "&yield=8.88&source=demo", "source_mismatch"},
-		{"bond=" + app.DemoBond + "&yield=8.88", "source_unavailable"},
+		{"bond=" + app.DemoBond + "&yield=8.88", "missing_quote"},
 	} {
 		r := httptest.NewRecorder()
 		h.ServeHTTP(r, httptest.NewRequest("GET", "/api/scenario?"+tc.query, nil))

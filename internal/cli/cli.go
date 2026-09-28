@@ -17,10 +17,15 @@ import (
 
 	"github.com/ViniciusReno/tlab/internal/app"
 	"github.com/ViniciusReno/tlab/internal/bond"
+	"github.com/ViniciusReno/tlab/internal/datasource/tesouro"
 	"github.com/ViniciusReno/tlab/internal/web"
 )
 
 func Run(ctx context.Context, args []string, out, errOut io.Writer) int {
+	return run(ctx, args, out, errOut, tesouro.Client{})
+}
+
+func run(ctx context.Context, args []string, out, errOut io.Writer, client tesouro.Client) int {
 	if len(args) == 0 {
 		return serve(ctx, args, out, errOut, false)
 	}
@@ -29,7 +34,7 @@ func Run(ctx context.Context, args []string, out, errOut io.Writer) int {
 	}
 	switch args[0] {
 	case "help", "--help", "-h":
-		fmt.Fprintln(out, "Tesouro Lab — offline demo and local persistent storage\n\nCommands:\n  [--port 8080] [--data-dir PATH]   Start persistent mode (empty until synchronization is implemented)\n  demo [--port 8080]\n  analyze <bond-id> --yield <percent> [--source demo|synced] [--basis purchase|mark_to_market|early_exit] [--date YYYY-MM-DD] [--amount BRL]\n  version\n\nExample:\n  tesouro-lab analyze prefixado:2015-01-01 --source demo --yield 8.88\n\nDefault data directory: tesouro-lab under the OS user configuration directory.\nOfficial synchronization, synchronized analysis, and portfolios are not implemented yet.")
+		fmt.Fprintln(out, "Tesouro Lab — offline demo and local persistent storage\n\nCommands:\n  [--port 8080] [--data-dir PATH]   Start persistent mode\n  sync [--data-dir PATH]          Import official Prefixado quotes; print a JSON sync report\n  demo [--port 8080]\n  analyze <bond-id> --yield <percent> [--source demo|synced] [--basis purchase|mark_to_market|early_exit] [--date YYYY-MM-DD] [--amount BRL] [--data-dir PATH]\n  version\n\nExample:\n  tesouro-lab analyze prefixado:2015-01-01 --source demo --yield 8.88\n\nDefault data directory: tesouro-lab under the OS user configuration directory.\nSynced analysis reads existing local quotes without syncing. Purchase and base PU scenarios are available.\nSynced early redemption awaits settlement validation. Portfolios are not implemented yet.")
 		return 0
 	case "version":
 		if len(args) != 1 {
@@ -38,7 +43,7 @@ func Run(ctx context.Context, args []string, out, errOut io.Writer) int {
 		fmt.Fprintln(out, app.BuildVersion)
 		return 0
 	case "sync":
-		return failure(errOut, bond.SourceUnavailable)
+		return synchronize(ctx, args[1:], out, errOut, client)
 	case "analyze":
 		return analyze(ctx, args[1:], out, errOut)
 	case "demo":
@@ -46,6 +51,48 @@ func Run(ctx context.Context, args []string, out, errOut io.Writer) int {
 	default:
 		return failure(errOut, bond.Unsupported)
 	}
+}
+
+func synchronize(ctx context.Context, args []string, out, errOut io.Writer, client tesouro.Client) int {
+	flags := flag.NewFlagSet("sync", flag.ContinueOnError)
+	flags.SetOutput(errOut)
+	directory := flags.String("data-dir", "", "Local data directory (default: OS user configuration directory/tesouro-lab)")
+	if err := flags.Parse(args); err != nil {
+		if errors.Is(err, flag.ErrHelp) {
+			return 0
+		}
+		return 1
+	}
+	if flags.NArg() != 0 {
+		return failure(errOut, bond.InvalidInput)
+	}
+	var err error
+	if *directory == "" {
+		*directory, err = app.DefaultDataDir()
+	}
+	if err != nil {
+		fmt.Fprintln(errOut, "Unable to resolve the local data directory. Use --data-dir PATH.")
+		return 1
+	}
+	service, err := app.OpenPersistent(ctx, *directory)
+	if err != nil {
+		fmt.Fprintln(errOut, "Unable to initialize local storage. Check the data directory and file permissions.")
+		return 1
+	}
+	defer service.Close()
+	report, syncErr := service.Sync(ctx, client)
+	if report.ID != "" {
+		encoder := json.NewEncoder(out)
+		encoder.SetIndent("", "  ")
+		if err := encoder.Encode(report); err != nil {
+			fmt.Fprintln(errOut, "Unable to print the sync report. The stored sync status is preserved.")
+			return 1
+		}
+	}
+	if syncErr != nil {
+		return failure(errOut, syncErr)
+	}
+	return 0
 }
 
 func failure(w io.Writer, err error) int {
@@ -65,6 +112,7 @@ func analyze(ctx context.Context, args []string, out, errOut io.Writer) int {
 	flags := flag.NewFlagSet("analyze", flag.ContinueOnError)
 	flags.SetOutput(errOut)
 	values := url.Values{"bond": {id}}
+	directory := flags.String("data-dir", "", "Local data directory for synced analysis only")
 	pointers := map[string]*string{}
 	for _, key := range []string{"source", "basis", "date", "yield", "amount"} {
 		pointers[key] = flags.String(key, "", "Scenario "+key)
@@ -78,15 +126,32 @@ func analyze(ctx context.Context, args []string, out, errOut io.Writer) int {
 	if flags.NArg() != 0 {
 		return failure(errOut, bond.InvalidInput)
 	}
-	flags.Visit(func(f *flag.Flag) { values.Set(f.Name, *pointers[f.Name]) })
+	directorySet := false
+	flags.Visit(func(f *flag.Flag) {
+		if f.Name == "data-dir" {
+			directorySet = true
+			return
+		}
+		values.Set(f.Name, *pointers[f.Name])
+	})
 	request, err := app.ParseRequest(values, "synced")
 	if err != nil {
 		return failure(errOut, err)
 	}
-	if request.Source != "demo" {
-		return failure(errOut, bond.SourceUnavailable)
+	var service *app.Service
+	if request.Source == "demo" {
+		if directorySet {
+			return failure(errOut, bond.InvalidInput)
+		}
+		service, err = app.OpenDemo(ctx)
+	} else {
+		if *directory == "" {
+			*directory, err = app.DefaultDataDir()
+		}
+		if err == nil {
+			service, err = app.OpenPersistent(ctx, *directory)
+		}
 	}
-	service, err := app.OpenDemo(ctx)
 	if err != nil {
 		return failure(errOut, err)
 	}

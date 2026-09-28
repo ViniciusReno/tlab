@@ -145,9 +145,10 @@ func TestHTTPErrorsAndAssets(t *testing.T) {
 
 func TestCLIRejectsUnavailableAndInvalidCommands(t *testing.T) {
 	for _, args := range [][]string{
-		{"sync"}, {"unknown"}, {"analyze", app.DemoBond, "--yield", "8.88"},
+		{"sync", "--source", "demo"}, {"sync", "extra"}, {"sync", "--url", "https://example.com"}, {"unknown"}, {"analyze", app.DemoBond, "--yield", "8.88", "--data-dir", t.TempDir()},
 		{"analyze", app.DemoBond, "--source", "demo", "--yield", "NaN"},
 		{"analyze", app.DemoBond, "--source", "demo", "--yield", "8.88", "extra"},
+		{"analyze", app.DemoBond, "--source", "demo", "--yield", "8.88", "--data-dir", t.TempDir()},
 		{"demo", "--port", "0"}, {"demo", "--port", "65536"},
 		{"--port", "0"}, {"demo", "--data-dir", "unused"},
 	} {

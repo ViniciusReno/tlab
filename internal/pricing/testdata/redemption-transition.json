@@ -1,0 +1,582 @@
+[
+  {
+    "bond_id": "prefixado:2024-07-01",
+    "quote_date": "2021-09-13",
+    "convention": "D0",
+    "settlement_date": "2021-09-13",
+    "business_days": 701,
+    "official_pu": 762.66,
+    "base_yield": 0.1023,
+    "theoretical_truncated": 762.66,
+    "difference": 0.0,
+    "matches": true,
+    "shocks": [
+      {
+        "yield": 0.0923,
+        "pu": 782.241348739505,
+        "variation": 0.025675069807653564
+      },
+      {
+        "yield": 0.1023,
+        "pu": 762.66,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.1123,
+        "pu": 743.7390763179689,
+        "variation": -0.024809120292176228
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2024-07-01",
+    "quote_date": "2021-09-13",
+    "convention": "D+1",
+    "settlement_date": "2021-09-14",
+    "business_days": 700,
+    "official_pu": 762.66,
+    "base_yield": 0.1023,
+    "theoretical_truncated": 762.95,
+    "difference": 0.29,
+    "matches": false,
+    "shocks": [
+      {
+        "yield": 0.0923,
+        "pu": 782.2130602341604,
+        "variation": 0.025637977911730413
+      },
+      {
+        "yield": 0.1023,
+        "pu": 762.66,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.1123,
+        "pu": 743.7657305082107,
+        "variation": -0.0247741713106617
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2025-01-01",
+    "quote_date": "2021-09-13",
+    "convention": "D0",
+    "settlement_date": "2021-09-13",
+    "business_days": 830,
+    "official_pu": 723.12,
+    "base_yield": 0.1033,
+    "theoretical_truncated": 723.4,
+    "difference": 0.28,
+    "matches": false,
+    "shocks": [
+      {
+        "yield": 0.0933,
+        "pu": 745.1339617664366,
+        "variation": 0.030443027113669502
+      },
+      {
+        "yield": 0.1033,
+        "pu": 723.12,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.1133,
+        "pu": 701.9463229571469,
+        "variation": -0.029281000446472322
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2025-01-01",
+    "quote_date": "2021-09-13",
+    "convention": "D+1",
+    "settlement_date": "2021-09-14",
+    "business_days": 829,
+    "official_pu": 723.12,
+    "base_yield": 0.1033,
+    "theoretical_truncated": 723.68,
+    "difference": 0.56,
+    "matches": false,
+    "shocks": [
+      {
+        "yield": 0.0933,
+        "pu": 745.1070397250021,
+        "variation": 0.030405796721155728
+      },
+      {
+        "yield": 0.1033,
+        "pu": 723.12,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.1133,
+        "pu": 701.9714566758871,
+        "variation": -0.02924624311886396
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2022-01-01",
+    "quote_date": "2021-09-13",
+    "convention": "D0",
+    "settlement_date": "2021-09-13",
+    "business_days": 77,
+    "official_pu": 978.5,
+    "base_yield": 0.0737,
+    "theoretical_truncated": 978.5,
+    "difference": 0.0,
+    "matches": true,
+    "shocks": [
+      {
+        "yield": 0.0637,
+        "pu": 981.301685478505,
+        "variation": 0.0028632452514102337
+      },
+      {
+        "yield": 0.0737,
+        "pu": 978.5,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.0837,
+        "pu": 975.7321758810675,
+        "variation": -0.0028286398762722787
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2022-01-01",
+    "quote_date": "2021-09-13",
+    "convention": "D+1",
+    "settlement_date": "2021-09-14",
+    "business_days": 76,
+    "official_pu": 978.5,
+    "base_yield": 0.0737,
+    "theoretical_truncated": 978.78,
+    "difference": 0.28,
+    "matches": false,
+    "shocks": [
+      {
+        "yield": 0.0637,
+        "pu": 981.265248588602,
+        "variation": 0.0028260077553419307
+      },
+      {
+        "yield": 0.0737,
+        "pu": 978.5,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.0837,
+        "pu": 975.768071422279,
+        "variation": -0.0027919556236289567
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2023-01-01",
+    "quote_date": "2021-09-13",
+    "convention": "D0",
+    "settlement_date": "2021-09-13",
+    "business_days": 328,
+    "official_pu": 890.38,
+    "base_yield": 0.0933,
+    "theoretical_truncated": 890.38,
+    "difference": 0.0,
+    "matches": true,
+    "shocks": [
+      {
+        "yield": 0.0833,
+        "pu": 901.0927945076716,
+        "variation": 0.012031710626554476
+      },
+      {
+        "yield": 0.0933,
+        "pu": 890.38,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.1033,
+        "pu": 879.8903778791872,
+        "variation": -0.01178106215415076
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2023-01-01",
+    "quote_date": "2021-09-13",
+    "convention": "D+1",
+    "settlement_date": "2021-09-14",
+    "business_days": 327,
+    "official_pu": 890.38,
+    "base_yield": 0.0933,
+    "theoretical_truncated": 890.69,
+    "difference": 0.31,
+    "matches": false,
+    "shocks": [
+      {
+        "yield": 0.0833,
+        "pu": 901.0599384475295,
+        "variation": 0.011994809460600445
+      },
+      {
+        "yield": 0.0933,
+        "pu": 890.38,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.1033,
+        "pu": 879.9221698821455,
+        "variation": -0.011745356047816128
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2026-01-01",
+    "quote_date": "2021-09-13",
+    "convention": "D0",
+    "settlement_date": "2021-09-13",
+    "business_days": 1082,
+    "official_pu": 650.83,
+    "base_yield": 0.105,
+    "theoretical_truncated": 651.35,
+    "difference": 0.52,
+    "matches": false,
+    "shocks": [
+      {
+        "yield": 0.095,
+        "pu": 676.7364656492751,
+        "variation": 0.039805272727555734
+      },
+      {
+        "yield": 0.105,
+        "pu": 650.83,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.115,
+        "pu": 626.1354184358964,
+        "variation": -0.037943213379997176
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2026-01-01",
+    "quote_date": "2021-09-13",
+    "convention": "D+1",
+    "settlement_date": "2021-09-14",
+    "business_days": 1081,
+    "official_pu": 650.83,
+    "base_yield": 0.105,
+    "theoretical_truncated": 651.61,
+    "difference": 0.78,
+    "matches": false,
+    "shocks": [
+      {
+        "yield": 0.095,
+        "pu": 676.7120526290818,
+        "variation": 0.03976776213309432
+      },
+      {
+        "yield": 0.105,
+        "pu": 650.83,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.115,
+        "pu": 626.1578033510199,
+        "variation": -0.03790881896805632
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2024-07-01",
+    "quote_date": "2021-09-10",
+    "convention": "D0",
+    "settlement_date": "2021-09-10",
+    "business_days": 702,
+    "official_pu": 765.36,
+    "base_yield": 0.1009,
+    "theoretical_truncated": 765.07,
+    "difference": -0.29,
+    "matches": false,
+    "shocks": [
+      {
+        "yield": 0.0909,
+        "pu": 785.0645221187798,
+        "variation": 0.025745429756950686
+      },
+      {
+        "yield": 0.1009,
+        "pu": 765.36,
+        "variation": 1e-59
+      },
+      {
+        "yield": 0.1109,
+        "pu": 746.3215743156928,
+        "variation": -0.024875125018693447
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2024-07-01",
+    "quote_date": "2021-09-10",
+    "convention": "D+1",
+    "settlement_date": "2021-09-13",
+    "business_days": 701,
+    "official_pu": 765.36,
+    "base_yield": 0.1009,
+    "theoretical_truncated": 765.36,
+    "difference": 0.0,
+    "matches": true,
+    "shocks": [
+      {
+        "yield": 0.0909,
+        "pu": 785.0360952493704,
+        "variation": 0.025708287929040494
+      },
+      {
+        "yield": 0.1009,
+        "pu": 765.36,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.1109,
+        "pu": 746.3483549185039,
+        "variation": -0.024840134161043345
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2025-01-01",
+    "quote_date": "2021-09-10",
+    "convention": "D0",
+    "settlement_date": "2021-09-10",
+    "business_days": 831,
+    "official_pu": 725.94,
+    "base_yield": 0.102,
+    "theoretical_truncated": 725.94,
+    "difference": 0.0,
+    "matches": true,
+    "shocks": [
+      {
+        "yield": 0.092,
+        "pu": 748.0934569846155,
+        "variation": 0.030516925620044974
+      },
+      {
+        "yield": 0.102,
+        "pu": 725.94,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.112,
+        "pu": 704.6338979586865,
+        "variation": -0.029349673583648175
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2025-01-01",
+    "quote_date": "2021-09-10",
+    "convention": "D+1",
+    "settlement_date": "2021-09-13",
+    "business_days": 830,
+    "official_pu": 725.94,
+    "base_yield": 0.102,
+    "theoretical_truncated": 726.22,
+    "difference": 0.28,
+    "matches": false,
+    "shocks": [
+      {
+        "yield": 0.092,
+        "pu": 748.0663959846751,
+        "variation": 0.030479648434684828
+      },
+      {
+        "yield": 0.102,
+        "pu": 725.94,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.112,
+        "pu": 704.659157537682,
+        "variation": -0.029314877899438107
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2022-01-01",
+    "quote_date": "2021-09-10",
+    "convention": "D0",
+    "settlement_date": "2021-09-10",
+    "business_days": 78,
+    "official_pu": 978.56,
+    "base_yield": 0.0735,
+    "theoretical_truncated": 978.28,
+    "difference": -0.28,
+    "matches": false,
+    "shocks": [
+      {
+        "yield": 0.0635,
+        "pu": 981.3988297957958,
+        "variation": 0.0029010278325250862
+      },
+      {
+        "yield": 0.0735,
+        "pu": 978.56,
+        "variation": -2e-60
+      },
+      {
+        "yield": 0.0835,
+        "pu": 975.7555905182118,
+        "variation": -0.0028658533782171753
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2022-01-01",
+    "quote_date": "2021-09-10",
+    "convention": "D+1",
+    "settlement_date": "2021-09-13",
+    "business_days": 77,
+    "official_pu": 978.56,
+    "base_yield": 0.0735,
+    "theoretical_truncated": 978.56,
+    "difference": 0.0,
+    "matches": true,
+    "shocks": [
+      {
+        "yield": 0.0635,
+        "pu": 981.362382477967,
+        "variation": 0.0028637819632593045
+      },
+      {
+        "yield": 0.0735,
+        "pu": 978.56,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.0835,
+        "pu": 975.7914935777536,
+        "variation": -0.0028291636917985976
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2023-01-01",
+    "quote_date": "2021-09-10",
+    "convention": "D0",
+    "settlement_date": "2021-09-10",
+    "business_days": 329,
+    "official_pu": 891.33,
+    "base_yield": 0.0924,
+    "theoretical_truncated": 891.02,
+    "difference": -0.31,
+    "matches": false,
+    "shocks": [
+      {
+        "yield": 0.0824,
+        "pu": 902.0960738894869,
+        "variation": 0.012078662099880913
+      },
+      {
+        "yield": 0.0924,
+        "pu": 891.33,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.1024,
+        "pu": 880.7887742275467,
+        "variation": -0.011826400740975067
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2023-01-01",
+    "quote_date": "2021-09-10",
+    "convention": "D+1",
+    "settlement_date": "2021-09-13",
+    "business_days": 328,
+    "official_pu": 891.33,
+    "base_yield": 0.0924,
+    "theoretical_truncated": 891.33,
+    "difference": 0.0,
+    "matches": true,
+    "shocks": [
+      {
+        "yield": 0.0824,
+        "pu": 902.0631540234231,
+        "variation": 0.012041728678966305
+      },
+      {
+        "yield": 0.0924,
+        "pu": 891.33,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.1024,
+        "pu": 880.8206247918826,
+        "variation": -0.01179066698991103
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2026-01-01",
+    "quote_date": "2021-09-10",
+    "convention": "D0",
+    "settlement_date": "2021-09-10",
+    "business_days": 1083,
+    "official_pu": 654.14,
+    "base_yield": 0.1037,
+    "theoretical_truncated": 654.39,
+    "difference": 0.25,
+    "matches": false,
+    "shocks": [
+      {
+        "yield": 0.0937,
+        "pu": 680.2342045491009,
+        "variation": 0.03989085600804244
+      },
+      {
+        "yield": 0.1037,
+        "pu": 654.14,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.1137,
+        "pu": 629.2687598343674,
+        "variation": -0.03802128010155717
+      }
+    ]
+  },
+  {
+    "bond_id": "prefixado:2026-01-01",
+    "quote_date": "2021-09-10",
+    "convention": "D+1",
+    "settlement_date": "2021-09-13",
+    "business_days": 1082,
+    "official_pu": 654.14,
+    "base_yield": 0.1037,
+    "theoretical_truncated": 654.65,
+    "difference": 0.51,
+    "matches": false,
+    "shocks": [
+      {
+        "yield": 0.0937,
+        "pu": 680.2096363141944,
+        "variation": 0.039853297939576204
+      },
+      {
+        "yield": 0.1037,
+        "pu": 654.14,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.1137,
+        "pu": 629.291283148803,
+        "variation": -0.0379868481536017
+      }
+    ]
+  }
+]

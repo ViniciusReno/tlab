@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -28,9 +29,10 @@ const (
 )
 
 type Service struct {
-	store    *sqlite.Store
-	calendar *calendar.Calendar
-	source   string
+	store     *sqlite.Store
+	calendar  *calendar.Calendar
+	source    string
+	directory string
 }
 
 // DefaultDataDir follows the OS user configuration directory convention.
@@ -43,11 +45,27 @@ func DefaultDataDir() (string, error) {
 }
 
 func OpenPersistent(ctx context.Context, directory string) (*Service, error) {
+	if directory == "" {
+		return nil, bond.InvalidInput
+	}
+	directory, err := filepath.Abs(directory)
+	if err != nil {
+		return nil, err
+	}
+	f, err := assets.Files.Open("data/calendar/anbima-2002-2032-v1.json")
+	if err != nil {
+		return nil, err
+	}
+	cal, err := calendar.Load(f)
+	f.Close()
+	if err != nil {
+		return nil, err
+	}
 	store, err := sqlite.OpenPersistent(ctx, directory, assets.Files)
 	if err != nil {
 		return nil, err
 	}
-	return &Service{store: store, source: "synced"}, nil
+	return &Service{store: store, source: "synced", calendar: cal, directory: directory}, nil
 }
 
 func (s *Service) Source() string { return s.source }
@@ -181,7 +199,9 @@ type Result struct {
 	Maturity           string `json:"maturity"`
 	Provenance         string `json:"provenance"`
 	CalendarVersion    string `json:"calendar_version"`
-	FixtureVersion     string `json:"fixture_version"`
+	FixtureVersion     string `json:"fixture_version,omitempty"`
+	ImportedAt         string `json:"imported_at,omitempty"`
+	DataDirectory      string `json:"data_directory,omitempty"`
 	CalculationVersion string `json:"calculation_version"`
 	BuildVersion       string `json:"build_version"`
 }
@@ -207,9 +227,6 @@ func (s *Service) Analyze(ctx context.Context, r Request) (Result, error) {
 	if r.Source != s.source {
 		return Result{}, bond.SourceMismatch
 	}
-	if s.source != "demo" {
-		return Result{}, bond.SourceUnavailable
-	}
 	if !strings.HasPrefix(r.BondID, "prefixado:") {
 		return Result{}, bond.Unsupported
 	}
@@ -217,39 +234,25 @@ func (s *Service) Analyze(ctx context.Context, r Request) (Result, error) {
 	if err != nil {
 		return Result{}, err
 	}
-	if q.Bond.Kind != "prefixado" {
-		return Result{}, bond.Unsupported
-	}
-	settlement := q.Date
-	var pu, yield *float64
-	switch r.Basis {
-	case "purchase":
-		pu, yield = q.BuyPU, q.BuyYield
-	case "mark_to_market":
-		pu, yield = q.BasePU, q.SellYield
-	case "early_exit":
-		pu, yield = q.SellPU, q.SellYield
-	}
-	if pu == nil || yield == nil {
-		return Result{}, bond.MissingQuote
-	}
-	if r.Basis != "mark_to_market" {
-		settlement, err = s.calendar.Next(q.Date)
-		if err != nil {
-			return Result{}, err
-		}
-	}
-	days, err := s.calendar.Count(settlement, q.Bond.Maturity)
+	basis, err := pricing.ResolveBasis(q, r.Basis, s.calendar)
 	if err != nil {
 		return Result{}, err
 	}
-	calculated, err := pricing.Scenario(pricing.Input{BasePU: *pu, BaseYield: *yield, ScenarioYield: r.Yield, BusinessDays: days, Amount: r.Amount})
+	// No historical transition is inferred from quote equality or announcement dates.
+	if s.source == "synced" && r.Basis == "early_exit" {
+		return Result{}, bond.CalculationNotValidated
+	}
+	calculated, err := pricing.Scenario(pricing.Input{BasePU: basis.PU, BaseYield: basis.Yield, ScenarioYield: r.Yield, BusinessDays: basis.BusinessDays, Amount: r.Amount})
 	if err != nil {
 		return Result{}, err
+	}
+	fixtureVersion := ""
+	if s.source == "demo" {
+		fixtureVersion = FixtureVersion
 	}
 	return Result{Result: calculated, BondID: q.Bond.ID, Name: q.Bond.Name, Source: r.Source, Basis: r.Basis,
-		QuoteDate: q.Date.Format(time.DateOnly), SettlementDate: settlement.Format(time.DateOnly), Maturity: q.Bond.Maturity.Format(time.DateOnly),
-		Provenance: q.Source, CalendarVersion: s.calendar.Version, FixtureVersion: FixtureVersion, CalculationVersion: pricing.Version, BuildVersion: BuildVersion}, nil
+		QuoteDate: q.Date.Format(time.DateOnly), SettlementDate: basis.Settlement.Format(time.DateOnly), Maturity: q.Bond.Maturity.Format(time.DateOnly),
+		Provenance: q.Source, ImportedAt: q.ImportedAt, DataDirectory: s.directory, CalendarVersion: s.calendar.Version, FixtureVersion: fixtureVersion, CalculationVersion: pricing.Version, BuildVersion: BuildVersion}, nil
 }
 
 func Decimal(n float64) string { return strconv.FormatFloat(n, 'f', -1, 64) }
@@ -268,6 +271,14 @@ func (r Result) Command() string {
 		r.BondID, r.Source, r.Basis, r.QuoteDate, Decimal(r.ScenarioYield*100))
 	if r.Amount != nil {
 		c += " --amount " + Decimal(*r.Amount)
+	}
+	if r.DataDirectory != "" {
+		// Quote for the documented native shell: PowerShell on Windows, POSIX elsewhere.
+		path := strings.ReplaceAll(r.DataDirectory, "'", "'\"'\"'")
+		if runtime.GOOS == "windows" {
+			path = strings.ReplaceAll(r.DataDirectory, "'", "''")
+		}
+		c += " --data-dir '" + path + "'"
 	}
 	return c
 }

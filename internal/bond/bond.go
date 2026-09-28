@@ -11,15 +11,17 @@ type Error string
 func (e Error) Error() string { return string(e) }
 
 const (
-	InvalidInput          Error = "invalid_input"
-	MissingQuote          Error = "missing_quote"
-	Unsupported           Error = "unsupported"
-	SourceUnavailable     Error = "source_unavailable"
-	SourceMismatch        Error = "source_mismatch"
-	SchemaChanged         Error = "source_schema_changed"
-	CalendarOutOfRange    Error = "calendar_out_of_range"
-	NoRemainingTerm       Error = "no_remaining_term"
-	CalculationOutOfRange Error = "calculation_out_of_range"
+	InvalidInput            Error = "invalid_input"
+	MissingQuote            Error = "missing_quote"
+	Unsupported             Error = "unsupported"
+	SourceUnavailable       Error = "source_unavailable"
+	SyncFailed              Error = "sync_failed"
+	SourceMismatch          Error = "source_mismatch"
+	SchemaChanged           Error = "source_schema_changed"
+	CalendarOutOfRange      Error = "calendar_out_of_range"
+	NoRemainingTerm         Error = "no_remaining_term"
+	CalculationOutOfRange   Error = "calculation_out_of_range"
+	CalculationNotValidated Error = "calculation_not_validated"
 )
 
 func Message(err error) string {
@@ -29,11 +31,15 @@ func Message(err error) string {
 	case Unsupported:
 		return "This instrument or feature is not supported in this milestone."
 	case SourceUnavailable:
-		return "Official synchronization and synchronized analysis are not implemented yet. Start the offline demo with tesouro-lab demo."
+		return "The official source is unavailable. The offline demo remains available with tesouro-lab demo."
+	case CalculationNotValidated:
+		return "Synchronized early-redemption scenarios are unavailable while the official settlement convention is being validated. Purchase and official base PU scenarios remain available."
+	case SyncFailed:
+		return "Synchronization failed. Previously stored quotes are preserved; inspect the sync report and retry."
 	case SourceMismatch:
 		return "The requested source does not match this server. Start tesouro-lab demo for demo data or tesouro-lab for persistent data."
 	case CalendarOutOfRange:
-		return "The requested dates are outside verified calendar coverage (2012–2015)."
+		return "The requested dates are outside the selected calendar's verified coverage."
 	case NoRemainingTerm:
 		return "There are no remaining business days between settlement and maturity."
 	case CalculationOutOfRange:
@@ -58,6 +64,7 @@ type Quote struct {
 	BuyYield, SellYield   *float64
 	BuyPU, SellPU, BasePU *float64
 	Source                string
+	ImportedAt            string // UTC synchronization timestamp; empty for demo or legacy rows.
 }
 
 func ParseDate(value string) (time.Time, error) {
