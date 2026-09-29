@@ -1,0 +1,245 @@
+[
+  {
+    "bond_id": "ipca:2029-05-15",
+    "quote_date": "2026-09-04",
+    "basis": "purchase",
+    "settlement_date": "2026-09-08",
+    "business_days": 669,
+    "base_pu": 3876.96,
+    "base_yield": 0.078,
+    "derived_fixed_indexation_anchor": "4732.45359333036408047467480710239987805196061310169013686400",
+    "shocks": [
+      {
+        "yield": 0.068,
+        "pu": 3974.0789506153073,
+        "variation": 0.025050284402033426
+      },
+      {
+        "yield": 0.078,
+        "pu": 3876.96,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.088,
+        "pu": 3783.078628899158,
+        "variation": -0.024215202401067264
+      }
+    ]
+  },
+  {
+    "bond_id": "ipca:2029-05-15",
+    "quote_date": "2026-09-04",
+    "basis": "mark_to_market",
+    "settlement_date": "2026-09-04",
+    "business_days": 670,
+    "base_pu": 3865.75,
+    "base_yield": 0.0792,
+    "derived_fixed_indexation_anchor": "4734.15945739900632410120680150720996942399343330430296330737",
+    "shocks": [
+      {
+        "yield": 0.0692,
+        "pu": 3962.6249977780267,
+        "variation": 0.025059819641214953
+      },
+      {
+        "yield": 0.0792,
+        "pu": 3865.75,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.0892,
+        "pu": 3772.1043621863605,
+        "variation": -0.02422444229803777
+      }
+    ]
+  },
+  {
+    "bond_id": "ipca:2029-05-15",
+    "quote_date": "2026-09-04",
+    "basis": "early_exit",
+    "settlement_date": "2026-09-04",
+    "business_days": 670,
+    "base_pu": 3865.75,
+    "base_yield": 0.0792,
+    "derived_fixed_indexation_anchor": "4734.15945739900632410120680150720996942399343330430296330737",
+    "shocks": [
+      {
+        "yield": 0.0692,
+        "pu": 3962.6249977780267,
+        "variation": 0.025059819641214953
+      },
+      {
+        "yield": 0.0792,
+        "pu": 3865.75,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.0892,
+        "pu": 3772.1043621863605,
+        "variation": -0.02422444229803777
+      }
+    ]
+  },
+  {
+    "bond_id": "ipca:2015-05-15",
+    "quote_date": "2012-02-17",
+    "basis": "purchase",
+    "settlement_date": "2012-02-22",
+    "business_days": 812,
+    "base_pu": 1843.43,
+    "base_yield": 0.0447,
+    "derived_fixed_indexation_anchor": "2122.37337793526103788287359463833911892812604324854611843437",
+    "shocks": [
+      {
+        "yield": 0.0347,
+        "pu": 1901.4562720782521,
+        "variation": 0.0314773395671396
+      },
+      {
+        "yield": 0.0447,
+        "pu": 1843.43,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.0547,
+        "pu": 1787.702245313467,
+        "variation": -0.030230469660650523
+      }
+    ]
+  },
+  {
+    "bond_id": "ipca:2015-05-15",
+    "quote_date": "2012-02-17",
+    "basis": "mark_to_market",
+    "settlement_date": "2012-02-17",
+    "business_days": 813,
+    "base_pu": 1839.28,
+    "base_yield": 0.0451,
+    "derived_fixed_indexation_anchor": "2120.58026005810159232329397314739094634770821112017008969553",
+    "shocks": [
+      {
+        "yield": 0.0351,
+        "pu": 1897.2254119803258,
+        "variation": 0.031504399536952415
+      },
+      {
+        "yield": 0.0451,
+        "pu": 1839.28,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.0551,
+        "pu": 1783.6311546485922,
+        "variation": -0.030255776908033473
+      }
+    ]
+  },
+  {
+    "bond_id": "ipca:2015-05-15",
+    "quote_date": "2012-02-17",
+    "basis": "early_exit",
+    "settlement_date": "2012-02-22",
+    "business_days": 812,
+    "base_pu": 1841.15,
+    "base_yield": 0.0451,
+    "derived_fixed_indexation_anchor": "2122.36470640070311295419563175627169490792838514091567520792",
+    "shocks": [
+      {
+        "yield": 0.0351,
+        "pu": 1899.0818683189307,
+        "variation": 0.03146504538952864
+      },
+      {
+        "yield": 0.0451,
+        "pu": 1841.15,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.0551,
+        "pu": 1785.512048824044,
+        "variation": -0.030219129987212347
+      }
+    ]
+  },
+  {
+    "bond_id": "ipca:2050-08-15",
+    "quote_date": "2026-09-04",
+    "basis": "purchase",
+    "settlement_date": "2026-09-08",
+    "business_days": 5994,
+    "base_pu": 889.56,
+    "base_yield": 0.0728,
+    "derived_fixed_indexation_anchor": "4732.44817918547262021897050195621692982265534054697078928519",
+    "shocks": [
+      {
+        "yield": 0.0628,
+        "pu": 1111.5191713154372,
+        "variation": 0.24951568338890834
+      },
+      {
+        "yield": 0.0728,
+        "pu": 889.56,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.0828,
+        "pu": 713.3967599047758,
+        "variation": -0.198034129339476
+      }
+    ]
+  },
+  {
+    "bond_id": "ipca:2050-08-15",
+    "quote_date": "2026-09-04",
+    "basis": "mark_to_market",
+    "settlement_date": "2026-09-04",
+    "business_days": 5995,
+    "base_pu": 866.28,
+    "base_yield": 0.074,
+    "derived_fixed_indexation_anchor": "4734.13130061867805542079751902980880123398453189283446612244",
+    "shocks": [
+      {
+        "yield": 0.064,
+        "pu": 1082.1999826227684,
+        "variation": 0.24924964517565731
+      },
+      {
+        "yield": 0.074,
+        "pu": 866.28,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.084,
+        "pu": 694.8719738084679,
+        "variation": -0.19786677078026974
+      }
+    ]
+  },
+  {
+    "bond_id": "ipca:2050-08-15",
+    "quote_date": "2026-09-04",
+    "basis": "early_exit",
+    "settlement_date": "2026-09-04",
+    "business_days": 5995,
+    "base_pu": 866.28,
+    "base_yield": 0.074,
+    "derived_fixed_indexation_anchor": "4734.13130061867805542079751902980880123398453189283446612244",
+    "shocks": [
+      {
+        "yield": 0.064,
+        "pu": 1082.1999826227684,
+        "variation": 0.24924964517565731
+      },
+      {
+        "yield": 0.074,
+        "pu": 866.28,
+        "variation": 0.0
+      },
+      {
+        "yield": 0.084,
+        "pu": 694.8719738084679,
+        "variation": -0.19786677078026974
+      }
+    ]
+  }
+]

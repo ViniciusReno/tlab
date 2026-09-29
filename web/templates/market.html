@@ -13,7 +13,7 @@
   <section class="intro">
     <p class="eyebrow">OFFICIAL QUOTES STORED LOCALLY</p>
     <h1>{{if .Error}}Data unavailable{{else if .IsHistory}}Quote history{{else}}Market{{end}}</h1>
-    <p class="lead">Tesouro Prefixado is a fixed-rate bond without coupons. Its nominal payment at maturity is fixed; its quoted unit price changes as market yields change.</p>
+    <p class="lead">Tesouro Prefixado has a fixed nominal payment. IPCA+ links its principal to inflation; its quoted yield is a real rate above inflation. Selic follows the Selic rate; its quoted rate is a spread, not the current Selic rate. Coupon-paying and other instruments are unsupported.</p>
     <p>These are daily official records, not live offers. Each value belongs to its stated quote date. Open a scenario to explore a hypothetical yield change while holding that date fixed.</p>
   </section>
   {{if .Error}}
@@ -24,8 +24,8 @@
     <p>Historical records, newest first. Gaps are not filled. A missing field is unavailable, not zero.</p>
     <div class="table-wrap" role="region" aria-label="Historical quotes" tabindex="0"><table>
       <caption>Official purchase quotes · prices per bond in BRL; yields per year</caption>
-      <thead><tr><th scope="col">Quote date</th><th scope="col">Official buy yield</th><th scope="col">Official buy PU</th><th scope="col">Hypothetical scenario</th></tr></thead>
-      <tbody>{{range .History.Quotes}}<tr><th scope="row">{{date .Date}}</th><td>{{quoteYield .BuyYield}}</td><td>{{quoteMoney .BuyPU}}</td><td>{{template "scenarioLinks" .}}</td></tr>{{end}}</tbody>
+      <thead><tr><th scope="col">Quote date</th><th scope="col">Official buy yield</th><th scope="col">Official buy PU</th><th scope="col">Official base PU</th><th scope="col">Hypothetical scenario</th></tr></thead>
+      <tbody>{{range .History.Quotes}}<tr><th scope="row">{{date .Date}}</th><td>{{quoteYield .BuyYield}} {{if eq .Bond.Kind "ipca"}}(real){{else if eq .Bond.Kind "selic"}}(spread){{end}}</td><td>{{quoteMoney .BuyPU}}</td><td>{{quoteMoney .BasePU}}</td><td>{{template "scenarioLinks" .}}</td></tr>{{end}}</tbody>
     </table></div>
     {{if .History.Before}}<p><a href="{{historyURL .BondID .History.Before}}">Older records</a></p>{{end}}
   </section>
@@ -48,11 +48,11 @@
     {{if .Market.Quotes}}
     <div class="table-wrap" role="region" aria-label="Market quotes" tabindex="0"><table>
       <caption>Latest stored purchase quote per bond · prices in BRL; yields per year</caption>
-      <thead><tr><th scope="col">Bond / maturity</th><th scope="col">Official quote date</th><th scope="col">Official buy yield</th><th scope="col">Official buy PU</th><th scope="col">State</th><th scope="col">Hypothetical scenario</th></tr></thead>
+      <thead><tr><th scope="col">Bond / maturity</th><th scope="col">Official quote date</th><th scope="col">Official buy yield</th><th scope="col">Official buy PU</th><th scope="col">Official base PU</th><th scope="col">State</th><th scope="col">Hypothetical scenario</th></tr></thead>
       <tbody>{{range .Market.Quotes}}<tr>
         <th scope="row"><a href="{{historyURL .Bond.ID ""}}">{{.Bond.Name}} · {{date .Bond.Maturity}}</a></th>
         <td>{{date .Date}}</td>
-        {{if eq .Status "matured"}}<td>Historical view only</td><td>Historical view only</td>{{else}}<td>{{quoteYield .BuyYield}}</td><td>{{quoteMoney .BuyPU}}</td>{{end}}
+        {{if eq .Status "matured"}}<td>Historical view only</td><td>Historical view only</td><td>Historical view only</td>{{else}}<td>{{quoteYield .BuyYield}} {{if eq .Bond.Kind "ipca"}}(real){{else if eq .Bond.Kind "selic"}}(spread){{end}}</td><td>{{quoteMoney .BuyPU}}</td><td>{{quoteMoney .BasePU}}</td>{{end}}
         <td>{{if eq .Status "matured"}}Matured on {{date .Bond.Maturity}}{{else if eq .Status "older_quote"}}Older quote · missing at dataset date{{else if eq .Status "no_quote"}}Purchase quote unavailable{{else if eq .Status "latest"}}Latest in dataset{{else}}Freshness unknown{{end}}</td>
         <td>{{if eq .Status "matured"}}Open history{{else}}{{template "scenarioLinks" .Quote}}{{end}}</td>
       </tr>{{end}}</tbody>
@@ -72,7 +72,7 @@
   {{end}}
   <section class="panel technical">
     <h2>Local data and offline demo</h2>
-    <p>Import official Prefixado quotes with <code>tesouro-lab sync</code>, then reload. If the server uses <code>--data-dir PATH</code>, pass the same directory to sync. No automatic sync runs in the browser.</p>
+    <p>Import official Prefixado, IPCA+, and Selic quotes with <code>tesouro-lab sync</code>, then reload. If the server uses <code>--data-dir PATH</code>, pass the same directory to sync. No automatic sync runs in the browser.</p>
     <p>For the separate offline scenario demo, stop this server with Ctrl+C and run <code>tesouro-lab demo</code> (from source: <code>go run ./cmd/tesouro-lab demo</code>). The demo uses a temporary database; persistent data stays on disk.</p>
   </section>
 </main>
@@ -90,7 +90,9 @@
 </dl>
 {{end}}
 {{define "scenarioLinks"}}
+{{if eq .Bond.Kind "selic"}}Selic scenarios unsupported · official quotes only{{else}}
 {{with scenarioURL . "purchase"}}<a href="{{.}}">Purchase quote scenario</a>{{else}}Purchase scenario unavailable{{end}}<br>
 {{with scenarioURL . "mark_to_market"}}<a href="{{.}}">Official base PU scenario</a>{{else}}Base PU scenario unavailable{{end}}<br>
 {{with scenarioURL . "early_exit"}}<a href="{{.}}">Check early-redemption scenario</a>{{else}}Early-redemption scenario unavailable{{end}}
+{{end}}
 {{end}}

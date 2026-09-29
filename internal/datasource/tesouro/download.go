@@ -89,7 +89,7 @@ func (c Client) Fetch(ctx context.Context) (Download, error) {
 		return result, fmt.Errorf("official CSV has missing columns, malformed or duplicate rows, or no data: %w", err)
 	}
 	if len(result.Quotes) == 0 {
-		return result, fmt.Errorf("no supported Prefixado rows: %w", bond.MissingQuote)
+		return result, fmt.Errorf("no supported instrument rows: %w", bond.MissingQuote)
 	}
 	return result, nil
 }

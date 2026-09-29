@@ -73,7 +73,7 @@ func TestSyncedScenariosAgainstIndependentFixtures(t *testing.T) {
 				if math.Abs(out.ScenarioPU-shock.PU) > 1e-9 || math.Abs(out.Variation-shock.Variation) > 1e-12 || math.Abs(out.BasePU-tc.BasePU) > 1e-9 || math.Abs(out.BaseYield-tc.BaseYield) > 1e-12 {
 					t.Fatalf("independent expectation: %+v, want %+v", out, shock)
 				}
-				if out.BusinessDays != tc.BusinessDays || out.SettlementDate != tc.SettlementDate || out.QuoteDate != tc.QuoteDate || out.CalendarVersion != tc.CalendarVersion || out.FixtureVersion != "" || out.ImportedAt != "2026-09-15T12:00:00Z" {
+				if out.BusinessDays != tc.BusinessDays || out.SettlementDate != tc.SettlementDate || out.QuoteDate != tc.QuoteDate || out.CalendarVersion != "anbima-2002-2050-v1" || out.FixtureVersion != "" || out.ImportedAt != "2026-09-15T12:00:00Z" {
 					t.Fatalf("resolved metadata: %+v", out)
 				}
 				replay, err := ParseRequest(out.Values(), "synced")
@@ -154,7 +154,7 @@ func TestSyncedSelectionAndBoundaries(t *testing.T) {
 	}{
 		{"2026-09-04", "2026-09-08", bond.NoRemainingTerm},
 		{"2026-09-08", "2026-09-08", bond.NoRemainingTerm},
-		{"2026-09-04", "2033-01-01", bond.CalendarOutOfRange},
+		{"2026-09-04", "2051-01-01", bond.CalendarOutOfRange},
 	} {
 		changed := q
 		changed.Date, _ = bond.ParseDate(tc.date)

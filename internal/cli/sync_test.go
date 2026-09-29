@@ -59,7 +59,7 @@ func TestSyncCLIReportsPersistsAndRetriesOffline(t *testing.T) {
 			if report.Status != "failed" || report.ErrorMessage == "" || !strings.Contains(errOut.String(), "sync_failed") {
 				t.Fatalf("failure output: %+v %s", report, &errOut)
 			}
-		} else if report.Status != "success" || report.RecordsWritten != 2 || report.RecordsRead != 10 || report.DatasetMaxQuoteDate != "2026-09-04" || errOut.Len() != 0 {
+		} else if report.Status != "success" || report.RecordsWritten != 4 || report.RecordsRead != 10 || report.DatasetMaxQuoteDate != "2026-09-04" || errOut.Len() != 0 {
 			t.Fatalf("success output: %+v %s", report, &errOut)
 		}
 		s, err := sqlite.OpenPersistent(ctx, dir, assets.Files)

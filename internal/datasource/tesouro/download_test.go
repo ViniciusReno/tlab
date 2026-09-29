@@ -47,7 +47,7 @@ func TestFetchOfficialFixtureAndProvenance(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(requested) != 2 || got.ResourceID != "796d2059-14e9-44e3-80c9-2d9e30b405c1" || got.SourceURL != requested[1] || len(got.Quotes) != 2 || got.RecordsRead != 10 || got.MaxQuoteDate.Format(time.DateOnly) != "2026-09-04" {
+	if len(requested) != 2 || got.ResourceID != "796d2059-14e9-44e3-80c9-2d9e30b405c1" || got.SourceURL != requested[1] || len(got.Quotes) != 4 || got.RecordsRead != 10 || got.MaxQuoteDate.Format(time.DateOnly) != "2026-09-04" {
 		t.Fatalf("unexpected download: %+v requests=%v", got, requested)
 	}
 	for _, q := range got.Quotes {
@@ -174,7 +174,10 @@ func TestFetchCancellationAndUnsupportedOnly(t *testing.T) {
 		t.Fatalf("cancellation: %v", err)
 	}
 	metadata := fixture(t, "package-show.json")
-	csv := strings.ReplaceAll(fixture(t, "official-quotes.csv"), "Tesouro Prefixado;", "Unknown instrument;")
+	csv := fixture(t, "official-quotes.csv")
+	for _, name := range []string{"Tesouro Prefixado;", "Tesouro IPCA+;", "Tesouro Selic;"} {
+		csv = strings.ReplaceAll(csv, name, "Unknown instrument;")
+	}
 	client.Transport = roundTripFunc(func(r *http.Request) (*http.Response, error) {
 		if r.URL.String() == PackageURL {
 			return response(r, "application/json", metadata), nil
@@ -182,7 +185,7 @@ func TestFetchCancellationAndUnsupportedOnly(t *testing.T) {
 		return response(r, "text/csv", csv), nil
 	})
 	got, err := client.Fetch(context.Background())
-	if !errors.Is(err, bond.MissingQuote) || got.RecordsRead != 10 || got.Unsupported["Unknown instrument"] != 2 {
+	if !errors.Is(err, bond.MissingQuote) || got.RecordsRead != 10 || got.Unsupported["Unknown instrument"] != 4 {
 		t.Fatalf("zero supported rows: %+v %v", got, err)
 	}
 }

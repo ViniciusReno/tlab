@@ -22,10 +22,13 @@ import (
 )
 
 const (
-	DemoBond       = "prefixado:2015-01-01"
-	FixtureVersion = "prefixado-2012-v1"
-	OfficialSource = "https://www.tesourodireto.com.br/documents/d/guest/tesouro_prefixado"
-	BuildVersion   = "0.1.0-dev"
+	DemoBond           = "prefixado:2015-01-01"
+	DemoIPCABond       = "ipca:2015-05-15"
+	IPCAFixtureVersion = "ipca-2012-v1"
+	IPCASource         = "https://www.tesourotransparente.gov.br/ckan/dataset/df56aa42-484a-4a59-8184-7676580c81e3/resource/796d2059-14e9-44e3-80c9-2d9e30b405c1/download/precotaxatesourodireto.csv"
+	FixtureVersion     = "prefixado-2012-v1"
+	OfficialSource     = "https://www.tesourodireto.com.br/documents/d/guest/tesouro_prefixado"
+	BuildVersion       = "0.1.0-dev"
 )
 
 type Service struct {
@@ -52,7 +55,7 @@ func OpenPersistent(ctx context.Context, directory string) (*Service, error) {
 	if err != nil {
 		return nil, err
 	}
-	f, err := assets.Files.Open("data/calendar/anbima-2002-2032-v1.json")
+	f, err := assets.Files.Open("data/calendar/anbima-2002-2050-v1.json")
 	if err != nil {
 		return nil, err
 	}
@@ -93,6 +96,16 @@ func OpenDemo(ctx context.Context) (*Service, error) {
 	if err != nil {
 		return nil, err
 	}
+	f, err = assets.Files.Open("data/demo/ipca.csv")
+	if err != nil {
+		return nil, err
+	}
+	ipcaQuotes, err := tesouro.Parse(f, IPCASource)
+	f.Close()
+	if err != nil {
+		return nil, err
+	}
+	quotes = append(quotes, ipcaQuotes...)
 	store, err := sqlite.OpenMemory(ctx, assets.Files)
 	if err != nil {
 		return nil, err
@@ -192,6 +205,8 @@ type Result struct {
 	pricing.Result
 	BondID               string `json:"bond_id"`
 	Name                 string `json:"name"`
+	Kind                 string `json:"kind"`
+	YieldType            string `json:"yield_type"`
 	Source               string `json:"source"`
 	Basis                string `json:"basis"`
 	QuoteDate            string `json:"quote_date"`
@@ -229,7 +244,7 @@ func (s *Service) Analyze(ctx context.Context, r Request) (Result, error) {
 	if r.Source != s.source {
 		return Result{}, bond.SourceMismatch
 	}
-	if !strings.HasPrefix(r.BondID, "prefixado:") {
+	if !strings.HasPrefix(r.BondID, "prefixado:") && !strings.HasPrefix(r.BondID, "ipca:") {
 		return Result{}, bond.Unsupported
 	}
 	q, err := s.store.Quote(ctx, r.BondID, r.Date)
@@ -240,7 +255,7 @@ func (s *Service) Analyze(ctx context.Context, r Request) (Result, error) {
 	if err != nil {
 		return Result{}, err
 	}
-	if s.source == "synced" && r.Basis == "early_exit" {
+	if s.source == "synced" && q.Bond.Kind == "prefixado" && r.Basis == "early_exit" {
 		if err := pricing.ValidateRedemption(basis); err != nil {
 			return Result{}, err
 		}
@@ -252,8 +267,15 @@ func (s *Service) Analyze(ctx context.Context, r Request) (Result, error) {
 	fixtureVersion := ""
 	if s.source == "demo" {
 		fixtureVersion = FixtureVersion
+		if q.Bond.Kind == "ipca" {
+			fixtureVersion = IPCAFixtureVersion
+		}
 	}
-	return Result{Result: calculated, BondID: q.Bond.ID, Name: q.Bond.Name, Source: r.Source, Basis: r.Basis,
+	yieldType := "nominal"
+	if q.Bond.Kind == "ipca" {
+		yieldType = "real"
+	}
+	return Result{Result: calculated, BondID: q.Bond.ID, Name: q.Bond.Name, Kind: q.Bond.Kind, YieldType: yieldType, Source: r.Source, Basis: r.Basis,
 		QuoteDate: q.Date.Format(time.DateOnly), SettlementDate: basis.Settlement.Format(time.DateOnly), Maturity: q.Bond.Maturity.Format(time.DateOnly),
 		Provenance: q.Source, ImportedAt: q.ImportedAt, DataDirectory: s.directory, CalendarVersion: s.calendar.Version, FixtureVersion: fixtureVersion, CalculationVersion: pricing.Version, SettlementVersion: pricing.SettlementVersion, SettlementConvention: basis.Convention, BuildVersion: BuildVersion}, nil
 }

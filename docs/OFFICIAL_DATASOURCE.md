@@ -56,3 +56,10 @@ The embedded `anbima-2002-2032-v1` calendar is unchanged. The warning works offl
 The maintainer approved the [M2 settlement amendment](M2_SETTLEMENT_DECISION.md) on 2026-09-28. The metadata's unconditional SellPU D+1 wording conflicts with the 2021 operational change and the transition records. Runtime Prefixado morning-redemption scenarios now use D+1 before 2021-09-13 and D0 thereafter, and require per-record standalone PU validation (truncated to cents; BRL 0.01 tolerance). The original official SellPU remains the scenario anchor. Historical-calendar mismatches return `calculation_not_validated`; raw history stays visible. This does not model actual execution, after-13:00 requests, or suspended trading. Purchase and BasePU contexts remain unchanged.
 
 The metadata PDF also explicitly states publication on the first business day after secondary-market close. This supports the previous-business-day reference in the dataset-age policy; no intraday publication time is assumed.
+
+
+## M3 supported instrument normalization
+
+M3 imports exact official names `Tesouro Prefixado`, `Tesouro IPCA+`, and `Tesouro Selic`, normalized to kinds `prefixado`, `ipca`, and `selic`. All three retain distinct buy/sell/base fields and undergo positive-PU, finite-yield, date, and natural-key duplicate validation. No coupon-bearing instrument is mapped to a zero-coupon kind. Unsupported names remain explicitly counted in the sync report.
+
+The original ten-row mixed fixture now imports four rows and excludes six rows across five names; its source contents are unchanged. The new attributed IPCA+/Selic extracts and independent analytical expectations are documented in [M3 fixtures](../internal/pricing/testdata/M3_README.md). IPCA+ yields are real rates; Selic rates are spreads and never drive yield-shock analysis. Synced quotes outside the verified scenario calendar remain available for display, with calculation unavailable rather than guessed terms.

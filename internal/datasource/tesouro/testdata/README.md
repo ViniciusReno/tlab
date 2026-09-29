@@ -34,6 +34,6 @@ Source revisions may change hashes and line numbers. Check the full-file hash be
 
 The CKAN Prefixado 2015 row for 2012-01-03 has purchase yield 10.83% and purchase PU BRL 734.86. The separate official methodology example in `data/demo` uses 10.88% and BRL 733.86. Neither source is substituted for the other; this fixture does not revise the demo or establish a pricing/calendar validation baseline.
 
-M2 imports only no-coupon Prefixado. Other names are counted as unsupported in this milestone, including IPCA+ and Selic pending M3. Unsupported rows have their dates and numeric syntax checked but never become domain prices. A zero PU in an excluded coupon record is not inferred to mean missing and is not accepted as a valid Prefixado price.
+M2 originally imported only no-coupon Prefixado. M3 imports no-coupon IPCA+ and Selic as well, so this unchanged fixture now yields four supported rows and six excluded rows across five names. Unsupported rows have their dates and numeric syntax checked but never become domain prices. A zero PU in an excluded coupon record is not inferred to mean missing and is not accepted as a valid Prefixado price.
 
 No empty numeric fields were observed in the downloaded Prefixado records. Nullable-field, reordered-header, BOM, extra-column, malformed-input, and size-limit tests use explicitly synthetic variations. Empty numeric fields remain nil; missing columns fail. Parser comparisons use absolute tolerances of 1e-12 for normalized yields and BRL 1e-9 for PUs. These are parsing tests, not financial repricing validation.

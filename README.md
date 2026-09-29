@@ -2,7 +2,7 @@
 
 A local educational lab for Brazilian government bonds, built around official data, transparent calculations, and hypothetical scenarios.
 
-**Status: M1 and M2 implemented.** Official synchronization, market/history, dataset-age warnings, and Prefixado scenarios are available. Morning early-redemption scenarios use the approved historical settlement rule and per-record PU validation; mismatching rows remain explicitly unavailable. Run from source or build a local executable. No downloadable release has been published; M3–M5 remain planned.
+**Status: M1–M3 implemented: offline demos, official synchronization, IPCA+ same-date scenarios, and Selic market/history support.** Synchronized scenarios use the verified ANBIMA calendar through 2050. Portfolio and V1 closure remain planned. Run from source or build a local executable; no downloadable release has been published.
 
 Tesouro Lab helps beginners understand bond prices and yield changes while letting technical readers inspect the same inputs, formulas, calendars, and results. It does not recommend investments, predict yields, or execute transactions.
 
@@ -64,15 +64,15 @@ go run ./cmd/tesouro-lab sync
 
 For a custom database, use `go run ./cmd/tesouro-lab sync --data-dir ./local-data`, and start the server with the same `--data-dir`. The compiled equivalent is `./tesouro-lab sync` (`.\tesouro-lab.exe sync` in Windows PowerShell).
 
-The command discovers the official CSV through CKAN, imports no-coupon Prefixado quotes, and prints a JSON report with row counts, excluded instrument names, resource provenance, the local import timestamp, and `dataset_max_quote_date` from official `Data Base` values. This date covers the full validated CSV, including excluded rows; it is not the download date. Other instruments remain excluded until their milestone.
+The command discovers the official CSV through CKAN, imports no-coupon Prefixado, no-coupon IPCA+, and Selic quotes, and prints a JSON report with row counts, excluded instrument names, resource provenance, the local import timestamp, and `dataset_max_quote_date` from official `Data Base` values. This date covers the full validated CSV, including excluded rows; it is not the download date. Coupon-bearing bonds, RendA+, Educa+, and other instruments remain excluded.
 
 Repeated imports update the same bond/date records without duplicates. Missing fields remain unavailable. Failed downloads, parsing, or database writes preserve prior quotes and produce a failed report and nonzero exit code. Run status is stored separately in `sync_runs`; no background sync or HTTP sync endpoint exists. Demo mode remains isolated and offline.
 
-Downloads require internet access and are limited to the official HTTPS host, 1 MiB of metadata, 32 MiB of CSV, and 60 seconds per HTTP request including redirects and body reading. Reload the market screen after importing. M2.4 adds a verified 2002–2032 calendar and independent context fixtures; the demo retains its original 2012–2015 calendar. Morning early-redemption scenarios use D+1 before 2021-09-13 and D0 thereafter, with per-record validation. Historical calendar discrepancies can leave individual scenarios unavailable. See the [validation evidence](internal/pricing/testdata/README.md).
+Downloads require internet access and are limited to the official HTTPS host, 1 MiB of metadata, 32 MiB of CSV, and 60 seconds per HTTP request including redirects and body reading. Reload the market screen after importing. M3 extends the verified calendar to 2002–2050 with official ANBIMA tables; the demo retains its original 2012–2015 calendar. Morning early-redemption scenarios use D+1 before 2021-09-13 and D0 thereafter, with per-record standalone validation for Prefixado. IPCA+ preserves a fixed same-date indexation anchor. Historical calendar discrepancies can leave individual scenarios unavailable. See the [validation evidence](internal/pricing/testdata/README.md).
 
 ### Browse market and history
 
-Open `/market` (also the persistent server's home page). The default list shows non-matured Prefixado bonds with the latest stored purchase quote and its official date. States distinguish the dataset's latest date, older quotes, missing purchase fields, and unknown freshness when successful-import metadata is absent. Import time is displayed separately and never treated as a market date.
+Open `/market` (also the persistent server's home page). The default list shows non-matured supported bonds with the latest stored purchase quote and its official date. States distinguish the dataset's latest date, older quotes, missing purchase fields, and unknown freshness when successful-import metadata is absent. Import time is displayed separately and never treated as a market date.
 
 Choose **Include matured bonds** to find historical titles. Matured rows show their maturity date and direct you to history instead of displaying a current price. Select a bond to view `/history?bond=<bond-id>`, with 100 records per page and an **Older records** link. Missing dates and fields are never filled. Advanced details expose the distinct buy/sell/base fields and each record's source/import timestamp. Both views work offline after synchronization and without JavaScript. Purchase, official base PU, and early-redemption scenario links preserve the exact quote date and context, including historical scenarios for matured bonds.
 
@@ -92,11 +92,21 @@ go run ./cmd/tesouro-lab analyze prefixado:2015-01-01 --source demo --basis purc
 
 This changes the example's annual yield from 10.88% to a hypothetical 8.88%, producing a scenario unit price of approximately BRL 774.99 from the official BRL 733.86 baseline. These are not current market values. See [fixture provenance and assumptions](data/demo/README.md).
 
+The demo also includes an official historical IPCA+ example. Select **IPCA+ example** in the browser or run:
+
+```sh
+go run ./cmd/tesouro-lab analyze ipca:2015-05-15 --source demo --basis purchase --date 2012-02-17 --yield 3.47 --amount 10000
+```
+
+The quoted real yield changes hypothetically from 4.47% to 3.47%, holding the date and indexation base constant. No future IPCA is assumed. The resulting PU is approximately BRL 1,901.46 from BRL 1,843.43. See [independent IPCA+ evidence](internal/pricing/testdata/M3_README.md).
+
+Selic is limited to official quotes and history. Its quoted yield is a spread, not the current Selic rate; every scenario context returns `unsupported`. Official PU Base is stored and displayed for later portfolio valuation in M4. Synchronized scenarios with dates or maturities outside 2002–2050 return `calendar_out_of_range`; quotes outside that coverage can still be inspected in history.
+
 Docker may become an optional convenience later. It is not the primary installation path or an M1 dependency.
 
 ## V1 scope
 
-The table describes the target V1, not today's complete feature set. Prefixado demo scenarios and synchronized market/history browsing are implemented; IPCA+, Selic, and portfolios are not yet available. Early-redemption rows that fail validation remain unavailable.
+The table describes the target V1, not today's complete feature set. Prefixado demo scenarios and synchronized market/history browsing are implemented; IPCA+ scenarios and Selic quotes are available; portfolios are not yet implemented. Early-redemption rows that fail validation remain unavailable.
 
 | Instrument | Supported behavior |
 |---|---|
@@ -105,6 +115,8 @@ The table describes the target V1, not today's complete feature set. Prefixado d
 | Tesouro Selic | Official market/history and portfolio valuation only |
 
 Coupon-paying bonds, RendA+, Educa+, other asset classes, investment recommendations, forecasts, brokerage integrations, accounts, cloud sync, and AI features are outside V1.
+
+IPCA+ reuses the anchored equation with real yields and a fixed indexation base; it does not apply the Prefixado standalone formula or reconstruct an official VNA.
 
 Simple mode explains results in plain language. Advanced mode exposes the inputs, quote/settlement dates, assumptions, formulas, and provenance behind the same calculation. Missing information is shown as unavailable, never invented or treated as zero.
 
@@ -122,10 +134,10 @@ All authored repository content and the application interface are in English. Of
 |---|---|
 | `tesouro-lab [--data-dir PATH] [--port 8080]` | Start local persistent storage; show an empty state before data is imported |
 | `tesouro-lab demo` | Start the isolated offline demo |
-| `tesouro-lab sync [--data-dir PATH]` | Import official Prefixado quotes and print a JSON success/failure report |
+| `tesouro-lab sync [--data-dir PATH]` | Import official Prefixado, IPCA+, and Selic quotes and print a JSON success/failure report |
 | `tesouro-lab analyze <bond-id> --source demo|synced --yield <percent>` | Run the same scenario calculation used by the browser |
 
-`analyze` accepts `--source demo|synced`, `--basis purchase|mark_to_market|early_exit`, `--date YYYY-MM-DD`, and an optional `--amount` in BRL. For example, `--yield 12.00` means 12% per year. The source defaults to `synced`, reading existing local quotes without syncing. Use `--data-dir PATH` for a custom synchronized database; demo analysis rejects this flag. The default context is purchase and the default date is the latest available quote for the bond. The resolved quote date is reported. An explicit missing date or incomplete context returns `missing_quote`, without searching backward. The demo fixture has no base/sell quotes; those contexts return `missing_quote`. Synchronized early redemption validates the selected SellPU/yield against the standalone theoretical PU (truncated to two decimals, tolerance BRL 0.01), then uses the official SellPU for the anchored scenario. A mismatch returns `calculation_not_validated` without substituting another quote or calendar. Analysis never triggers synchronization automatically.
+`analyze` accepts `--source demo|synced`, `--basis purchase|mark_to_market|early_exit`, `--date YYYY-MM-DD`, and an optional `--amount` in BRL. For example, `--yield 12.00` means 12% per year. The source defaults to `synced`, reading existing local quotes without syncing. Use `--data-dir PATH` for a custom synchronized database; demo analysis rejects this flag. The default context is purchase and the default date is the latest available quote for the bond. The resolved quote date is reported. An explicit missing date or incomplete context returns `missing_quote`, without searching backward. The Prefixado demo fixture has no base/sell quotes; those contexts return `missing_quote`. The IPCA+ demo includes all three contexts. Synchronized Prefixado early redemption validates the selected SellPU/yield against the standalone theoretical PU (truncated to two decimals, tolerance BRL 0.01), then uses the official SellPU for the anchored scenario. A mismatch returns `calculation_not_validated` without substituting another quote or calendar. Analysis never triggers synchronization automatically.
 
 After synchronization, reproduce a hypothetical scenario using an exact historical quote (the record must exist locally):
 
@@ -159,7 +171,7 @@ Source metadata, formulas, and limitations are documented in the [V1 specificati
 |---|---|
 | M1 — Implemented Prefixado demo | One command starts an offline demo; a user can change a yield and reproduce the result through the CLI |
 | M2 — Implemented official data and dates | Idempotent synchronization, history, explicit quote contexts, and accurate freshness states |
-| M3 — IPCA+ and Selic | Validated real-yield scenarios for IPCA+; explicitly limited Selic display/valuation |
+| M3 — IPCA+ and Selic within verified coverage | Validated real-yield scenarios for IPCA+; explicitly limited Selic display/valuation |
 | M4 — Local portfolio | Quantity-only positions, optional acquisition cost, and gross Prefixado hold/early-exit comparison |
 | M5 — V1 completion | Market, Playground, Portfolio, and Learn screens; accessibility and release validation; all acceptance criteria met |
 
@@ -172,6 +184,7 @@ The [CI workflow](.github/workflows/ci.yml) covers formatting, static analysis, 
 - [V1 specification](docs/V1_SPEC.md): product scope, calculations, data semantics, and acceptance criteria.
 - [M1 implementation](docs/M1_IMPLEMENTATION.md): available behavior, package boundaries, validation, and limitations.
 - [Official datasource contract](docs/OFFICIAL_DATASOURCE.md): verified CKAN/CSV contract and parser limitations.
+- [M3 implementation](docs/M3_IMPLEMENTATION.md): IPCA+/Selic behavior, financial validation, and explicit limitations.
 - [Next steps](docs/NEXT_STEPS.md): current checkpoint and ordered implementation checklist through V1.
 - [Contributing](CONTRIBUTING.md): language policy, development workflow, checks, and review expectations.
 - [Agent instructions](AGENTS.md): mandatory rules for automated contributors.

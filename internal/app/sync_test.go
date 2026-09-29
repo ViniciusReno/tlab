@@ -51,7 +51,7 @@ func TestSyncWorkflowFailurePreservationAndDemoIsolation(t *testing.T) {
 	}
 	defer s.Close()
 	first, err := s.Sync(ctx, client)
-	if err != nil || first.Status != "success" || first.RecordsRead != 10 || first.RecordsWritten != 2 || first.DatasetMaxQuoteDate != "2026-09-04" || len(first.Unsupported) != 7 {
+	if err != nil || first.Status != "success" || first.RecordsRead != 10 || first.RecordsWritten != 4 || first.DatasetMaxQuoteDate != "2026-09-04" || len(first.Unsupported) != 5 {
 		t.Fatalf("sync: %+v %v", first, err)
 	}
 	if _, err := time.Parse(time.RFC3339Nano, first.ImportedAt); err != nil {
@@ -70,7 +70,9 @@ func TestSyncWorkflowFailurePreservationAndDemoIsolation(t *testing.T) {
 			case "malformed":
 				csv += "malformed;row\n"
 			case "unsupported":
-				csv = strings.ReplaceAll(csv, "Tesouro Prefixado;", "Unknown instrument;")
+				for _, name := range []string{"Tesouro Prefixado;", "Tesouro IPCA+;", "Tesouro Selic;"} {
+					csv = strings.ReplaceAll(csv, name, "Unknown instrument;")
+				}
 			}
 			requestCtx := ctx
 			if mode == "cancel" {
@@ -93,7 +95,7 @@ func TestSyncWorkflowFailurePreservationAndDemoIsolation(t *testing.T) {
 		})
 	}
 	mode, csv = "success", string(fixture)
-	if report, err := s.Sync(ctx, client); err != nil || report.RecordsWritten != 2 {
+	if report, err := s.Sync(ctx, client); err != nil || report.RecordsWritten != 4 {
 		t.Fatalf("retry failed: %+v %v", report, err)
 	}
 	demo, err := OpenDemo(ctx)

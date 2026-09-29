@@ -26,6 +26,7 @@ type page struct {
 	HasQuotes         bool
 	SelectionRequired bool
 	ShockError        string
+	IPCA              bool
 }
 
 func money(n float64) string {
@@ -76,6 +77,9 @@ func newHandler(service *app.Service, now func() time.Time) (http.Handler, error
 			return "/history?" + url.Values{"bond": {id}, "before": {before}}.Encode()
 		},
 		"scenarioURL": func(q bond.Quote, basis string) string {
+			if q.Bond.Kind == "selic" {
+				return ""
+			}
 			pu, yield := q.BuyPU, q.BuyYield
 			if basis == "mark_to_market" {
 				pu, yield = q.BasePU, q.SellYield
@@ -142,7 +146,7 @@ func newHandler(service *app.Service, now func() time.Time) (http.Handler, error
 			json.NewEncoder(w).Encode(result)
 			return
 		}
-		p := page{Result: result, Values: values, Persistent: service.Source() == "synced"}
+		p := page{Result: result, Values: values, Persistent: service.Source() == "synced", IPCA: strings.HasPrefix(values.Get("bond"), "ipca:")}
 		if err == nil {
 			p.Values = result.Values()
 			var shockErr error

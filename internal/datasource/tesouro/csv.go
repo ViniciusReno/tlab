@@ -42,7 +42,7 @@ func sourceDate(s string) (time.Time, error) {
 // MaxDatasetBytes bounds the official CSV (about 14 MiB at M2.2 verification).
 const MaxDatasetBytes = 32 << 20
 
-// Dataset reports excluded instrument rows explicitly; only Prefixado is imported in M2.
+// Dataset reports unsupported instruments explicitly; supported kinds retain distinct quote fields.
 type Dataset struct {
 	Quotes       []bond.Quote
 	Unsupported  map[string]int
@@ -104,7 +104,16 @@ func parse(r io.Reader, source string, limit int64, mixed bool) (Dataset, error)
 		if strings.TrimSpace(name) == "" {
 			return Dataset{}, bond.InvalidInput
 		}
-		if name != "Tesouro Prefixado" && !mixed {
+		kind := ""
+		switch name {
+		case "Tesouro Prefixado":
+			kind = "prefixado"
+		case "Tesouro IPCA+":
+			kind = "ipca"
+		case "Tesouro Selic":
+			kind = "selic"
+		}
+		if kind == "" && !mixed {
 			return Dataset{}, bond.Unsupported
 		}
 		maturity, err := sourceDate(field("Data Vencimento"))
@@ -122,7 +131,7 @@ func parse(r io.Reader, source string, limit int64, mixed bool) (Dataset, error)
 		if date.After(result.MaxQuoteDate) {
 			result.MaxQuoteDate = date
 		}
-		if name != "Tesouro Prefixado" {
+		if kind == "" {
 			// Validate source syntax even for excluded rows. Do not create domain
 			// prices or apply Prefixado validity rules to unsupported instruments.
 			for _, column := range required[3:] {
@@ -133,7 +142,7 @@ func parse(r io.Reader, source string, limit int64, mixed bool) (Dataset, error)
 			result.Unsupported[name]++
 			continue
 		}
-		q := bond.Quote{Bond: bond.Bond{ID: "prefixado:" + maturity.Format(time.DateOnly), Kind: "prefixado", Name: field("Tipo Titulo"), Maturity: maturity}, Date: date, Source: source}
+		q := bond.Quote{Bond: bond.Bond{ID: kind + ":" + maturity.Format(time.DateOnly), Kind: kind, Name: field("Tipo Titulo"), Maturity: maturity}, Date: date, Source: source}
 		key := q.Bond.ID + "/" + date.Format(time.DateOnly)
 		if seen[key] {
 			return Dataset{}, bond.InvalidInput

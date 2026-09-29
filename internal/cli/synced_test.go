@@ -97,7 +97,7 @@ func TestSyncedCLIAPIHTMLAndMarketLinks(t *testing.T) {
 			if page.Code != 200 {
 				t.Fatalf("HTML: %d %s", page.Code, body)
 			}
-			for _, want := range []string{tc.price, tc.baseline, "2026-09-04", "anbima-2002-2032-v1", c.Command(), `name="source" value="synced"`, "Imported at (UTC, not a market date)"} {
+			for _, want := range []string{tc.price, tc.baseline, "2026-09-04", "anbima-2002-2050-v1", c.Command(), `name="source" value="synced"`, "Imported at (UTC, not a market date)"} {
 				if !strings.Contains(body, want) {
 					t.Fatalf("HTML missing %q", want)
 				}

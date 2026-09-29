@@ -179,7 +179,7 @@ func TestQuoteContextMissingPairsAndInvalidNumbers(t *testing.T) {
 			}
 		}
 	}
-	for _, kind := range []string{"selic", "ipca", "prefixado_coupon", "unsupported"} {
+	for _, kind := range []string{"selic", "ipca_coupon", "prefixado_coupon", "unsupported"} {
 		changed := q
 		changed.Bond.Kind = kind
 		if _, err := ResolveBasis(changed, "purchase", cal); err != bond.Unsupported {

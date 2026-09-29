@@ -18,7 +18,7 @@ Source: [Tesouro Direto, Prefixado methodology](https://www.tesourodireto.com.br
 | Annual yield | 10.88% |
 | Official remaining business days | 755 |
 
-The worked example supplies no sell-yield/base-PU pair for this date. Those CSV fields are deliberately empty, not zero or reconstructed. Early-exit and mark-to-market scenarios therefore return `missing_quote`. Additional official quote contexts belong to M2. IPCA+ belongs to M3.
+The worked example supplies no sell-yield/base-PU pair for this date. Those CSV fields are deliberately empty, not zero or reconstructed. Early-exit and mark-to-market scenarios therefore return `missing_quote`. This limitation applies to the Prefixado example only; the M3 IPCA+ example below includes all three contexts.
 
 ## Calendar
 
@@ -53,3 +53,9 @@ Scenario fractional changes: 0.056048698720818193 and -0.052150340887078656.
 Tests use absolute PU tolerance 1e-9 and fractional-change tolerance 1e-12. These tolerances detect a one-business-day error in either nonzero shock. Standalone official pricing uses the specification's BRL 0.01 tolerance after truncation.
 
 Only factual numeric/date extracts are bundled; source documents and their explanatory prose are not redistributed. Attribution remains with Tesouro Nacional/Tesouro Direto and ANBIMA. The project MIT license does not relicense third-party source material. These fixtures are historical educational data, not executable quotes or investment advice.
+
+## M3 IPCA+ historical demo
+
+`ipca.csv` adds an official no-coupon IPCA+ 2015 record dated 2012-02-17, version `ipca-2012-v1`. It is a raw CSV extract, distinct from the transcribed Prefixado methodology example. It has purchase, base, and early-redemption quote pairs. It uses the same original 2012–2015 calendar; D+1 crosses Carnival to 2012-02-22. Both instruments remain isolated in the process-private in-memory database.
+
+Source hashes, exact field values, license/attribution, independent DU and fixed-indexation shock expectations are recorded in [M3 fixture documentation](../../internal/pricing/testdata/M3_README.md). Yields are real annual rates; no future inflation or nominal future maturity amount is inferred. The Prefixado default and its original fixture version remain unchanged.

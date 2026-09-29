@@ -32,10 +32,10 @@ func TestOfficialDatasetFixture(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(result.Quotes) != 2 || len(result.Unsupported) != 7 || result.Unsupported["Tesouro Prefixado com Juros Semestrais"] != 2 {
+	if len(result.Quotes) != 4 || len(result.Unsupported) != 5 || result.Unsupported["Tesouro Prefixado com Juros Semestrais"] != 2 {
 		t.Fatalf("unexpected dataset report: %+v", result)
 	}
-	for _, name := range []string{"Tesouro Selic", "Tesouro IPCA+", "Tesouro IPCA+ com Juros Semestrais", "Tesouro IGPM+ com Juros Semestrais", "Tesouro Renda+ Aposentadoria Extra", "Tesouro Educa+"} {
+	for _, name := range []string{"Tesouro IPCA+ com Juros Semestrais", "Tesouro IGPM+ com Juros Semestrais", "Tesouro Renda+ Aposentadoria Extra", "Tesouro Educa+"} {
 		if result.Unsupported[name] != 1 {
 			t.Fatalf("missing unsupported count for %s", name)
 		}
@@ -47,7 +47,12 @@ func TestOfficialDatasetFixture(t *testing.T) {
 		{"prefixado:2032-01-01", "2026-09-04", [5]float64{0.1431, 0.1443, 493.41, 490.42, 490.42}},
 		{"prefixado:2015-01-01", "2012-01-03", [5]float64{0.1083, 0.1089, 734.86, 733.67, 733.36}},
 	} {
-		q := result.Quotes[i]
+		var q bond.Quote
+		for _, candidate := range result.Quotes {
+			if candidate.Bond.ID == expected.id {
+				q = candidate
+			}
+		}
 		if q.Bond.ID != expected.id || q.Date.Format("2006-01-02") != expected.date || q.Source != source || q.Bond.Kind != "prefixado" {
 			t.Fatalf("quote identity: %+v", q)
 		}
@@ -82,7 +87,7 @@ func TestDatasetSchemaAndMissingValues(t *testing.T) {
 	if q.SellYield != nil || q.SellPU != nil || q.BasePU != nil {
 		t.Fatal("missing values inferred")
 	}
-	for _, name := range []string{"Tesouro Selic", "Unknown future instrument"} {
+	for _, name := range []string{"Tesouro IPCA+ com Juros Semestrais", "Unknown future instrument"} {
 		result, err := ParseDataset(strings.NewReader(strings.Replace(demo(t), "Tesouro Prefixado;", name+";", 1)), "test")
 		if err != nil || len(result.Quotes) != 0 || result.Unsupported[name] != 1 {
 			t.Fatalf("unsupported-only report: %+v %v", result, err)
@@ -187,8 +192,6 @@ func TestRejectMalformedSource(t *testing.T) {
 		{"733,86", "0,00", bond.InvalidInput},
 		{"10,88", "-100,00", bond.InvalidInput},
 		{"Tesouro Prefixado;", "Tesouro Prefixado com Juros Semestrais;", bond.Unsupported},
-		{"Tesouro Prefixado;", "Tesouro IPCA+;", bond.Unsupported},
-		{"Tesouro Prefixado;", "Tesouro Selic;", bond.Unsupported},
 	} {
 		_, err := Parse(strings.NewReader(strings.Replace(source, tc.from, tc.to, 1)), "test")
 		if err != tc.want {
@@ -200,5 +203,31 @@ func TestRejectMalformedSource(t *testing.T) {
 	}
 	if _, err := Parse(strings.NewReader(source+"broken;row\n"), "test"); err != bond.InvalidInput {
 		t.Fatal(err)
+	}
+}
+
+func TestSupportedNamesAndNewInstrumentValidation(t *testing.T) {
+	for _, tc := range []struct{ name, kind string }{{"Tesouro Prefixado", "prefixado"}, {"Tesouro IPCA+", "ipca"}, {"Tesouro Selic", "selic"}} {
+		raw := strings.Replace(demo(t), "Tesouro Prefixado;", tc.name+";", 1)
+		quotes, err := Parse(strings.NewReader(raw), "synthetic-test")
+		if err != nil || len(quotes) != 1 || quotes[0].Bond.Kind != tc.kind || quotes[0].Bond.ID != tc.kind+":2015-01-01" {
+			t.Fatalf("classification: %+v %v", quotes, err)
+		}
+		for _, invalid := range []string{"0,00", "-1,00", "NaN"} {
+			data, err := ParseDataset(strings.NewReader(strings.Replace(raw, "733,86", invalid, 1)), "synthetic-test")
+			if err == nil || data.Quotes != nil {
+				t.Fatalf("invalid %s PU accepted: %+v", tc.kind, data)
+			}
+		}
+		duplicate := raw + strings.SplitN(raw, "\n", 2)[1]
+		if _, err := ParseDataset(strings.NewReader(duplicate), "synthetic-test"); err != bond.InvalidInput {
+			t.Fatalf("duplicate %s: %v", tc.kind, err)
+		}
+	}
+	for _, name := range []string{"Tesouro IPCA+ com Juros Semestrais", "Tesouro Prefixado com Juros Semestrais", "Tesouro Renda+ Aposentadoria Extra", "Tesouro Educa+", "Tesouro IPCA+ synthetic"} {
+		raw := strings.Replace(demo(t), "Tesouro Prefixado;", name+";", 1)
+		if _, err := Parse(strings.NewReader(raw), "synthetic-test"); err != bond.Unsupported {
+			t.Fatalf("unsupported %s: %v", name, err)
+		}
 	}
 }

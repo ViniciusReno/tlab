@@ -44,3 +44,6 @@ The previous unconditional D+1 rule missed the recent 2024 and 2026 SellPUs by B
 The transition evidence compares both conventions and deliberately retains failures. Three maturities validate D+1 before the transition and D0 after it. Four longer-maturity records fail with the unchanged verified calendar and remain `calculation_not_validated` in the application. Diagnostic shocks for those mismatching rows are mathematical evidence only, not enabled scenarios. The application selects settlement by date and then validates the official SellPU; it never picks whichever convention fits a price.
 
 Historical knowledge of future holidays can differ from the current fixture. No holiday is removed and no historical calendar is inferred to force a match. The six matching transition records and four original quote-context fixtures cover both directions of hypothetical yield shocks. PU tolerances remain BRL 1e-9 for scenario comparisons and BRL 0.01 for truncated standalone validation; fractional variation uses 1e-12.
+
+
+M3 IPCA+ fixed-indexation expectations and Selic display-only extracts are documented separately in [M3_README.md](M3_README.md).

@@ -6,18 +6,18 @@
   let activeRequest;
   let generation = 0;
 
-  slider.addEventListener("input", () => {
+  slider?.addEventListener("input", () => {
     yieldInput.value = slider.value;
     clearTimeout(timer);
     timer = setTimeout(() => form.requestSubmit(), 180);
   });
-  yieldInput.addEventListener("input", () => { slider.value = yieldInput.value; });
+  yieldInput.addEventListener("input", () => { if (slider) slider.value = yieldInput.value; });
   document.addEventListener("click", (event) => {
     const shock = event.target.closest("[data-yield]");
     if (!shock) return;
     event.preventDefault();
     yieldInput.value = shock.dataset.yield;
-    slider.value = yieldInput.value;
+    if (slider) slider.value = yieldInput.value;
     form.requestSubmit();
   });
   form.addEventListener("submit", async (event) => {

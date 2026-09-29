@@ -1,6 +1,6 @@
 # Next steps toward V1
 
-Last updated: 2026-09-28.
+Last updated: 2026-09-29.
 
 This is a continuation checklist, not a replacement for the [V1 specification](V1_SPEC.md). Follow [AGENTS.md](../AGENTS.md) when implementing changes. Unchecked items are pending; this document does not authorize publishing releases or changing V1 scope.
 
@@ -16,7 +16,7 @@ See [M1 implementation notes](M1_IMPLEMENTATION.md) for behavior and validation 
 
 ## M2 completion
 
-M2 is implemented under the maintainer-approved [settlement decision](M2_SETTLEMENT_DECISION.md). Official morning early-redemption scenarios use SellPU/SellYield with D+1 before 2021-09-13 and D0 thereafter. Each selected record must pass standalone PU validation before anchored repricing. Historical-calendar mismatches remain explicitly unavailable; no calendar or price substitution is performed.
+M2 is implemented under the maintainer-approved [settlement decision](M2_SETTLEMENT_DECISION.md). Official morning early-redemption scenarios use SellPU/SellYield with D+1 before 2021-09-13 and D0 thereafter. Each selected Prefixado redemption record must pass standalone PU validation before anchored repricing. Historical-calendar mismatches remain explicitly unavailable; no calendar or price substitution is performed.
 
 - [x] Idempotent official synchronization, transaction rollback, and separate failure status.
 - [x] Persistent market/history with exact quote dates, provenance, and maturity/freshness states.
@@ -27,18 +27,21 @@ M2 is implemented under the maintainer-approved [settlement decision](M2_SETTLEM
 - [x] Source isolation, offline demo, and reproducible commands with explicit settlement version.
 - [x] Documentation, formatting, vet, tests, race checks, and local build validation.
 
-Remaining limitations are explicit: the demo has purchase quotes only and retains its 2012–2015 calendar; synced coverage is 2002–2032. Historical calendar reconstruction, after-13:00 requests, suspended trading, and actual execution are not modeled. Mismatching redemption records return `calculation_not_validated`. IPCA+, Selic, and portfolios remain later milestones. Remote CI, automated browser interaction, cross-platform execution, and release publication remain unverified.
+Remaining limitations are explicit: the Prefixado demo has purchase quotes only; the IPCA+ demo has all three contexts. Both retain the 2012–2015 calendar; M3 extends synced coverage to 2002–2050. Historical calendar reconstruction, after-13:00 requests, suspended trading, and actual execution are not modeled. Mismatching redemption records return `calculation_not_validated`. IPCA+/Selic support is described under M3 below; portfolios remain M4. Remote CI, automated browser interaction, cross-platform execution, and release publication remain unverified.
 
-The next implementation milestone is M3. See [M2 implementation notes](M2_IMPLEMENTATION.md) for the chronological work and checks.
+M3 now provides IPCA+ scenarios within verified calendar coverage and Selic quotes. See [M2 implementation notes](M2_IMPLEMENTATION.md) for the chronological work and checks.
 
 ## Following milestones
 
 ### M3 — IPCA+ and Selic
 
-- [ ] Add independently validated IPCA+ same-date real-yield scenarios and an official demo fixture.
-- [ ] Preserve a single indexation factor within each scenario; never silently assume future inflation.
-- [ ] Add Selic market/history support and official-PU-Base valuation support for later portfolio use, without yield-shock or hold/early-exit analysis.
-- [ ] Keep coupon-bearing and other unsupported instruments explicitly unsupported.
+- [x] Add independently validated IPCA+ same-date real-yield scenarios and an official demo fixture.
+- [x] Preserve a single indexation factor within each scenario; never silently assume future inflation.
+- [x] Add Selic market/history support and official-PU-Base valuation support for later portfolio use, without yield-shock or hold/early-exit analysis.
+- [x] Keep coupon-bearing and other unsupported instruments explicitly unsupported.
+- [x] Expand verified calendar coverage through 2050 with official annual ANBIMA tables, preserving prior fixture versions and adding a long-maturity official IPCA+ scenario fixture.
+
+See [M3 implementation notes](M3_IMPLEMENTATION.md). Quantity-based portfolio valuation remains M4.
 
 ### M4 — local portfolio
 
@@ -57,10 +60,17 @@ The next implementation milestone is M3. See [M2 implementation notes](M2_IMPLEM
 - [ ] Prepare checksums, attribution, release notes, launch instructions, and migration/compatibility notes.
 - [ ] Audit every V1 acceptance criterion; do not mark V1 complete based only on successful compilation.
 
+## Deferred improvements after the planned V1
+
+Maintainer direction (2026-09-28): finish the existing V1 milestones before broader usability improvements or Brazilian Portuguese support. Track both as post-V1 improvements; do not add localization infrastructure, translated UI, or a usability redesign during M3/M4. The accessibility and basic UX acceptance checks already specified for M5 remain required.
+
+- [ ] Review broader usability improvements after V1 completion.
+- [ ] Add Brazilian Portuguese support in a separately scoped post-V1 change.
+
 ## Resume checklist
 
 1. Read this checkpoint, the relevant specification sections, and existing code/tests; do not assume this snapshot is still current.
-2. M2 is complete under the approved settlement contract. Continue with M3 IPCA+ fixtures and same-date real-yield scenarios; retain the per-record Prefixado redemption gate and do not extend that validation to IPCA+ without instrument-specific evidence.
+2. M2 is complete under the approved settlement contract. M3 IPCA+ scenarios, Selic quote support, and verified 2002–2050 calendar coverage are implemented. Proceed to M4. Preserve the Prefixado redemption validation gate and the IPCA+ fixed-indexation contract.
 3. Keep all repository content and application copy in English; maintainer conversations may remain in Portuguese.
 4. Preserve the single-binary Go architecture, loopback default, transparent math, and no-recommendation policy. Do not introduce a frontend runtime, mandatory Docker, cloud services, or V2 features.
 5. For code changes, run `go fmt ./...`, `go vet ./...`, `go test ./...`, and `go test -race ./...` where supported. Verify builds without CGO when relevant.

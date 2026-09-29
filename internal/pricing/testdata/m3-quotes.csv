@@ -1,0 +1,5 @@
+Tipo Titulo;Data Vencimento;Data Base;Taxa Compra Manha;Taxa Venda Manha;PU Compra Manha;PU Venda Manha;PU Base Manha
+Tesouro Selic;01/03/2029;04/09/2026;0,03;0,04;19810,47;19795,28;19795,28
+Tesouro IPCA+;15/05/2029;04/09/2026;7,80;7,92;3876,96;3865,75;3865,75
+Tesouro IPCA+;15/05/2015;17/02/2012;4,47;4,51;1843,43;1841,15;1839,28
+Tesouro IPCA+;15/08/2050;04/09/2026;7,28;7,40;889,56;866,28;866,28

@@ -23,7 +23,7 @@ const SettlementVersion = "morning-redemption-2021-v1"
 // ResolveBasis applies the approved V1 D0/D+1 contract at the selected historical
 // quote date. It performs no I/O and does not consult the machine's current date.
 func ResolveBasis(q bond.Quote, context string, cal *calendar.Calendar) (Basis, error) {
-	if q.Bond.Kind != "prefixado" {
+	if q.Bond.Kind != "prefixado" && q.Bond.Kind != "ipca" {
 		return Basis{}, bond.Unsupported
 	}
 	var pu, yield *float64

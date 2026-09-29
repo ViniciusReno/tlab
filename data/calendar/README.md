@@ -21,3 +21,12 @@ All 2012–2015 business-day classifications match the original demo calendar ex
 Tests cover all annual business-day totals, explicit settlement boundaries, bounds, and the official demo count of 755 days. Independent reference counts use complete weeks plus remainder weekdays, minus weekday holidays; quote fixture counts are also cross-checked by separate date enumeration. See the [quote fixtures and reference script](../../internal/pricing/testdata/README.md).
 
 Future source revisions require review and a new version; no calendar is fetched at application runtime. Dates after 2032-12-31 or before 2002-01-01 return `calendar_out_of_range` when this calendar is selected. The demo retains its narrower coverage.
+
+
+## M3 extension through 2050
+
+`anbima-2002-2050-v1.json` preserves all dates from `anbima-2002-2032-v1` and adds 234 dates from the 18 annual ANBIMA tables for 2033–2050, retrieved on 2026-09-29. It has 615 holidays and inclusive coverage 2002-01-01 through 2050-12-31. The original 2012–2015 and 2002–2032 files are unchanged. Synced services now select the extended version; the demo retains 2012–2015.
+
+Each source record has its own URL, raw HTML SHA-256, count, and retrieval date. Prior sources retain their original 2026-09-10 retrieval date. New sources follow `https://www.anbima.com.br/feriados/fer_nacionais/YYYY.asp`; each has 13 dates. The extraction accepts both two- and four-digit years in date cells (`DD/MM/YY` or `DD/MM/YYYY`) and checks the parsed year against the page year. In particular, the [2040 table](https://www.anbima.com.br/feriados/fer_nacionais/2040.asp) writes Christmas as `25/12/2040`; it must not be dropped by a two-digit-only parser. No date is generated from a holiday formula.
+
+Tests check every date in the former coverage for unchanged business-day classification, independent annual totals for the extension, 2050 Carnival, and coverage boundaries. The [official IPCA+ 2050 fixture](../../internal/pricing/testdata/M3_README.md) validates a term spanning the extension with independent nonzero-shock expectations. Source attribution remains ANBIMA; this is a versioned snapshot, not a guarantee against future calendar revisions.

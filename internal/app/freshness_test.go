@@ -31,7 +31,7 @@ func TestDatasetFreshnessThresholdAndVerifiedDates(t *testing.T) {
 		{"malformed metadata", "invalid", "2026-09-10", "unavailable", "invalid_quote_date", "", 0},
 		{"future metadata", "2026-09-11", "2026-09-10", "unavailable", "future_quote_date", "", 0},
 		{"old quote outside coverage", "2001-12-31", "2026-09-10", "unavailable", "calendar_out_of_range", "", 0},
-		{"local date outside coverage", "2032-12-30", "2033-01-01", "unavailable", "calendar_out_of_range", "", 0},
+		{"local date outside coverage", "2050-12-30", "2051-01-01", "unavailable", "calendar_out_of_range", "", 0},
 		{"no verified predecessor", "2002-01-01", "2002-01-01", "unavailable", "calendar_out_of_range", "", 0},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -41,7 +41,7 @@ func TestDatasetFreshnessThresholdAndVerifiedDates(t *testing.T) {
 			}
 			// At 23:30, UTC has advanced a date; classification must stay local.
 			out := s.datasetFreshness(tc.quote, local.Add(23*time.Hour+30*time.Minute))
-			if out.State != tc.state || out.Reason != tc.reason || out.ExpectedDate != tc.expected || out.BusinessDaysBehind != tc.lag || out.CalendarVersion != "anbima-2002-2032-v1" {
+			if out.State != tc.state || out.Reason != tc.reason || out.ExpectedDate != tc.expected || out.BusinessDaysBehind != tc.lag || out.CalendarVersion != "anbima-2002-2050-v1" {
 				t.Fatalf("got %+v; want %+v", out, tc)
 			}
 		})
