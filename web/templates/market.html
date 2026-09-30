@@ -9,7 +9,7 @@
 <body>
 <header class="site-header"><a class="brand" href="/">TESOURO <span>LAB</span></a><span class="milestone">LOCAL DATA</span></header>
 <main>
-  <nav aria-label="Market views"><a href="/market">Market</a> · <a href="/market?matured=1">Include matured bonds</a></nav>
+  <nav aria-label="Market views"><a href="/market">Market</a> · <a href="/portfolio">Portfolio</a> · <a href="/market?matured=1">Include matured bonds</a></nav>
   <section class="intro">
     <p class="eyebrow">OFFICIAL QUOTES STORED LOCALLY</p>
     <h1>{{if .Error}}Data unavailable{{else if .IsHistory}}Quote history{{else}}Market{{end}}</h1>

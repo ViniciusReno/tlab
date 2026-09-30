@@ -1,6 +1,6 @@
 # Contributing to Tesouro Lab
 
-Tesouro Lab implements the M1 offline demo, M2 official synchronization/market/history, and M3 IPCA+ scenarios within verified calendar coverage plus Selic quote support. See [M3 notes](docs/M3_IMPLEMENTATION.md) for validation, scope, and the versioned calendar coverage. Broader usability work and Brazilian Portuguese support are deferred until the planned V1 work is complete; authored project content remains English.
+Tesouro Lab implements the M1 offline demo, M2 official synchronization/market/history, and M3 IPCA+ scenarios within verified calendar coverage plus Selic quote support. M4 adds local portfolio positions, official gross valuation, and validated Prefixado comparisons. See [M4 notes](docs/M4_IMPLEMENTATION.md) for the current behavior and validation, and [M3 notes](docs/M3_IMPLEMENTATION.md) for the versioned calendar coverage. Broader usability work and Brazilian Portuguese support are deferred until the planned V1 work is complete; authored project content remains English.
 
 ## Read first
 

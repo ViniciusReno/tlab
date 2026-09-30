@@ -32,10 +32,14 @@ type page struct {
 func money(n float64) string {
 	parts := strings.Split(fmt.Sprintf("%.2f", n), ".")
 	integer := parts[0]
+	sign := ""
+	if strings.HasPrefix(integer, "-") {
+		sign, integer = "-", strings.TrimPrefix(integer, "-")
+	}
 	for i := len(integer) - 3; i > 0; i -= 3 {
 		integer = integer[:i] + "," + integer[i:]
 	}
-	return "BRL " + integer + "." + parts[1]
+	return "BRL " + sign + integer + "." + parts[1]
 }
 
 func New(service *app.Service) (http.Handler, error) {
@@ -101,6 +105,12 @@ func newHandler(service *app.Service, now func() time.Time) (http.Handler, error
 		return nil, err
 	}
 	mux := http.NewServeMux()
+	portfolio, err := portfolioHandler(service, tmpl, now)
+	if err != nil {
+		return nil, err
+	}
+	mux.HandleFunc("GET /portfolio", portfolio)
+	mux.HandleFunc("POST /portfolio", portfolio)
 	render := func(w http.ResponseWriter, r *http.Request) {
 		if len(r.URL.RawQuery) > 4096 {
 			http.Error(w, "Request query is too large.", http.StatusRequestURITooLong)

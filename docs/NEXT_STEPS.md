@@ -1,6 +1,6 @@
 # Next steps toward V1
 
-Last updated: 2026-09-29.
+Last updated: 2026-09-30.
 
 This is a continuation checklist, not a replacement for the [V1 specification](V1_SPEC.md). Follow [AGENTS.md](../AGENTS.md) when implementing changes. Unchecked items are pending; this document does not authorize publishing releases or changing V1 scope.
 
@@ -41,15 +41,17 @@ M3 now provides IPCA+ scenarios within verified calendar coverage and Selic quot
 - [x] Keep coupon-bearing and other unsupported instruments explicitly unsupported.
 - [x] Expand verified calendar coverage through 2050 with official annual ANBIMA tables, preserving prior fixture versions and adding a long-maturity official IPCA+ scenario fixture.
 
-See [M3 implementation notes](M3_IMPLEMENTATION.md). Quantity-based portfolio valuation remains M4.
+See [M3 implementation notes](M3_IMPLEMENTATION.md). Quantity-based portfolio valuation is implemented in M4 below.
 
 ### M4 — local portfolio
 
-- [ ] Implement positions with title and positive quantity; acquisition cost is optional.
-- [ ] Use official `PU Base` for gross current mark-to-market value, with explicit quote dates and matured/missing states.
-- [ ] Keep acquisition-dependent results unavailable when cost is unknown.
-- [ ] Implement the gross Prefixado hold-versus-hypothetical-early-exit comparison using official `PU Venda` and the documented remaining-term rules.
-- [ ] Preserve temporary demo edits and persistent/demo separation.
+- [x] Implement positions with title and positive quantity; acquisition cost is optional.
+- [x] Use official `PU Base` for gross current mark-to-market value, with explicit quote dates and matured/missing states.
+- [x] Keep acquisition-dependent results unavailable when cost is unknown.
+- [x] Implement the gross Prefixado hold-versus-hypothetical-early-exit comparison using official `PU Venda` and the documented remaining-term rules.
+- [x] Preserve temporary demo edits and persistent/demo separation.
+
+See [M4 implementation notes](M4_IMPLEMENTATION.md) for migration, acquisition normalization, gross valuation, scenario quantities, and validation limits.
 
 ### M5 — V1 closure
 
@@ -70,7 +72,7 @@ Maintainer direction (2026-09-28): finish the existing V1 milestones before broa
 ## Resume checklist
 
 1. Read this checkpoint, the relevant specification sections, and existing code/tests; do not assume this snapshot is still current.
-2. M2 is complete under the approved settlement contract. M3 IPCA+ scenarios, Selic quote support, and verified 2002–2050 calendar coverage are implemented. Proceed to M4. Preserve the Prefixado redemption validation gate and the IPCA+ fixed-indexation contract.
+2. M2 is complete under the approved settlement contract. M3 IPCA+ scenarios, Selic quote support, and verified 2002–2050 calendar coverage are implemented. M4 local portfolio is implemented. Proceed to M5 acceptance and release checks. Preserve the Prefixado redemption validation gate and the IPCA+ fixed-indexation contract.
 3. Keep all repository content and application copy in English; maintainer conversations may remain in Portuguese.
 4. Preserve the single-binary Go architecture, loopback default, transparent math, and no-recommendation policy. Do not introduce a frontend runtime, mandatory Docker, cloud services, or V2 features.
 5. For code changes, run `go fmt ./...`, `go vet ./...`, `go test ./...`, and `go test -race ./...` where supported. Verify builds without CGO when relevant.

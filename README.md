@@ -2,7 +2,7 @@
 
 A local educational lab for Brazilian government bonds, built around official data, transparent calculations, and hypothetical scenarios.
 
-**Status: M1–M3 implemented: offline demos, official synchronization, IPCA+ same-date scenarios, and Selic market/history support.** Synchronized scenarios use the verified ANBIMA calendar through 2050. Portfolio and V1 closure remain planned. Run from source or build a local executable; no downloadable release has been published.
+**Status: M1–M4 implemented: offline demos, official synchronization, IPCA+ scenarios, Selic quotes, and a local manual portfolio.** Synchronized scenarios use the verified ANBIMA calendar through 2050. M5 acceptance and release validation remain planned. Run from source or build a local executable; no downloadable release has been published.
 
 Tesouro Lab helps beginners understand bond prices and yield changes while letting technical readers inspect the same inputs, formulas, calendars, and results. It does not recommend investments, predict yields, or execute transactions.
 
@@ -82,6 +82,16 @@ The market page warns when the stored dataset is at least two financial-market b
 
 The warning shows the actual dataset quote date, import timestamp, and expected base date separately. Missing metadata, future source dates, or dates outside the verified calendar produce an unavailable assessment. A recent import alone cannot clear an old dataset warning, and no automatic sync runs. See [policy and source](docs/OFFICIAL_DATASOURCE.md#dataset-age-warning-policy).
 
+## Local portfolio
+
+Open **Portfolio** in the navigation, or `/portfolio`. Add a bond and a positive quantity. Purchase date, gross acquisition amount, purchase unit price, annual yield, and a local note are optional. Quantity can be derived from acquisition amount divided by purchase unit price when both are supplied. Conflicting acquisition inputs are rejected instead of silently choosing one.
+
+The overview shows gross value, valuation coverage, composition by instrument type, and positions. Each valuation uses quantity × official PU Base and carries its official quote date. Older quotes remain labeled, mixed dates are explicit, and unavailable positions are excluded from a clearly labeled partial total. Matured positions have no current value; V1 does not reconcile their actual maturity cash. Unknown acquisition cost leaves gain/loss unavailable.
+
+Expand a position to inspect the official fields, edit its local details, or run a same-date scenario with its stored quantity. Prefixado positions also expose a gross maturity-versus-early-redemption comparison when the official sell quote passes the existing settlement validation. The annualized break-even reinvestment rate is a hypothetical mathematical comparison, not an available rate or recommendation. IPCA+ and Selic do not support that comparison.
+
+Portfolio forms work without JavaScript. Edits persist in normal mode. Demo mode starts with a hypothetical two-unit IPCA+ sample and resets on restart; its historical maturity is labeled using the local date. No real acquisition cost is supplied or inferred. See [M4 behavior and validation](docs/M4_IMPLEMENTATION.md).
+
 ## Run from source
 
 The browser and CLI use the same calculation. Reproduce a hypothetical scenario from the official historical example:
@@ -100,13 +110,13 @@ go run ./cmd/tesouro-lab analyze ipca:2015-05-15 --source demo --basis purchase 
 
 The quoted real yield changes hypothetically from 4.47% to 3.47%, holding the date and indexation base constant. No future IPCA is assumed. The resulting PU is approximately BRL 1,901.46 from BRL 1,843.43. See [independent IPCA+ evidence](internal/pricing/testdata/M3_README.md).
 
-Selic is limited to official quotes and history. Its quoted yield is a spread, not the current Selic rate; every scenario context returns `unsupported`. Official PU Base is stored and displayed for later portfolio valuation in M4. Synchronized scenarios with dates or maturities outside 2002–2050 return `calendar_out_of_range`; quotes outside that coverage can still be inspected in history.
+Selic is limited to official quotes, history, and portfolio valuation. Its quoted yield is a spread, not the current Selic rate; every scenario context returns `unsupported`. Portfolio gross valuation uses official PU Base. Synchronized scenarios with dates or maturities outside 2002–2050 return `calendar_out_of_range`; quotes outside that coverage can still be inspected in history.
 
 Docker may become an optional convenience later. It is not the primary installation path or an M1 dependency.
 
 ## V1 scope
 
-The table describes the target V1, not today's complete feature set. Prefixado demo scenarios and synchronized market/history browsing are implemented; IPCA+ scenarios and Selic quotes are available; portfolios are not yet implemented. Early-redemption rows that fail validation remain unavailable.
+The supported financial features below are implemented. Final screen/accessibility and release acceptance remain M5. Early-redemption rows that fail validation remain unavailable.
 
 | Instrument | Supported behavior |
 |---|---|
@@ -185,6 +195,7 @@ The [CI workflow](.github/workflows/ci.yml) covers formatting, static analysis, 
 - [M1 implementation](docs/M1_IMPLEMENTATION.md): available behavior, package boundaries, validation, and limitations.
 - [Official datasource contract](docs/OFFICIAL_DATASOURCE.md): verified CKAN/CSV contract and parser limitations.
 - [M3 implementation](docs/M3_IMPLEMENTATION.md): IPCA+/Selic behavior, financial validation, and explicit limitations.
+- [M4 implementation](docs/M4_IMPLEMENTATION.md): local positions, official gross valuation, and Prefixado comparison.
 - [Next steps](docs/NEXT_STEPS.md): current checkpoint and ordered implementation checklist through V1.
 - [Contributing](CONTRIBUTING.md): language policy, development workflow, checks, and review expectations.
 - [Agent instructions](AGENTS.md): mandatory rules for automated contributors.

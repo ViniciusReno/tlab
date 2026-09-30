@@ -17,6 +17,7 @@ import (
 	"github.com/ViniciusReno/tlab/internal/bond"
 	"github.com/ViniciusReno/tlab/internal/calendar"
 	"github.com/ViniciusReno/tlab/internal/datasource/tesouro"
+	"github.com/ViniciusReno/tlab/internal/portfolio"
 	"github.com/ViniciusReno/tlab/internal/pricing"
 	"github.com/ViniciusReno/tlab/internal/storage/sqlite"
 )
@@ -111,6 +112,10 @@ func OpenDemo(ctx context.Context) (*Service, error) {
 		return nil, err
 	}
 	if err = store.Upsert(ctx, quotes); err != nil {
+		store.Close()
+		return nil, err
+	}
+	if err = store.SavePosition(ctx, portfolio.Position{ID: "demo-ipca", BondID: DemoIPCABond, Quantity: 2, Note: "Hypothetical sample quantity, not an actual acquisition."}, true); err != nil {
 		store.Close()
 		return nil, err
 	}

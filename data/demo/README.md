@@ -59,3 +59,7 @@ Only factual numeric/date extracts are bundled; source documents and their expla
 `ipca.csv` adds an official no-coupon IPCA+ 2015 record dated 2012-02-17, version `ipca-2012-v1`. It is a raw CSV extract, distinct from the transcribed Prefixado methodology example. It has purchase, base, and early-redemption quote pairs. It uses the same original 2012–2015 calendar; D+1 crosses Carnival to 2012-02-22. Both instruments remain isolated in the process-private in-memory database.
 
 Source hashes, exact field values, license/attribution, independent DU and fixed-indexation shock expectations are recorded in [M3 fixture documentation](../../internal/pricing/testdata/M3_README.md). Yields are real annual rates; no future inflation or nominal future maturity amount is inferred. The Prefixado default and its original fixture version remain unchanged.
+
+## M4 sample position
+
+The demo seeds one temporary position with ID `demo-ipca`, title `ipca:2015-05-15`, and quantity `2`. This quantity is an explicitly hypothetical educational input, not an official record or actual acquisition. All acquisition fields remain unknown. Quotes retain the official provenance above. Current valuation respects the local maturity date; old demo quotes never masquerade as current prices. Historical same-date scenarios remain available. Edits reset on process restart and never access the persistent database.

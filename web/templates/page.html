@@ -13,6 +13,7 @@
   <span class="milestone">{{if .Persistent}}LOCAL DATA{{else}}OFFLINE DEMO{{end}}</span>
 </header>
 <main>
+  <nav aria-label="Main navigation"><a href="/">{{if .Persistent}}Market{{else}}Demo playground{{end}}</a> · <a href="/portfolio">Portfolio</a></nav>
   {{if .SelectionRequired}}
   <section class="intro">
     <p class="eyebrow">LOCAL MARKET DATA</p>

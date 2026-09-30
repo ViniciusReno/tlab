@@ -25,7 +25,7 @@ func TestMigrationsUpsertRollbackAndIsolation(t *testing.T) {
 		t.Fatal(err)
 	}
 	var migrations int
-	if err := s.db.QueryRow("SELECT count(*) FROM schema_migrations").Scan(&migrations); err != nil || migrations != 2 {
+	if err := s.db.QueryRow("SELECT count(*) FROM schema_migrations").Scan(&migrations); err != nil || migrations != 3 {
 		t.Fatalf("migrations %d %v", migrations, err)
 	}
 	data, err := assets.Files.ReadFile("data/demo/prefixado.csv")
@@ -105,7 +105,7 @@ func TestPersistentReopenAndMigrationRollback(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer s.Close()
-	broken := fstest.MapFS{"migrations/003_broken.sql": &fstest.MapFile{Data: []byte("CREATE TABLE rollback_probe(id INTEGER); INVALID SQL;")}}
+	broken := fstest.MapFS{"migrations/004_broken.sql": &fstest.MapFile{Data: []byte("CREATE TABLE rollback_probe(id INTEGER); INVALID SQL;")}}
 	if err := s.migrate(ctx, broken); err == nil {
 		t.Fatal("accepted broken migration")
 	}
@@ -118,7 +118,7 @@ func TestPersistentReopenAndMigrationRollback(t *testing.T) {
 		t.Fatalf("quote not preserved: %+v %v", q, err)
 	}
 	var count int
-	if err := s.db.QueryRow("SELECT count(*) FROM schema_migrations").Scan(&count); err != nil || count != 2 {
+	if err := s.db.QueryRow("SELECT count(*) FROM schema_migrations").Scan(&count); err != nil || count != 3 {
 		t.Fatalf("migration reapplied: %d %v", count, err)
 	}
 	if has, err := s.HasQuotes(ctx); err != nil || !has {
