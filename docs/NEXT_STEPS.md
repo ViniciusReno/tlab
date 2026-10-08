@@ -59,8 +59,8 @@ See [M4 implementation notes](M4_IMPLEMENTATION.md) for migration, acquisition n
 - [x] Connect the primary areas through navigation and add skip-to-content links; correct obsolete portfolio availability copy.
 - [x] Complete and review Market, Playground, Portfolio, and Learn against the specification.
 - [x] Verify keyboard access, narrow layouts, no-JavaScript operation, slider/shock interactions, error recovery, and numeric chart equivalents in Chrome on macOS.
-- [ ] Verify CI on GitHub after an authorized push; resolve failures before release.
-- [ ] Build and execute supported release targets, including an extracted offline demo without Go installed.
+- [x] Verify Go and native-release CI on GitHub for reviewed code commit `84caae5`; both workflows passed.
+- [x] Build and execute all five native release targets from extracted packages without Go in PATH; additionally verify network-isolated macOS demos locally.
 - [x] Prepare local checksums, dependency/source attribution, candidate release notes, launch instructions, and migration/compatibility notes.
 - [x] Audit every V1 acceptance criterion with evidence and explicit remote/native release gates; V1 is not yet declared complete.
 
@@ -70,7 +70,7 @@ Validation for this increment: `go fmt ./...`, `go vet ./...`, `go test ./intern
 
 M5 closure increment (2026-10-08): reviewed all four areas in Chrome with demo and isolated persistent fixtures, at 375px and 1280px. Added baseline-specific Prefixado/IPCA+ sliders and a persistent bond selector, preserved results-region announcements/focus, and made portfolio input conventions explicit. Fixed real-browser portfolio POST rejection caused by `no-referrer` turning Origin into `null`; same-origin referrer policy keeps external disclosure blocked. CLI help now reflects M4.
 
-Added standard-library-only maintainer packaging and smoke scripts, third-party license notices, five-target native CI, and candidate release documentation. All five targets cross-built without CGO and their archive hashes were checked. Extracted macOS arm64 and amd64 (Rosetta) demos ran with empty PATH and external network connections denied. See [M5 acceptance audit](M5_ACCEPTANCE.md) for evidence and open gates. Remote CI and native Linux/Windows execution remain pending; compilation alone does not close them.
+Added standard-library-only maintainer packaging and smoke scripts, third-party license notices, five-target native CI, and candidate release documentation. All five targets cross-built without CGO and their archive hashes were checked. Extracted macOS arm64 and amd64 (Rosetta) demos ran with empty PATH and external network connections denied. See [M5 acceptance audit](M5_ACCEPTANCE.md) for evidence and open gates. Remote [Go checks](https://github.com/ViniciusReno/tlab/actions/runs/37848148816) and [all five native release checks](https://github.com/ViniciusReno/tlab/actions/runs/37848148688) passed for reviewed code commit `84caae5`. M5 validation is complete; the branch and unpublished candidate remain for maintainer review and release publication.
 
 ### M6 — Brazilian Portuguese and usability (planned after V1)
 
@@ -88,7 +88,7 @@ M6 may introduce the localization needed for this approved post-V1 scope. Code i
 ## Resume checklist
 
 1. Read this checkpoint, the relevant specification sections, and existing code/tests; do not assume this snapshot is still current.
-2. M2 is complete under the approved settlement contract. M3 IPCA+ scenarios, Selic quote support, and verified 2002–2050 calendar coverage are implemented. M4 local portfolio is implemented. M5 Learn and integrated navigation are implemented; continue the remaining screen, accessibility, acceptance, and release checks. Preserve the Prefixado redemption validation gate and the IPCA+ fixed-indexation contract.
+2. M2 is complete under the approved settlement contract. M3 IPCA+ scenarios, Selic quote support, and verified 2002–2050 calendar coverage are implemented. M4 local portfolio is implemented. M5 Learn, navigation, screen/accessibility review, acceptance audit, packaging, and all five native CI checks are validated. Review/merge the branch and publish an appropriately versioned release before starting the approved post-V1 M6. Preserve the Prefixado redemption validation gate and the IPCA+ fixed-indexation contract.
 3. Through M5, keep repository content and application copy in English; maintainer conversations may remain in Portuguese. After V1 closure, M6 adds the approved user-facing pt-BR support without translating raw source records or code identifiers.
 4. Preserve the single-binary Go architecture, loopback default, transparent math, and no-recommendation policy. Do not introduce a frontend runtime, mandatory Docker, cloud services, or V2 features.
 5. For code changes, run `go fmt ./...`, `go vet ./...`, `go test ./...`, and `go test -race ./...` where supported. Verify builds without CGO when relevant.

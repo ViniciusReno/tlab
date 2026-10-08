@@ -1,20 +1,20 @@
 # M5 acceptance audit
 
 Audit date: 2026-10-08. The specification's section 34 remains the source of truth.
-This record separates local evidence from release gates. V1 is not yet released.
+Implementation and acceptance validation passed for code commit `84caae56f41516a83d2152874203b5fd49e6c75a`. The candidate is ready for maintainer review; no release has been published. Subsequent checkpoint edits are documentation only.
 
 ## Packaging
 
 | Criterion | Evidence / status |
 |---|---|
-| Single release binary | Five archives built with `CGO_ENABLED=0`; extracted macOS arm64 and amd64 demos executed. |
+| Single release binary | Five archives built with `CGO_ENABLED=0`; all five extracted demos executed on native GitHub runners. |
 | No Node/npm runtime | Embedded server-rendered templates and vanilla JavaScript; binary smoke checks use empty PATH. An existing empty, untracked `package-lock.json` is unrelated to the application and is not packaged. |
 | No external database | Embedded pure-Go SQLite, versioned SQL migrations; no database service. |
 | No Docker requirement | Extracted binaries launched directly. |
 | Local/embedded assets | Smoke checks fetch embedded CSS and pages; source `assets.go`. |
 | Loopback default | CLI binds `127.0.0.1:8080`; startup and smoke checks confirm the address. |
 | Release/source demo commands start one process | CLI startup tests and extracted `demo` smoke; source command also checked locally. |
-| No runtime/setup/network for release demo | macOS extracted binaries run with empty PATH, fresh temporary working/config directories, and external connections denied by `sandbox-exec`. No persistent database is created. Linux/Windows native execution remains a release gate. |
+| No runtime/setup/network for release demo | macOS extracted binaries run with empty PATH, fresh temporary working/config directories, and external connections denied by `sandbox-exec`. No persistent database is created. Native Linux/Windows smoke checks also passed in remote CI. |
 
 ## Data
 
@@ -86,15 +86,16 @@ certification were not evaluated.
 | Versioned migrations | Existing 001–003 unchanged; no new migration needed in M5. |
 | No unnecessary V2 infrastructure | No dependency/version upgrade, frontend runtime, telemetry, cloud service, or localization introduced. |
 | One repo/root Go module | Existing module and package boundaries preserved. Python scripts are optional maintainer packaging/check tools. |
-| Automated checks/docs/release notes match | Existing Go CI plus five-target native archive/checksum/extracted-demo workflow; contributor and candidate-release documentation. Remote results remain pending. |
+| Automated checks/docs/release notes match | Existing Go CI plus five-target native archive/checksum/extracted-demo workflow; contributor and candidate-release documentation. Both remote workflows passed for the reviewed code commit. |
 
-Release gates still open:
+Remote validation (all successful, 2026-10-08):
 
-- Successful remote CI for the exact reviewed commit, including native Linux
-  amd64/arm64 and Windows amd64 execution. macOS amd64 currently ran through
-  Rosetta on arm64, not on native Intel hardware.
-- Review and publish an appropriately versioned release after those checks. Local
-  candidates are unsigned/unnotarized and unpublished.
+- [Go checks](https://github.com/ViniciusReno/tlab/actions/runs/37848148816): formatting, vet, unit/race tests, CGO-free build, and offline CLI smoke.
+- [Native release checks](https://github.com/ViniciusReno/tlab/actions/runs/37848148688): Linux amd64/arm64, Windows amd64, and macOS amd64/arm64. Each native runner built an archive, verified its checksum, extracted it, launched the demo with empty PATH and temporary configuration, checked both analytical instruments and embedded pages/assets, and verified shutdown. Windows uses a console Ctrl+Break event; Unix uses SIGINT.
+
+The five runner labels follow the [GitHub-hosted runner reference](https://docs.github.com/en/actions/reference/runners/github-hosted-runners). Local macOS amd64 execution used Rosetta; remote `macos-15-intel` provided native Intel validation.
+
+Publication remains a maintainer action: review/merge the branch and choose a release version before publishing. Packages are currently unsigned/unnotarized. This audit closes the M5 validation checklist; it does not claim a public release exists.
 
 ## Validation commands
 

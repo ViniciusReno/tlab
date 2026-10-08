@@ -29,6 +29,9 @@ standalone validation remain unavailable. After-13:00 requests, suspended tradin
 actual execution, and reconciliation of maturity cash are not modeled.
 
 Validation evidence and remaining release gates are tracked in
-`docs/M5_ACCEPTANCE.md` in the source repository. Native execution on every declared
-target and successful remote CI are required before calling V1 released. No package
+`docs/M5_ACCEPTANCE.md` in the source repository. The [Go workflow](https://github.com/ViniciusReno/tlab/actions/runs/37848148816) and
+[five-target native release workflow](https://github.com/ViniciusReno/tlab/actions/runs/37848148688)
+passed for code commit `84caae5` on 2026-10-08. Local formatting, vet, unit/race
+tests, Chrome demo/persistent journeys, and network-isolated extracted macOS
+demos also passed. Review and publication remain maintainer actions. No package
 is signed or notarized, and no publication has been performed.

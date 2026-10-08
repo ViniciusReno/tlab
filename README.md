@@ -185,14 +185,14 @@ Source metadata, formulas, and limitations are documented in the [V1 specificati
 | M2 — Implemented official data and dates | Idempotent synchronization, history, explicit quote contexts, and accurate freshness states |
 | M3 — IPCA+ and Selic within verified coverage | Validated real-yield scenarios for IPCA+; explicitly limited Selic display/valuation |
 | M4 — Local portfolio | Quantity-only positions, optional acquisition cost, and gross Prefixado hold/early-exit comparison |
-| M5 — In progress | Learn, navigation, screen/browser review, and acceptance audit implemented; remote CI and native release validation pending |
+| M5 — Validated candidate | Learn, navigation, browser/accessibility review, acceptance audit, packaging, and five-target native CI passed; release unpublished |
 | M6 — Planned after V1 | Brazilian Portuguese support and usability improvements across the existing user journeys |
 
 M6 starts after M5 closes V1. Its [planned scope](docs/NEXT_STEPS.md#m6--brazilian-portuguese-and-usability-planned-after-v1) includes language support, localized presentation/input rules, and improvements to navigation, forms, and explanations. V1 remains English-only; no localization is implemented yet.
 
 Every milestone includes relevant tests and documentation. Financial tests use small official fixtures, independently checked nonzero-shock expectations, explicit tolerances, and maturity/numeric boundary cases. Routine tests must not depend on live internet access.
 
-The [CI workflow](.github/workflows/ci.yml) covers formatting, static analysis, unit tests, race checks, a build without CGO, and an offline CLI smoke check. It must run on GitHub after pushing; creating the workflow does not verify a remote run. Future releases must include checksums and be tested against the documented launch instructions.
+The [CI workflow](.github/workflows/ci.yml) covers formatting, static analysis, unit tests, race checks, a build without CGO, and an offline CLI smoke check. The [M5 audit](docs/M5_ACCEPTANCE.md) links successful remote Go and five-target native release checks for the reviewed code commit. Future releases must include checksums and be tested against the documented launch instructions.
 
 ## Documentation and contributions
 
