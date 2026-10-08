@@ -1,6 +1,6 @@
 # Contributing to Tesouro Lab
 
-Tesouro Lab implements the M1 offline demo, M2 official synchronization/market/history, and M3 IPCA+ scenarios within verified calendar coverage plus Selic quote support. M4 adds local portfolio positions, official gross valuation, and validated Prefixado comparisons. See [M4 notes](docs/M4_IMPLEMENTATION.md) for the current behavior and validation, and [M3 notes](docs/M3_IMPLEMENTATION.md) for the versioned calendar coverage. Broader usability work and Brazilian Portuguese support are deferred until the planned V1 work is complete; authored project content remains English.
+Tesouro Lab implements the M1 offline demo, M2 official synchronization/market/history, and M3 IPCA+ scenarios within verified calendar coverage plus Selic quote support. M4 adds local portfolio positions, official gross valuation, and validated Prefixado comparisons. See [M4 notes](docs/M4_IMPLEMENTATION.md) for the current behavior and validation, and [M3 notes](docs/M3_IMPLEMENTATION.md) for the versioned calendar coverage. Brazilian Portuguese support and broader usability improvements are planned for [M6](docs/NEXT_STEPS.md#m6--brazilian-portuguese-and-usability-planned-after-v1), after M5 completes V1. Authored project content remains English through V1; M6's approved language exception applies to user-facing localization.
 
 ## Read first
 
@@ -59,3 +59,30 @@ Keep feature work, broad refactoring, and dependency upgrades separate unless th
 Document supported operating systems/architectures, checksums, launch commands, known limitations, and migration or compatibility changes. Verify the extracted release's demo command without requiring Go or network access before claiming the release supports that workflow.
 
 Record implemented behavior and validation in English release notes. Never present future milestones or pending checks as completed work.
+
+## Candidate packaging and release checks
+
+Maintainers can use Python 3.12+ (standard library only) and the existing Go toolchain
+to build candidate packages. Python is not required to run Tesouro Lab. From the
+repository root, choose a new output directory:
+
+```sh
+python3 scripts/package_release.py --version 0.1.0-candidate --out dist
+```
+
+This builds all five V1 targets without CGO, stamps the version, ships license and
+launch documentation, and writes `SHA256SUMS`. Use `--target darwin/arm64` (or
+another declared target) for one native archive. Extract that archive, then run:
+
+```sh
+python3 scripts/smoke_release.py /absolute/path/to/extracted/tesouro-lab --version 0.1.0-candidate
+```
+
+On Windows, pass the extracted `.exe` path. The smoke script removes runtime
+executables from PATH, uses temporary configuration, disables external HTTP(S)
+proxies, checks both analytical instruments and embedded pages/assets, and stops
+the server. It needs default port 8080 available. It does not itself block all
+network traffic; the recorded macOS audit additionally used OS-level network
+restrictions. Native release CI verifies checksums and exercises extracted packages
+on all five targets. See [release checks](.github/workflows/release-check.yml),
+[M5 audit](docs/M5_ACCEPTANCE.md), and [launch guide](docs/RELEASE_GUIDE.md).

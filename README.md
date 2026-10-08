@@ -2,7 +2,7 @@
 
 A local educational lab for Brazilian government bonds, built around official data, transparent calculations, and hypothetical scenarios.
 
-**Status: M1–M4 implemented: offline demos, official synchronization, IPCA+ scenarios, Selic quotes, and a local manual portfolio.** Synchronized scenarios use the verified ANBIMA calendar through 2050. M5 acceptance and release validation remain planned. Run from source or build a local executable; no downloadable release has been published.
+**Status: M1–M4 implemented; M5 in progress.** Offline demos, official synchronization, IPCA+ scenarios, Selic quotes, and a local manual portfolio are available. M5 adds the Learn area with contextual explanations and historical scenario exercises. Synchronized scenarios use the verified ANBIMA calendar through 2050. Full accessibility, acceptance, and release validation remain pending. Run from source or build a local executable; no downloadable release has been published.
 
 Tesouro Lab helps beginners understand bond prices and yield changes while letting technical readers inspect the same inputs, formulas, calendars, and results. It does not recommend investments, predict yields, or execute transactions.
 
@@ -15,6 +15,8 @@ go run ./cmd/tesouro-lab demo
 ```
 
 The first build may download Go dependencies. Open `http://127.0.0.1:8080` and stop with Ctrl+C. No Docker, Node/npm, configuration file, or separate database process is required.
+
+Open **Learn** in the navigation for explanations of bond types, price/yield changes, quote contexts, maturity, and gross values. In demo mode, its exercises open explicit historical scenarios in the Playground. In persistent mode, start from a stored quote in Market. Learning content and examples work without JavaScript; external official-source links require internet access.
 
 To produce a standalone executable with embedded web assets, migrations, and fixtures:
 
@@ -183,7 +185,10 @@ Source metadata, formulas, and limitations are documented in the [V1 specificati
 | M2 — Implemented official data and dates | Idempotent synchronization, history, explicit quote contexts, and accurate freshness states |
 | M3 — IPCA+ and Selic within verified coverage | Validated real-yield scenarios for IPCA+; explicitly limited Selic display/valuation |
 | M4 — Local portfolio | Quantity-only positions, optional acquisition cost, and gross Prefixado hold/early-exit comparison |
-| M5 — V1 completion | Market, Playground, Portfolio, and Learn screens; accessibility and release validation; all acceptance criteria met |
+| M5 — In progress | Learn, navigation, screen/browser review, and acceptance audit implemented; remote CI and native release validation pending |
+| M6 — Planned after V1 | Brazilian Portuguese support and usability improvements across the existing user journeys |
+
+M6 starts after M5 closes V1. Its [planned scope](docs/NEXT_STEPS.md#m6--brazilian-portuguese-and-usability-planned-after-v1) includes language support, localized presentation/input rules, and improvements to navigation, forms, and explanations. V1 remains English-only; no localization is implemented yet.
 
 Every milestone includes relevant tests and documentation. Financial tests use small official fixtures, independently checked nonzero-shock expectations, explicit tolerances, and maturity/numeric boundary cases. Routine tests must not depend on live internet access.
 
@@ -196,7 +201,9 @@ The [CI workflow](.github/workflows/ci.yml) covers formatting, static analysis, 
 - [Official datasource contract](docs/OFFICIAL_DATASOURCE.md): verified CKAN/CSV contract and parser limitations.
 - [M3 implementation](docs/M3_IMPLEMENTATION.md): IPCA+/Selic behavior, financial validation, and explicit limitations.
 - [M4 implementation](docs/M4_IMPLEMENTATION.md): local positions, official gross valuation, and Prefixado comparison.
-- [Next steps](docs/NEXT_STEPS.md): current checkpoint and ordered implementation checklist through V1.
+- [M5 acceptance audit](docs/M5_ACCEPTANCE.md): current evidence and remaining release gates.
+- [Release launch guide](docs/RELEASE_GUIDE.md): extracted-package commands and compatibility.
+- [Next steps](docs/NEXT_STEPS.md): current checkpoint, V1 implementation checklist, and planned post-V1 M6.
 - [Contributing](CONTRIBUTING.md): language policy, development workflow, checks, and review expectations.
 - [Agent instructions](AGENTS.md): mandatory rules for automated contributors.
 

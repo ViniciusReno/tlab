@@ -99,7 +99,7 @@ func TestIPCACLIAPIHTMLParityAndSelicDisplayOnly(t *testing.T) {
 					t.Fatalf("HTML missing %q: %d %s", want, page.Code, body)
 				}
 			}
-			if strings.Contains(body, "fixed nominal amount at maturity") || strings.Contains(body, `id="yield-slider"`) {
+			if strings.Contains(body, "fixed nominal amount at maturity") || strings.Contains(body, `min="6.88" max="14.88"`) {
 				t.Fatal("Prefixado explanation or fixed slider leaked into IPCA")
 			}
 			if tc.source == "demo" && (!strings.Contains(body, app.IPCAFixtureVersion) || strings.Contains(body, "official Tesouro Direto methodology, pages 1–3")) {

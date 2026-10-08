@@ -31,6 +31,9 @@ func TestPortfolioFormsSecurityEscapingAndDemoReset(t *testing.T) {
 		if w.Code != 200 || !strings.Contains(w.Body.String(), "</html>") {
 			t.Fatalf("render %d: %s", w.Code, w.Body.String())
 		}
+		if w.Header().Get("Referrer-Policy") != "same-origin" {
+			t.Fatal("Browser form Origin must remain usable without leaking external referrers")
+		}
 		return w.Body.String()
 	}
 	body := get("/portfolio")
@@ -53,6 +56,9 @@ func TestPortfolioFormsSecurityEscapingAndDemoReset(t *testing.T) {
 	if w := post(v, "http://hostile.example", "application/x-www-form-urlencoded"); w.Code != 403 {
 		t.Fatal("cross-origin accepted")
 	}
+	if w := post(v, "null", "application/x-www-form-urlencoded"); w.Code != 403 {
+		t.Fatal("opaque origin accepted")
+	}
 	v.Set("token", "invalid")
 	if w := post(v, "", "application/x-www-form-urlencoded"); w.Code != 403 {
 		t.Fatal("invalid token accepted")
@@ -66,7 +72,7 @@ func TestPortfolioFormsSecurityEscapingAndDemoReset(t *testing.T) {
 		t.Fatalf("validation %d %s", w.Code, w.Body.String())
 	}
 	v.Set("quantity", "2")
-	if w := post(v, "", "application/x-www-form-urlencoded"); w.Code != 303 || w.Header().Get("Location") != "/portfolio" {
+	if w := post(v, "http://example.com", "application/x-www-form-urlencoded"); w.Code != 303 || w.Header().Get("Location") != "/portfolio" {
 		t.Fatalf("save %d %s", w.Code, w.Body.String())
 	}
 	body = get("/portfolio")
