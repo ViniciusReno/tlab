@@ -29,8 +29,10 @@ const (
 	IPCASource         = "https://www.tesourotransparente.gov.br/ckan/dataset/df56aa42-484a-4a59-8184-7676580c81e3/resource/796d2059-14e9-44e3-80c9-2d9e30b405c1/download/precotaxatesourodireto.csv"
 	FixtureVersion     = "prefixado-2012-v1"
 	OfficialSource     = "https://www.tesourodireto.com.br/documents/d/guest/tesouro_prefixado"
-	BuildVersion       = "0.1.0-dev"
 )
+
+// BuildVersion may be set by the release packager using Go linker flags.
+var BuildVersion = "0.1.0-dev"
 
 type Service struct {
 	store     *sqlite.Store

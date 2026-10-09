@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tesouro Lab · Learn</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><a class="brand" href="/">TESOURO <span>LAB</span></a><span class="milestone">{{if .}}OFFLINE DEMO{{else}}LOCAL DATA{{end}}</span></header>
+<main id="main" tabindex="-1">
+  <nav aria-label="Main navigation">{{if not .}}<a href="/market">Market</a> · {{end}}<a href="/playground">{{if .}}Demo playground{{else}}Playground{{end}}</a> · <a href="/portfolio">Portfolio</a> · <a href="/learn" aria-current="page">Learn</a></nav>
+  <section class="intro">
+    <p class="eyebrow">UNDERSTAND THE NUMBERS</p>
+    <h1>Learn with your local data</h1>
+    <p class="lead">Explore what a quote means, why prices respond to yields, and which assumptions a scenario holds fixed.</p>
+  </section>
+  <aside class="notice"><strong>Education, not an investment recommendation.</strong>{{if .}} Examples use historical official fixtures. They are not current quotes. Portfolio edits are temporary.{{else}} Examples start from your stored official quotes. If the database is empty, synchronize explicitly or restart with <code>tesouro-lab demo</code> for offline historical examples.{{end}} A hypothetical scenario is not a prediction.</aside>
+  <nav aria-label="Learning topics"><a href="#instruments">Bond types</a> · <a href="#price-yield">Price and yield</a> · <a href="#quote-contexts">Quote contexts</a> · <a href="#maturity">Maturity</a> · <a href="#gross-net">Gross and net</a></nav>
+
+  <section class="panel learn-section" id="instruments">
+    <h2>Prefixado, IPCA+, and Tesouro Selic</h2>
+    <p><strong>Prefixado (LTN, without coupons)</strong> has a fixed nominal payment of BRL 1,000.00 per unit at maturity. Nominal means the amount is not adjusted for inflation; its purchasing power can change.</p>
+    <p><strong>IPCA+ (NTN-B Principal, without coupons)</strong> links its principal to inflation. Its quoted yield is a real annual rate, above inflation. A same-date scenario changes that real yield while holding the indexation anchor fixed.</p>
+    <details class="technical"><summary>Does an IPCA+ scenario predict an inflation-linked return?</summary><p>No. Future nominal amounts depend on future inflation. V1 does not assume an inflation path or project the nominal maturity value. Its same-date calculation does not reconstruct an official updated nominal value (VNA).</p></details>
+    <p><strong>Tesouro Selic (LFT)</strong> follows the Selic rate. The yield field in its quote is a spread, not the current Selic rate. V1 displays official quotes, history, and portfolio valuation using official PU Base. Yield shocks, duration/convexity, and hold-versus-early-exit calculations are unsupported.</p>
+    <p>Coupon-bearing titles, RendA+, Educa+, and other instrument types are unsupported in V1; their cash flows are not approximated with these formulas.</p>
+    {{if .}}<p>Explore an actual fixture: <a href="/playground?bond=prefixado%3A2015-01-01&amp;source=demo&amp;basis=purchase&amp;date=2012-01-03&amp;yield=10.88">Prefixado · quote 2012-01-03</a> or <a href="/playground?bond=ipca%3A2015-05-15&amp;source=demo&amp;basis=purchase&amp;date=2012-02-17&amp;yield=4.47">IPCA+ · quote 2012-02-17</a>.</p>{{else}}<p><a href="/market">Inspect the bond types and exact quote dates in Market</a>. Open a bond's history for past records.</p>{{end}}
+  </section>
+
+  <section class="panel learn-section" id="price-yield">
+    <h2>Why do price and yield move in opposite directions?</h2>
+    <p>With the payment assumptions and remaining term held fixed, a lower yield corresponds to a higher present price. A higher yield corresponds to a lower price. This relationship describes a calculation, not what yields will do next.</p>
+    <p><strong>Basis points (bps)</strong> describe yield changes: 100 bps = 1 percentage point. For example, changing an assumed yield from 10.88% to 8.88% is a shock of −200 bps, not a 2% relative reduction.</p>
+    {{if .}}<p>Use the official historical Prefixado purchase example dated 2012-01-03:</p><ul>
+      <li><a href="/playground?bond=prefixado%3A2015-01-01&amp;source=demo&amp;basis=purchase&amp;date=2012-01-03&amp;yield=8.88">If the yield were 8.88% (−200 bps)</a></li>
+      <li><a href="/playground?bond=prefixado%3A2015-01-01&amp;source=demo&amp;basis=purchase&amp;date=2012-01-03&amp;yield=10.88">Keep the official yield of 10.88% (zero shock)</a></li>
+      <li><a href="/playground?bond=prefixado%3A2015-01-01&amp;source=demo&amp;basis=purchase&amp;date=2012-01-03&amp;yield=12.88">If the yield were 12.88% (+200 bps)</a></li>
+    </ul>{{else}}<p><a href="/market">Select a Prefixado or IPCA+ quote in Market</a>, then open a scenario and choose a yield in the shock table. Each link keeps the source, date, and quote context explicit.</p>{{end}}
+    <details class="technical"><summary>Inspect the shared scenario formula</summary>
+      <p><code>scenario_PU = official_PU × ((1 + official_yield) / (1 + simulated_yield))^(DU / 252)</code></p>
+      <p>PU means unit price. Yields in this formula are annual fractions; the Playground accepts percentages. DU is the verified financial-market business-day count, settlement inclusive and maturity exclusive, using the versioned ANBIMA calendar. Dates outside its coverage are unavailable.</p>
+      <p>The calculation is anchored to the official PU/yield pair for the selected context. An unchanged yield preserves the official PU. Open Advanced in the Playground for exact inputs, source, dates, versions, and the CLI reproduction command. The chart and its numeric table use the same calculation.</p>
+    </details>
+  </section>
+
+  <section class="panel learn-section" id="quote-contexts">
+    <h2>Buy quote, sell quote, and mark-to-market</h2>
+    <p>These official unit prices answer different questions. None is a substitute for a missing field.</p>
+    <dl class="learn-definitions">
+      <dt>PU Compra · official buy quote</dt><dd>The hypothetical purchase context pairs the buy PU with the buy yield. Settlement is D+1, the next financial-market business day.</dd>
+      <dt>PU Venda · official sell quote</dt><dd>The hypothetical early-redemption context pairs the sell PU with the sell yield. Morning settlement is D+1 before 2021-09-13 and D0 (the quote date) thereafter.</dd>
+      <dt>PU Base · official mark-to-market quote</dt><dd>The D0 valuation of an existing position uses <code>gross market value = quantity × official PU Base</code>. A hypothetical yield scenario uses this base PU with the sell yield.</dd>
+    </dl>
+    <details class="technical"><summary>What are the limits of early-redemption scenarios?</summary><p>Prefixado sell quotes must first pass standalone theoretical-price validation against the official PU. A mismatch returns <code>calculation_not_validated</code>. The app models morning quotes under normal market conditions, not requests after 13:00, suspended trading, or actual execution. Hypothetical amounts are gross.</p></details>
+    <p><strong>Mark-to-market</strong> describes value at the official quote date. It is not the acquisition cost or a promise of cash received. If acquisition cost is unknown, the portfolio can still show an available official valuation, but change since purchase is unavailable.</p>
+    <p><a href="/portfolio">Inspect quantities, quote dates, and valuation coverage in Portfolio</a>. Its totals identify missing positions and mixed quote dates; missing values are not zero.</p>
+    {{if .}}<p><a href="/playground?bond=ipca%3A2015-05-15&amp;source=demo&amp;basis=mark_to_market&amp;date=2012-02-17&amp;yield=4.51">Inspect the IPCA+ historical base-PU scenario on 2012-02-17</a>. The Prefixado demo fixture contains only a purchase quote.</p>{{end}}
+  </section>
+
+  <section class="panel learn-section" id="maturity">
+    <h2>Maturity and the date of a value</h2>
+    <p>Maturity is the bond's contractual payment date. An old pre-maturity quote is not a current value for a matured position. V1 shows that position as matured and does not reconcile actual maturity cash.</p>
+    <p>The official quote date (<span lang="pt-BR">Data Base</span>) tells you when a quote applies. The import timestamp only tells you when it entered this database. An older quote is labeled; missing dates are never filled with a previous quote.</p>
+    <details class="technical"><summary>Can I still explore a matured bond?</summary><p>Yes, as an explicitly historical scenario. The selected quote and settlement dates determine the remaining term, even if the bond has matured since then. Scenarios require settlement before maturity and a positive verified business-day count.</p><p>The portfolio's gross hold-versus-early-exit comparison is limited to Prefixado. Its break-even rate describes a hypothetical reinvestment condition, not an available offer. It is unsupported for IPCA+ and Selic.</p></details>
+  </section>
+
+  <section class="panel learn-section" id="gross-net">
+    <h2>Gross values, net values, and predictions</h2>
+    <p><strong>Gross</strong> amounts exclude taxes and fees. A net amount would need the applicable costs and tax treatment; V1 has no complete tax engine and does not calculate net cash received.</p>
+    <p><strong>A scenario is a hypothesis.</strong> “If the yield were X, holding the other scenario conditions constant…” changes an assumption. It does not forecast a market quote or recommend a financial action.</p>
+    <p>Distinguish the official input, the hypothetical yield, and the derived result. The Playground keeps the quote date and settlement fixed. IPCA+ also keeps its same-date indexation anchor fixed; no future inflation is silently assumed.</p>
+  </section>
+  <section class="panel learn-section" aria-labelledby="sources-title">
+    <h2 id="sources-title">Sources and limitations</h2>
+    <p>Quote fields come from the <a href="https://www.tesourotransparente.gov.br/ckan/dataset/taxas-dos-titulos-ofertados-pelo-tesouro-direto" rel="noreferrer">official Tesouro Transparente dataset</a>. The historical Prefixado demo transcribes the <a href="https://www.tesourodireto.com.br/documents/d/guest/tesouro_prefixado" rel="noreferrer">Tesouro Direto Prefixado methodology</a>. Business-day fixtures use <a href="https://www.anbima.com.br/feriados/" rel="noreferrer">ANBIMA financial-market holiday tables</a>.</p>
+    <p>External source links require internet access; these explanations and local examples work offline. Each Playground result identifies its own provenance and calendar coverage. Missing data, unsupported instruments, and unvalidated calculations remain explicit rather than being estimated.</p>
+  </section>
+</main>
+<footer><span>TESOURO LAB</span><p>Official inputs. Explicit assumptions. Inspectable math.</p><small>Educational use · gross values · no investment advice</small></footer>
+</body>
+</html>

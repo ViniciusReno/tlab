@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"html/template"
 	"io/fs"
+	"math"
 	"net/http"
 	"net/url"
 	"strings"
@@ -17,16 +18,19 @@ import (
 )
 
 type page struct {
-	Result            app.Result
-	Points            []app.Point
-	Curve             string
-	Error             string
-	Values            url.Values
-	Persistent        bool
-	HasQuotes         bool
-	SelectionRequired bool
-	ShockError        string
-	IPCA              bool
+	Result               app.Result
+	Points               []app.Point
+	Curve                string
+	Error                string
+	Values               url.Values
+	Persistent           bool
+	HasQuotes            bool
+	SelectionRequired    bool
+	ShockError           string
+	IPCA                 bool
+	SliderMin, SliderMax string
+	Bonds                []bond.Bond
+	SelectedBondName     string
 }
 
 func money(n float64) string {
@@ -111,6 +115,10 @@ func newHandler(service *app.Service, now func() time.Time) (http.Handler, error
 	}
 	mux.HandleFunc("GET /portfolio", portfolio)
 	mux.HandleFunc("POST /portfolio", portfolio)
+	mux.HandleFunc("GET /learn", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		tmpl.ExecuteTemplate(w, "learn.html", service.Source() == "demo")
+	})
 	render := func(w http.ResponseWriter, r *http.Request) {
 		if len(r.URL.RawQuery) > 4096 {
 			http.Error(w, "Request query is too large.", http.StatusRequestURITooLong)
@@ -157,8 +165,21 @@ func newHandler(service *app.Service, now func() time.Time) (http.Handler, error
 			return
 		}
 		p := page{Result: result, Values: values, Persistent: service.Source() == "synced", IPCA: strings.HasPrefix(values.Get("bond"), "ipca:")}
+		if p.Persistent {
+			market, readErr := service.Market(r.Context(), now(), true)
+			if readErr == nil {
+				for _, q := range market.Quotes {
+					p.Bonds = append(p.Bonds, q.Bond)
+					if q.Bond.ID == values.Get("bond") {
+						p.SelectedBondName = q.Bond.Name + " · " + q.Bond.Maturity.Format(time.DateOnly)
+					}
+				}
+			}
+		}
 		if err == nil {
 			p.Values = result.Values()
+			p.SliderMin = fmt.Sprintf("%.2f", math.Max(-99.99, result.BaseYield*100-4))
+			p.SliderMax = fmt.Sprintf("%.2f", result.BaseYield*100+4)
 			var shockErr error
 			p.Points, shockErr = app.Shocks(result)
 			if shockErr != nil {
@@ -201,7 +222,9 @@ func newHandler(service *app.Service, now func() time.Time) (http.Handler, error
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
-		w.Header().Set("Referrer-Policy", "no-referrer")
+		// Keep same-origin form Origins usable for CSRF validation while omitting
+		// referrers to external sites. no-referrer makes browser POST Origins null.
+		w.Header().Set("Referrer-Policy", "same-origin")
 		w.Header().Set("Cache-Control", "no-store")
 		mux.ServeHTTP(w, r)
 	}), nil
