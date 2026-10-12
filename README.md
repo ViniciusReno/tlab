@@ -2,7 +2,7 @@
 
 A local educational lab for Brazilian government bonds, built around official data, transparent calculations, and hypothetical scenarios.
 
-**Status: M1–M6 implemented and validated; stable `1.0.0` release prepared.** The free, local-first scope is complete: official quotes/history, Prefixado/IPCA+ scenarios, Selic valuation, local portfolios, and Learn in English and Brazilian Portuguese. See the [closure record](docs/PROJECT_CLOSURE.md) for acceptance and validation evidence. Downloadable builds are listed in [GitHub Releases](https://github.com/ViniciusReno/tlab/releases); source execution remains available.
+**Status: planned free scope complete; stable [v1.0.0](https://github.com/ViniciusReno/tlab/releases/tag/v1.0.0) published.** The free, local-first scope is complete: official quotes/history, Prefixado/IPCA+ scenarios, Selic valuation, local portfolios, and Learn in English and Brazilian Portuguese. See the [closure record](docs/PROJECT_CLOSURE.md) for acceptance and validation evidence. Download the archive for your platform from the [stable release](https://github.com/ViniciusReno/tlab/releases/tag/v1.0.0); source execution remains available.
 
 Tesouro Lab helps beginners understand bond prices and yield changes while letting technical readers inspect the same inputs, formulas, calendars, and results. It does not recommend investments, predict yields, or execute transactions.
 
@@ -192,9 +192,9 @@ Source metadata, formulas, and limitations are documented in the [V1 specificati
 | M3 — IPCA+ and Selic within verified coverage | Validated real-yield scenarios for IPCA+; explicitly limited Selic display/valuation |
 | M4 — Local portfolio | Quantity-only positions, optional acquisition cost, and gross Prefixado hold/early-exit comparison |
 | M5 — V1 released | Learn, navigation, browser/accessibility review, acceptance audit, packaging, and five-target native CI passed; v0.1.0 published |
-| M6 — Implemented and validated | English/pt-BR browser interface, local language preference, explicit input conventions, and bilingual user-journey checks |
+| M6 — Released in v1.0.0 | English/pt-BR browser interface, local language preference, explicit input conventions, and bilingual user-journey checks |
 
-The earlier `v0.1.0` remains English-only. The stable `1.0.0` release includes the approved post-V1 [M6 implementation](docs/M6_IMPLEMENTATION.md). Go checks and native execution on all five targets passed; see the [closure record](docs/PROJECT_CLOSURE.md) for publication status.
+The earlier `v0.1.0` remains English-only. The stable `1.0.0` release includes the approved post-V1 [M6 implementation](docs/M6_IMPLEMENTATION.md). Go checks and native execution on all five targets passed; [v1.0.0](https://github.com/ViniciusReno/tlab/releases/tag/v1.0.0) is published. The [closure record](docs/PROJECT_CLOSURE.md) closes the planned scope.
 
 Every milestone includes relevant tests and documentation. Financial tests use small official fixtures, independently checked nonzero-shock expectations, explicit tolerances, and maturity/numeric boundary cases. Routine tests must not depend on live internet access.
 
