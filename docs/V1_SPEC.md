@@ -1679,69 +1679,69 @@ The application may describe a historical fact but must not convert it into advi
 
 ## 34. V1 acceptance criteria
 
-V1 is complete when all items below are true.
+V1 is complete when all items below are true. The original V1 acceptance record closed with `v0.1.0` on 2026-10-09; evidence is in [M5 acceptance](M5_ACCEPTANCE.md). The approved post-V1 M6 amendment and stable-release validation are recorded in [project closure](PROJECT_CLOSURE.md). Language criteria below describe the original V1 release.
 
 ### Packaging
 
-- [ ] release runs as a single binary;
-- [ ] no Node/npm runtime;
-- [ ] no external DB;
-- [ ] no Docker requirement;
-- [ ] assets are local/embedded;
-- [ ] default bind is loopback;
-- [ ] documented release and source demo commands start the complete app in one process;
-- [ ] the release demo needs no runtime installation, manual setup, or network access.
+- [x] release runs as a single binary;
+- [x] no Node/npm runtime;
+- [x] no external DB;
+- [x] no Docker requirement;
+- [x] assets are local/embedded;
+- [x] default bind is loopback;
+- [x] documented release and source demo commands start the complete app in one process;
+- [x] the release demo needs no runtime installation, manual setup, or network access.
 
 ### Data
 
-- [ ] demo mode works offline;
-- [ ] demo state is temporary and isolated from the persistent database and portfolio;
-- [ ] official Tesouro dataset sync works;
-- [ ] sync is idempotent;
-- [ ] source provenance is visible;
-- [ ] every current-looking market/portfolio value shows its official quote date;
-- [ ] stale/older/matured quote states never masquerade as current data;
-- [ ] previous valid data survives failed sync.
+- [x] demo mode works offline;
+- [x] demo state is temporary and isolated from the persistent database and portfolio;
+- [x] official Tesouro dataset sync works;
+- [x] sync is idempotent;
+- [x] source provenance is visible;
+- [x] every current-looking market/portfolio value shows its official quote date;
+- [x] stale/older/matured quote states never masquerade as current data;
+- [x] previous valid data survives failed sync.
 
 ### Instruments
 
-- [ ] Prefixado market/history supported;
-- [ ] IPCA+ market/history supported;
-- [ ] Tesouro Selic market/history and official-PU-Base portfolio MTM supported;
-- [ ] unsupported instrument types are explicitly identified rather than miscalculated.
+- [x] Prefixado market/history supported;
+- [x] IPCA+ market/history supported;
+- [x] Tesouro Selic market/history and official-PU-Base portfolio MTM supported;
+- [x] unsupported instrument types are explicitly identified rather than miscalculated.
 
 ### Analysis
 
-- [ ] Prefixado scenario engine validated;
-- [ ] IPCA+ same-date real-yield scenario validated;
-- [ ] nonzero-shock magnitude is checked against independent expected values for both analytical instruments;
-- [ ] invalid numeric inputs and scenarios without remaining term fail explicitly;
-- [ ] portfolio uses official PU Base for current gross MTM;
-- [ ] Prefixado gross hold/early-exit comparison is implemented and does not imply advice;
-- [ ] no silent inflation forecast;
-- [ ] no tax/net-return claim.
+- [x] Prefixado scenario engine validated;
+- [x] IPCA+ same-date real-yield scenario validated;
+- [x] nonzero-shock magnitude is checked against independent expected values for both analytical instruments;
+- [x] invalid numeric inputs and scenarios without remaining term fail explicitly;
+- [x] portfolio uses official PU Base for current gross MTM;
+- [x] Prefixado gross hold/early-exit comparison is implemented and does not imply advice;
+- [x] no silent inflation forecast;
+- [x] no tax/net-return claim.
 
 ### UX
 
-- [ ] simple mode default;
-- [ ] advanced mode exposes technical details;
-- [ ] both modes use the same calculation result;
-- [ ] CLI and browser reproduce explicit scenario source/date/basis within documented data/version limits;
-- [ ] explanations identify official vs derived vs hypothetical values;
-- [ ] basic market, playground, portfolio, and learning areas work;
-- [ ] all authored UI, CLI, help, errors, and documentation are in English;
-- [ ] original source labels and fixtures retain their provenance, with English explanations.
+- [x] simple mode default;
+- [x] advanced mode exposes technical details;
+- [x] both modes use the same calculation result;
+- [x] CLI and browser reproduce explicit scenario source/date/basis within documented data/version limits;
+- [x] explanations identify official vs derived vs hypothetical values;
+- [x] basic market, playground, portfolio, and learning areas work;
+- [x] all authored UI, CLI, help, errors, and documentation are in English;
+- [x] original source labels and fixtures retain their provenance, with English explanations.
 
 ### Engineering
 
-- [ ] `go test ./...` passes;
-- [ ] `go vet ./...` passes;
-- [ ] source parsing has fixtures;
-- [ ] pricing has official-data validation fixtures;
-- [ ] SQLite migrations are versioned;
-- [ ] no unnecessary V2 infrastructure exists;
-- [ ] application, assets, fixtures, tests, and documentation share one repository and root Go module;
-- [ ] automated checks, contributor instructions, and release notes reflect the implemented behavior.
+- [x] `go test ./...` passes;
+- [x] `go vet ./...` passes;
+- [x] source parsing has fixtures;
+- [x] pricing has official-data validation fixtures;
+- [x] SQLite migrations are versioned;
+- [x] no unnecessary V2 infrastructure exists;
+- [x] application, assets, fixtures, tests, and documentation share one repository and root Go module;
+- [x] automated checks, contributor instructions, and release notes reflect the implemented behavior.
 
 ---
 

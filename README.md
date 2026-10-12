@@ -2,7 +2,7 @@
 
 A local educational lab for Brazilian government bonds, built around official data, transparent calculations, and hypothetical scenarios.
 
-**Status: V1 published as [v0.1.0](https://github.com/ViniciusReno/tlab/releases/tag/v0.1.0).** Offline demos, official synchronization, IPCA+ scenarios, Selic quotes, and a local manual portfolio are available. Learn provides contextual explanations and historical scenario exercises. Synchronized scenarios use the verified ANBIMA calendar through 2050. The [M5 audit](docs/M5_ACCEPTANCE.md) records browser/accessibility checks, acceptance evidence, and successful native release validation for all five targets. Download the archive for your operating system and architecture from the release page, verify its checksum, and follow the included `START_HERE.md`. Source execution remains available.
+**Status: M1–M6 implemented and validated; stable `1.0.0` release prepared.** The free, local-first scope is complete: official quotes/history, Prefixado/IPCA+ scenarios, Selic valuation, local portfolios, and Learn in English and Brazilian Portuguese. See the [closure record](docs/PROJECT_CLOSURE.md) for acceptance and validation evidence. Downloadable builds are listed in [GitHub Releases](https://github.com/ViniciusReno/tlab/releases); source execution remains available.
 
 Tesouro Lab helps beginners understand bond prices and yield changes while letting technical readers inspect the same inputs, formulas, calendars, and results. It does not recommend investments, predict yields, or execute transactions.
 
@@ -42,7 +42,7 @@ Open `http://127.0.0.1:8080`. Stop the application with Ctrl+C.
 
 The compiled demo works offline without Go. Demo changes are temporary: each process uses a private in-memory SQLite database and never opens your persistent portfolio or synchronized data. Use `demo --port 8081` if port 8080 is occupied.
 
-## Browser language (M6 source builds)
+## Browser language
 
 Choose **English** or **Português** above the main navigation. English is the default. The preference is stored only in a local browser cookie and works offline without JavaScript, accounts, or network access. Language links preserve the selected scenario or history query; `?lang=pt-BR` or `?lang=en` selects a language explicitly.
 
@@ -192,9 +192,9 @@ Source metadata, formulas, and limitations are documented in the [V1 specificati
 | M3 — IPCA+ and Selic within verified coverage | Validated real-yield scenarios for IPCA+; explicitly limited Selic display/valuation |
 | M4 — Local portfolio | Quantity-only positions, optional acquisition cost, and gross Prefixado hold/early-exit comparison |
 | M5 — V1 released | Learn, navigation, browser/accessibility review, acceptance audit, packaging, and five-target native CI passed; v0.1.0 published |
-| M6 — Implemented locally, unreleased | English/pt-BR browser interface, local language preference, explicit input conventions, and bilingual user-journey checks |
+| M6 — Implemented and validated | English/pt-BR browser interface, local language preference, explicit input conventions, and bilingual user-journey checks |
 
-The released `v0.1.0` remains English-only. Current source builds include the approved post-V1 [M6 implementation](docs/M6_IMPLEMENTATION.md). Remote CI and cross-platform release checks for M6 have not run yet.
+The earlier `v0.1.0` remains English-only. The stable `1.0.0` release includes the approved post-V1 [M6 implementation](docs/M6_IMPLEMENTATION.md). Go checks and native execution on all five targets passed; see the [closure record](docs/PROJECT_CLOSURE.md) for publication status.
 
 Every milestone includes relevant tests and documentation. Financial tests use small official fixtures, independently checked nonzero-shock expectations, explicit tolerances, and maturity/numeric boundary cases. Routine tests must not depend on live internet access.
 
@@ -207,10 +207,11 @@ The [CI workflow](.github/workflows/ci.yml) covers formatting, static analysis, 
 - [Official datasource contract](docs/OFFICIAL_DATASOURCE.md): verified CKAN/CSV contract and parser limitations.
 - [M3 implementation](docs/M3_IMPLEMENTATION.md): IPCA+/Selic behavior, financial validation, and explicit limitations.
 - [M4 implementation](docs/M4_IMPLEMENTATION.md): local positions, official gross valuation, and Prefixado comparison.
+- [Project closure](docs/PROJECT_CLOSURE.md): completed free scope, stable release evidence, and remaining product limits.
 - [M6 implementation](docs/M6_IMPLEMENTATION.md): language conventions, browser journeys, validation, and release limitations.
 - [M5 acceptance audit](docs/M5_ACCEPTANCE.md): current evidence and remaining release gates.
 - [Release launch guide](docs/RELEASE_GUIDE.md): extracted-package commands and compatibility.
-- [Next steps](docs/NEXT_STEPS.md): current checkpoint, V1 implementation checklist, and planned post-V1 M6.
+- [Next steps](docs/NEXT_STEPS.md): historical milestone evidence and maintenance checkpoint.
 - [Contributing](CONTRIBUTING.md): language policy, development workflow, checks, and review expectations.
 - [Agent instructions](AGENTS.md): mandatory rules for automated contributors.
 

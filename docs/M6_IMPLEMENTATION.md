@@ -95,13 +95,12 @@ M6 has no new dependency, migration, financial formula, inflation assumption,
 instrument support, or runtime requirement. Locale-specific numeric/date input
 formats are intentionally not introduced. CLI/API remain English/canonical.
 Screen-reader behavior, other browser engines, and formal accessibility
-certification were not evaluated. No new live-source sync was performed.
+certification were not evaluated. The original 2026-10-09 review did not perform a live-source sync; the closure check below did.
 
-Stable release closure began on 2026-10-12 under explicit maintainer authorization.
-Local formatting, vet, unit/race checks passed again (cached tests). Packaging and
-remote validation for `1.0.0` are in progress; publication has not yet occurred.
-The native smoke check now verifies both browser languages, preference cookies,
-and canonical API build/date fields from the extracted binary. It rejects an
-occupied test port before launch; `--port` permits isolated local checks while CI
-continues to use the documented default 8080. The workflow accepts an explicit
-version for native validation. Historical V1 checks do not validate the new build.
+Stable release validation completed on 2026-10-12 under explicit maintainer authorization. [PR #1](https://github.com/ViniciusReno/tlab/pull/1) merged M6 and the release smoke checks into `main` at `5752a97`. The [Go checks](https://github.com/ViniciusReno/tlab/actions/runs/38308467948) and [five-target native run stamped 1.0.0](https://github.com/ViniciusReno/tlab/actions/runs/38308470160) passed. Each native runner built, hashed, extracted, and executed the binary with empty PATH, including English/pt-BR preference and canonical API checks.
+
+Locally, all five 1.0.0 archives cross-built without CGO and their checksums passed. Both extracted macOS demos passed under OS-level external-network denial at port 18085; amd64 used Rosetta. The source `go run ./cmd/tesouro-lab demo --port 18086` also started offline and served Portuguese. One initial repeated smoke was blocked by Unix TIME_WAIT after shutdown; the committed probe fix permits repeated checks while rejecting an active listener. That rejection was tested explicitly. No running user server was stopped.
+
+A live official sync on 2026-10-12 used only an isolated temporary database: 177,260 source rows read, 68,577 supported rows stored, maximum official quote date 2026-10-09. Unsupported types were counted and excluded. No personal portfolio was accessed.
+
+The implementation and release validation are complete. See [project closure](PROJECT_CLOSURE.md) for publication and repository status.

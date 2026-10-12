@@ -1,10 +1,14 @@
-# Next steps toward V1 and M6
+# Project checkpoint — V1 and M6
 
 Last updated: 2026-10-12.
 
 This is a continuation checklist, not a replacement for the [V1 specification](V1_SPEC.md). Follow [AGENTS.md](../AGENTS.md) when implementing changes. Unchecked items are pending; this document does not authorize publishing releases or changing V1 scope.
 
-## Current checkpoint
+## Current status
+
+M1–M6 implementation and validation are complete. The stable `1.0.0` publication is the final closure step; see [project closure](PROJECT_CLOSURE.md) for current status and evidence. Milestone notes below are historical records; pending statements in dated entries describe that earlier date.
+
+## Historical checkpoint
 
 M1 implements the offline Prefixado demo: one Go module, embedded assets and fixtures, in-memory SQLite, versioned migration, isolated pricing/calendar logic, server-rendered English UI, and shared CLI/API calculations.
 
@@ -93,10 +97,10 @@ M6 validation (2026-10-09): local formatting, vet, unit/race tests, a CGO-free b
 
 Stable release closure (2026-10-12): the maintainer authorized committing all project changes, remote validation, merge, and publication to complete the planned free application. Version `1.0.0` is the stable closure target. The empty, unrelated npm lockfile was preserved outside the repository. Local fmt/vet/unit/race checks passed again; native smoke checks now include both languages and reject occupied test ports. Remote checks and publication are in progress.
 
-## Resume checklist
+## Maintenance checkpoint
 
 1. Read this checkpoint, the relevant specification sections, and existing code/tests; do not assume this snapshot is still current.
-2. M2 is complete under the approved settlement contract. M3 IPCA+ scenarios, Selic quote support, and verified 2002–2050 calendar coverage are implemented. M4 local portfolio is implemented. M5 Learn, navigation, screen/accessibility review, acceptance audit, packaging, and all five native CI checks are validated. M5 is merged into `main` at `1d4c64d`, and V1 is published as `v0.1.0`; M6 is implemented and validated locally. Review the changes, run remote CI and native release checks, and prepare a separately versioned release when requested. Preserve the Prefixado redemption validation gate and the IPCA+ fixed-indexation contract.
+2. M2 is complete under the approved settlement contract. M3 IPCA+ scenarios, Selic quote support, and verified 2002–2050 calendar coverage are implemented. M4 local portfolio is implemented. M5 Learn, navigation, screen/accessibility review, acceptance audit, packaging, and all five native CI checks are validated. M5 is merged into `main` at `1d4c64d`, and V1 is published as `v0.1.0`; M6 is merged at `5752a97` and validated by remote Go/native checks, including an explicit 1.0.0 five-target run. The planned feature scope is complete; consult project closure for publication status. Preserve the Prefixado redemption validation gate and the IPCA+ fixed-indexation contract.
 3. Through M5, keep repository content and application copy in English; maintainer conversations may remain in Portuguese. After V1 closure, M6 adds the approved user-facing pt-BR support without translating raw source records or code identifiers.
 4. Preserve the single-binary Go architecture, loopback default, transparent math, and no-recommendation policy. Do not introduce a frontend runtime, mandatory Docker, cloud services, or V2 features.
 5. For code changes, run `go fmt ./...`, `go vet ./...`, `go test ./...`, and `go test -race ./...` where supported. Verify builds without CGO when relevant.
