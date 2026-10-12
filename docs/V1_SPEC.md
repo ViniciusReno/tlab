@@ -147,6 +147,10 @@ Preserve official instrument/institution names, exact source field names, quoted
 
 Display monetary values with an explicit `BRL` currency code, decimal point, and English grouping (for example, `BRL 11,420.31`). Rates use a decimal point (`7.5%`), and displayed dates use unambiguous ISO `YYYY-MM-DD`. User inputs use decimal points without grouping separators, matching CLI/URL conventions; use ISO date inputs. Source adapters still parse Brazilian dates and comma-decimal numbers exactly as documented by the source. This changes presentation, not currency, calendar, source data, or financial conventions.
 
+### Post-V1 M6 language amendment
+
+Maintainer-approved M6 scope (2026-09-30), implemented after V1 publication on 2026-10-09, adds an English/pt-BR browser interface. This does not change the English-only acceptance record of release `v0.1.0`. English remains the default; an explicit local browser preference selects pt-BR without accounts, network calls, or a frontend runtime. Both languages retain the canonical BRL, decimal-point, and ISO date display/input conventions above, with translated form instructions. CLI/API inputs and outputs, official source records, financial formulas, calendar/settlement versions, and reproduction commands remain unchanged. Developer documentation and code identifiers remain English. See [M6 implementation notes](M6_IMPLEMENTATION.md) for validation and release status.
+
 ### 5.1 Simple mode
 
 Simple mode is the default.

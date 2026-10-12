@@ -50,6 +50,12 @@
       if (moveFocus) results.focus({ preventScroll: true });
       if (wasOpen && document.getElementById("technical")) document.getElementById("technical").open = true;
       history.replaceState(null, "", target);
+      // A language change must retain the scenario most recently calculated.
+      document.querySelectorAll(".language-picker a").forEach(link => {
+        const next = new URL(target, window.location.href);
+        next.searchParams.set("lang", link.hreflang);
+        link.href = next.pathname + next.search;
+      });
     } catch (error) {
       if (error.name !== "AbortError" && current === generation) window.location.assign(target);
     } finally {

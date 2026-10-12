@@ -1,6 +1,6 @@
 # Contributing to Tesouro Lab
 
-Tesouro Lab implements the M1 offline demo, M2 official synchronization/market/history, and M3 IPCA+ scenarios within verified calendar coverage plus Selic quote support. M4 adds local portfolio positions, official gross valuation, and validated Prefixado comparisons. See [M4 notes](docs/M4_IMPLEMENTATION.md) for the current behavior and validation, and [M3 notes](docs/M3_IMPLEMENTATION.md) for the versioned calendar coverage. Brazilian Portuguese support and broader usability improvements are planned for [M6](docs/NEXT_STEPS.md#m6--brazilian-portuguese-and-usability-planned-after-v1), after M5 completes V1. Authored project content remains English through V1; M6's approved language exception applies to user-facing localization.
+Tesouro Lab implements the M1 offline demo, M2 official synchronization/market/history, and M3 IPCA+ scenarios within verified calendar coverage plus Selic quote support. M4 adds local portfolio positions, official gross valuation, and validated Prefixado comparisons. See [M4 notes](docs/M4_IMPLEMENTATION.md) for the current behavior and validation, and [M3 notes](docs/M3_IMPLEMENTATION.md) for the versioned calendar coverage. V1 is published as `v0.1.0`; [M6](docs/M6_IMPLEMENTATION.md) adds locally validated English/pt-BR browser support and usability improvements, with release checks still pending. Authored project content remains English through V1; M6's approved language exception applies to user-facing localization.
 
 ## Read first
 
@@ -12,7 +12,7 @@ V1 is an educational, local-first application. Keep changes focused on verified 
 
 ## Language and repository structure
 
-Write code identifiers, comments, test names, documentation, UI copy, help text, errors, logs, commit messages, issues, pull requests, and release notes in English. Preserve official proper names and verbatim source data, and explain them in English.
+Write code identifiers, comments, test names, documentation, UI copy, help text, errors, logs, commit messages, issues, pull requests, and release notes in English. Preserve official proper names and verbatim source data, and explain them in English. The approved post-V1 M6 exception permits Portuguese browser translations; developer documentation, code identifiers, CLI/API, and release notes remain English. When changing browser copy, update the Portuguese catalog and run the translation/parity tests.
 
 Application code, CLI, browser assets, migrations, fixtures, tests, and documentation belong in this repository and share one root Go module and release lifecycle. Follow the [proposed layout](docs/V1_SPEC.md#10-proposed-repository-layout), creating packages only when the current milestone needs them.
 
@@ -67,7 +67,7 @@ to build candidate packages. Python is not required to run Tesouro Lab. From the
 repository root, choose a new output directory:
 
 ```sh
-python3 scripts/package_release.py --version 0.1.0-candidate --out dist
+python3 scripts/package_release.py --version 1.0.0-candidate --out dist
 ```
 
 This builds all five V1 targets without CGO, stamps the version, ships license and
@@ -75,13 +75,13 @@ launch documentation, and writes `SHA256SUMS`. Use `--target darwin/arm64` (or
 another declared target) for one native archive. Extract that archive, then run:
 
 ```sh
-python3 scripts/smoke_release.py /absolute/path/to/extracted/tesouro-lab --version 0.1.0-candidate
+python3 scripts/smoke_release.py /absolute/path/to/extracted/tesouro-lab --version 1.0.0-candidate
 ```
 
 On Windows, pass the extracted `.exe` path. The smoke script removes runtime
 executables from PATH, uses temporary configuration, disables external HTTP(S)
 proxies, checks both analytical instruments and embedded pages/assets, and stops
-the server. It needs default port 8080 available. It does not itself block all
+the server. CI uses default port 8080. Local checks can use `--port 18085` when 8080 is occupied; the script rejects an occupied address before launch and never stops another server. It verifies both browser languages. It does not itself block all
 network traffic; the recorded macOS audit additionally used OS-level network
 restrictions. Native release CI verifies checksums and exercises extracted packages
 on all five targets. See [release checks](.github/workflows/release-check.yml),

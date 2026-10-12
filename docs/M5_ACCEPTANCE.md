@@ -95,7 +95,11 @@ Remote validation (all successful, 2026-10-08):
 
 The five runner labels follow the [GitHub-hosted runner reference](https://docs.github.com/en/actions/reference/runners/github-hosted-runners). Local macOS amd64 execution used Rosetta; remote `macos-15-intel` provided native Intel validation.
 
-Publication remains a maintainer action: review/merge the branch and choose a release version before publishing. Packages are currently unsigned/unnotarized. This audit closes the M5 validation checklist; it does not claim a public release exists.
+Merge verification (2026-10-09): M5 is merged into `main` at `1d4c64d321d614a785aaa4074eb65345e0dbc9e0`. Both the [Go checks](https://github.com/ViniciusReno/tlab/actions/runs/37932327384) and [five-target native release checks](https://github.com/ViniciusReno/tlab/actions/runs/37932327461) passed for that commit. The GitHub release list was empty when checked. Publication and release-version approval remain pending. Packages are currently unsigned/unnotarized. This audit closes the M5 validation checklist; it does not claim a public release exists.
+
+## Publication
+
+On 2026-10-09, after explicit maintainer approval, [v0.1.0](https://github.com/ViniciusReno/tlab/releases/tag/v0.1.0) was published with the five prepared archives and `SHA256SUMS`. The tag points to `1d4c64d321d614a785aaa4074eb65345e0dbc9e0`; all six GitHub asset digests matched their local SHA-256 hashes. The public release is neither a draft nor a prerelease. Packages remain unsigned/unnotarized. Earlier unpublished-candidate statements above describe the historical audit state.
 
 ## Validation commands
 

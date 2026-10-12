@@ -1,143 +1,145 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{language}}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tesouro Lab · Yield playground</title>
+  <title>{{tr "Tesouro Lab · Yield playground"}}</title>
   <link rel="stylesheet" href="/static/style.css">
   {{if not .SelectionRequired}}<script src="/static/app.js" defer></script>{{end}}
 </head>
 <body>
-<a class="skip-link" href="#main">Skip to content</a>
+<a class="skip-link" href="#main">{{tr "Skip to content"}}</a>
 <header class="site-header">
   <a class="brand" href="/">TESOURO <span>LAB</span></a>
-  <span class="milestone">{{if .Persistent}}LOCAL DATA{{else}}OFFLINE DEMO{{end}}</span>
+  <span class="milestone">{{if .Persistent}}{{tr "LOCAL DATA"}}{{else}}{{tr "OFFLINE DEMO"}}{{end}}</span>
 </header>
 <main id="main" tabindex="-1">
-  <nav aria-label="Main navigation">{{if .Persistent}}<a href="/market">Market</a> · {{end}}<a href="/playground" aria-current="page">{{if .Persistent}}Playground{{else}}Demo playground{{end}}</a> · <a href="/portfolio">Portfolio</a> · <a href="/learn">Learn</a></nav>
+{{template "languagePicker" .LanguageLinks}}
+  <nav aria-label="{{tr "Main navigation"}}">{{if .Persistent}}<a href="/market">{{tr "Market"}}</a> · {{end}}<a href="/playground" aria-current="page">{{if .Persistent}}{{tr "Playground"}}{{else}}{{tr "Demo playground"}}{{end}}</a> · <a href="/portfolio">{{tr "Portfolio"}}</a> · <a href="/learn">{{tr "Learn"}}</a></nav>
   {{if .SelectionRequired}}
   <section class="intro">
-    <p class="eyebrow">LOCAL MARKET DATA</p>
-    <h1>{{if .Error}}Data unavailable{{else if .HasQuotes}}Local database ready{{else}}No official quotes yet{{end}}</h1>
-    {{if .Error}}<p class="lead" role="alert">{{.Error}}</p>{{else if .HasQuotes}}<p class="lead">Select a purchase, official base PU, or morning early-redemption scenario from the <a href="/market">market and history views</a>.</p>{{else}}<p class="lead">Your local database is ready. No market data has been imported.</p>{{end}}
+    <p class="eyebrow">{{tr "LOCAL MARKET DATA"}}</p>
+    <h1>{{if .Error}}{{tr "Data unavailable"}}{{else if .HasQuotes}}{{tr "Local database ready"}}{{else}}{{tr "No official quotes yet"}}{{end}}</h1>
+    {{if .Error}}<p class="lead" role="alert">{{tr .Error}}</p>{{else if .HasQuotes}}<p class="lead">{{tr "Select a purchase, official base PU, or morning early-redemption scenario from the"}} <a href="/market">{{tr "market and history views"}}</a>.</p>{{else}}<p class="lead">{{tr "Your local database is ready. No market data has been imported."}}</p>{{end}}
   </section>
   <section class="panel">
-    <h2>Explore the offline demo</h2>
-    <p>Stop this server with Ctrl+C, then run <code>tesouro-lab demo</code>. From source, run <code>go run ./cmd/tesouro-lab demo</code>.</p>
-    <p>The demo uses a separate temporary database. Your persistent data stays on disk.</p>
-    <p>Import official Prefixado, IPCA+, and Selic quotes with <code>tesouro-lab sync</code>. If you started this server with <code>--data-dir PATH</code>, pass the same directory to sync. The command reports imported rows, excluded instruments, and the official dataset date. Reload this page after synchronization.</p>
-    {{if .Error}}<a href="/">Return to local data</a>{{end}}
+    <h2>{{tr "Explore the offline demo"}}</h2>
+    <p>{{tr "Stop this server with Ctrl+C, then run"}} <code>tesouro-lab demo</code>{{tr ". From source, run"}} <code>go run ./cmd/tesouro-lab demo</code>.</p>
+    <p>{{tr "The demo uses a separate temporary database. Your persistent data stays on disk."}}</p>
+    <p>{{tr "Import official Prefixado, IPCA+, and Selic quotes with"}} <code>tesouro-lab sync</code>{{tr ". If you started this server with"}} <code>--data-dir PATH</code>{{tr ", pass the same directory to sync. The command reports imported rows, excluded instruments, and the official dataset date. Reload this page after synchronization."}}</p>
+    {{if .Error}}<a href="/">{{tr "Return to local data"}}</a>{{end}}
   </section>
   {{else}}
   <section class="intro">
-    <p class="eyebrow">THE YIELD PLAYGROUND</p>
-    <h1>What happens when<br>a bond's yield changes?</h1>
-    <p class="lead">Keep the date fixed. Change one assumption. See how a bond's price responds to its {{if .IPCA}}real{{else}}annual{{end}} yield.</p>
+    <p class="eyebrow">{{tr "THE YIELD PLAYGROUND"}}</p>
+    <h1>{{tr "What happens when"}}<br>{{tr "a bond's yield changes?"}}</h1>
+    <p class="lead">{{if .IPCA}}{{tr "Keep the date fixed. Change one assumption. See how a bond's price responds to its real yield."}}{{else}}{{tr "Keep the date fixed. Change one assumption. See how a bond's price responds to its annual yield."}}{{end}}</p>
   </section>
-  {{if .Persistent}}<nav aria-label="Market"><a href="/market">Return to market and history</a></nav>
-  <aside class="notice"><strong>Hypothetical scenario using a stored official quote.</strong> Only the assumed yield changes. The selected quote and settlement dates stay fixed, even for a bond that has since matured. This is not a forecast or investment recommendation.</aside>
-  {{else}}<aside class="notice"><strong>Historical demo · not a current quote.</strong> {{if .IPCA}}Official IPCA+ record from 2012.{{else}}Official worked example from 2012.{{end}} The bond matured in 2015. This is a same-date educational scenario, not a forecast or investment recommendation.</aside>{{end}}
+  {{if .Persistent}}<nav aria-label="{{tr "Market"}}"><a href="/market">{{tr "Return to market and history"}}</a></nav>
+  <aside class="notice"><strong>{{tr "Hypothetical scenario using a stored official quote."}}</strong> {{tr "Only the assumed yield changes. The selected quote and settlement dates stay fixed, even for a bond that has since matured. This is not a forecast or investment recommendation."}}</aside>
+  {{else}}<aside class="notice"><strong>{{tr "Historical demo · not a current quote."}}</strong> {{if .IPCA}}{{tr "Official IPCA+ record from 2012."}}{{else}}{{tr "Official worked example from 2012."}}{{end}} {{tr "The bond matured in 2015. This is a same-date educational scenario, not a forecast or investment recommendation."}}</aside>{{end}}
   <div class="workspace">
     <section class="panel controls" aria-labelledby="controls-title">
-      <p class="eyebrow">01 / YOUR ASSUMPTIONS</p>
-      <h2 id="controls-title">Explore a scenario</h2>
-      {{if not .Persistent}}<nav aria-label="Demo instruments"><a href="/playground?bond=prefixado%3A2015-01-01&amp;source=demo&amp;basis=purchase&amp;date=2012-01-03&amp;yield=10.88">Prefixado example</a> · <a href="/playground?bond=ipca%3A2015-05-15&amp;source=demo&amp;basis=purchase&amp;date=2012-02-17&amp;yield=4.47">IPCA+ example</a></nav>{{end}}
-      <form action="/playground" method="get" id="scenario-form">
+      <p class="eyebrow">{{tr "01 / YOUR ASSUMPTIONS"}}</p>
+      <h2 id="controls-title">{{tr "Explore a scenario"}}</h2>
+      {{if not .Persistent}}<nav aria-label="{{tr "Demo instruments"}}"><a href="/playground?bond=prefixado%3A2015-01-01&amp;source=demo&amp;basis=purchase&amp;date=2012-01-03&amp;yield=10.88">{{tr "Prefixado example"}}</a> · <a href="/playground?bond=ipca%3A2015-05-15&amp;source=demo&amp;basis=purchase&amp;date=2012-02-17&amp;yield=4.47">{{tr "IPCA+ example"}}</a></nav>{{end}}
+      <form action="/playground" method="get" id="scenario-form" aria-describedby="scenario-format">
+        <p id="scenario-format" class="hint">{{tr "Use decimal points for numbers and YYYY-MM-DD for dates. Amounts are in BRL."}}</p>
         <input type="hidden" name="source" value="{{if .Persistent}}synced{{else}}demo{{end}}">
-        <label for="bond">Bond</label>
+        <label for="bond">{{tr "Bond"}}</label>
         {{if .Persistent}}<select id="bond" name="bond" required>
-          <option value="{{value .Values "bond"}}">{{if .SelectedBondName}}{{.SelectedBondName}}{{else}}Selected: {{value .Values "bond"}}{{end}}</option>
-          {{range .Bonds}}{{if ne .ID (value $.Values "bond")}}<option value="{{.ID}}" {{if eq .Kind "selic"}}disabled{{end}}>{{.Name}} · {{date .Maturity}}{{if eq .Kind "selic"}} · scenarios unsupported{{end}}</option>{{end}}{{end}}
-        </select><p class="hint">Changing a bond keeps the exact quote date and yield entered below. Select another date from Market if that record is unavailable.</p>
+          <option value="{{value .Values "bond"}}">{{if .SelectedBondName}}{{.SelectedBondName}}{{else}}{{tr "Selected:"}} {{value .Values "bond"}}{{end}}</option>
+          {{range .Bonds}}{{if ne .ID (value $.Values "bond")}}<option value="{{.ID}}" {{if eq .Kind "selic"}}disabled{{end}}>{{.Name}} · {{date .Maturity}}{{if eq .Kind "selic"}} {{tr "· scenarios unsupported"}}{{end}}</option>{{end}}{{end}}
+        </select><p class="hint">{{tr "Changing a bond keeps the exact quote date and yield entered below. Select another date from Market if that record is unavailable."}}</p>
         {{else}}<select id="bond" name="bond">
-          {{if .IPCA}}<option value="ipca:2015-05-15">Tesouro IPCA+ 2015 · Inflation linked</option>{{else}}<option value="prefixado:2015-01-01">Tesouro Prefixado 2015 · Fixed rate</option>{{end}}
+          {{if .IPCA}}<option value="ipca:2015-05-15">{{tr "Tesouro IPCA+ 2015 · Inflation linked"}}</option>{{else}}<option value="prefixado:2015-01-01">{{tr "Tesouro Prefixado 2015 · Fixed rate"}}</option>{{end}}
         </select>{{end}}
-        <label for="basis">Quote context</label>
+        <label for="basis">{{tr "Quote context"}}</label>
         <select id="basis" name="basis">
-          <option value="purchase" {{if eq (value .Values "basis") "purchase"}}selected{{end}}>Purchase quote · D+1</option>
-          <option value="mark_to_market" {{if eq (value .Values "basis") "mark_to_market"}}selected{{end}}>Official base PU · D0{{if and (not .Persistent) (not .IPCA)}} · unavailable in this fixture{{end}}</option>
-          <option value="early_exit" {{if eq (value .Values "basis") "early_exit"}}selected{{end}}>Early redemption · {{if .Persistent}}morning quote{{else if .IPCA}}historical morning quote{{else}}unavailable in this fixture{{end}}</option>
+          <option value="purchase" {{if eq (value .Values "basis") "purchase"}}selected{{end}}>{{tr "Purchase quote · D+1"}}</option>
+          <option value="mark_to_market" {{if eq (value .Values "basis") "mark_to_market"}}selected{{end}}>{{tr "Official base PU · D0"}}{{if and (not .Persistent) (not .IPCA)}} {{tr "· unavailable in this fixture"}}{{end}}</option>
+          <option value="early_exit" {{if eq (value .Values "basis") "early_exit"}}selected{{end}}>{{tr "Early redemption ·"}} {{if .Persistent}}{{tr "morning quote"}}{{else if .IPCA}}{{tr "historical morning quote"}}{{else}}{{tr "unavailable in this fixture"}}{{end}}</option>
         </select>
-        <label for="date">Official quote date</label>
-        <input id="date" name="date" type="text" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" value="{{value .Values "date"}}" placeholder="YYYY-MM-DD" required>
-        <label for="yield">Simulated annual {{if .IPCA}}real {{end}}yield (%)</label>
-        <input id="yield" name="yield" type="text" inputmode="decimal" pattern="[+\-]?[0-9]+(\.[0-9]+)?" title="Use a decimal point, for example 8.88. Yield must be greater than -100%." value="{{value .Values "yield"}}" required>
-        {{if not .Error}}<div id="slider-control" hidden><label class="slider-label" for="yield-slider">Explore yields from {{.SliderMin}}% to {{.SliderMax}}%</label>
+        <label for="date">{{tr "Official quote date"}}</label>
+        <input id="date" name="date" type="text" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" value="{{value .Values "date"}}" placeholder="{{tr "YYYY-MM-DD"}}" required>
+        <label for="yield">{{tr "Simulated annual"}} {{if .IPCA}}{{tr "real"}} {{end}}{{tr "yield (%)"}}</label>
+        <input id="yield" name="yield" type="text" inputmode="decimal" pattern="[+\-]?[0-9]+(\.[0-9]+)?" title="{{tr "Use a decimal point, for example 8.88. Yield must be greater than -100%."}}" value="{{value .Values "yield"}}" required>
+        {{if not .Error}}<div id="slider-control" hidden><label class="slider-label" for="yield-slider">{{tr "Explore yields from"}} {{.SliderMin}}{{tr "% to"}} {{.SliderMax}}%</label>
         <input id="yield-slider" type="range" min="{{.SliderMin}}" max="{{.SliderMax}}" step="0.01" value="{{value .Values "yield"}}" aria-describedby="slider-note">
-        <p id="slider-note" class="hint">Use the number field for values outside the slider range.</p></div>{{end}}
-        <label for="amount">Hypothetical gross amount (BRL, optional)</label>
-        <input id="amount" name="amount" type="text" inputmode="decimal" pattern="[0-9]+(\.[0-9]+)?" title="Enter a positive BRL amount using a decimal point, for example 10000.50." value="{{value .Values "amount"}}" placeholder="e.g. 10000">
-        <button class="primary" type="submit">Calculate scenario <span aria-hidden="true">→</span></button>
-        <p class="hint">{{if .Persistent}}Reads stored quotes only. No synchronization or portfolio changes.{{else}}Temporary demo only. No persistent portfolio is opened or changed.{{end}}</p>
+        <p id="slider-note" class="hint">{{tr "Use the number field for values outside the slider range."}}</p></div>{{end}}
+        <label for="amount">{{tr "Hypothetical gross amount (BRL, optional)"}}</label>
+        <input id="amount" name="amount" type="text" inputmode="decimal" pattern="[0-9]+(\.[0-9]+)?" title="{{tr "Enter a positive BRL amount using a decimal point, for example 10000.50."}}" value="{{value .Values "amount"}}" placeholder="{{tr "e.g. 10000"}}">
+        <button class="primary" type="submit">{{tr "Calculate scenario"}} <span aria-hidden="true">→</span></button>
+        <p class="hint">{{if .Persistent}}{{tr "Reads stored quotes only. No synchronization or portfolio changes."}}{{else}}{{tr "Temporary demo only. No persistent portfolio is opened or changed."}}{{end}}</p>
       </form>
     </section>
     <section id="results" class="results" tabindex="-1" aria-live="polite" aria-atomic="false">
       {{if .Error}}
-      <div class="panel error" role="alert"><h2>Scenario unavailable</h2><p>{{.Error}}</p><a href="/">{{if .Persistent}}Return to market{{else}}Reset to the official example{{end}}</a></div>
+      <div class="panel error" role="alert"><h2>{{tr "Scenario unavailable"}}</h2><p>{{tr .Error}}</p><a href="/">{{if .Persistent}}{{tr "Return to market"}}{{else}}{{tr "Reset to the official example"}}{{end}}</a></div>
       {{else}}
-      <div class="result-heading"><p class="eyebrow">02 / THE RESULT</p><span>Quote date {{.Result.QuoteDate}}</span></div>
+      <div class="result-heading"><p class="eyebrow">{{tr "02 / THE RESULT"}}</p><span>{{tr "Quote date"}} {{.Result.QuoteDate}}</span></div>
       <div class="metrics">
-        <article class="metric"><p>{{if eq .Result.Basis "mark_to_market"}}Official base PU · D0{{else if eq .Result.Basis "early_exit"}}Official early-redemption PU · {{.Result.SettlementConvention}}{{else}}Official purchase price · D+1{{end}}</p><h2>{{money .Result.BasePU}}</h2><small>Yield {{percent .Result.BaseYield}} · per bond · quote {{.Result.QuoteDate}}</small></article>
-        <article class="metric accent"><p>Hypothetical scenario price</p><h2>{{money .Result.ScenarioPU}}</h2><small>Yield {{percent .Result.ScenarioYield}} · per bond</small></article>
-        <article class="metric"><p>Gross scenario change</p><h2>{{change .Result.Variation}}</h2><small>Relative to the official baseline</small></article>
+        <article class="metric"><p>{{if eq .Result.Basis "mark_to_market"}}{{tr "Official base PU · D0"}}{{else if eq .Result.Basis "early_exit"}}{{tr "Official early-redemption PU ·"}} {{.Result.SettlementConvention}}{{else}}{{tr "Official purchase price · D+1"}}{{end}}</p><h2>{{money .Result.BasePU}}</h2><small>{{tr "Yield"}} {{percent .Result.BaseYield}} {{tr "· per bond · quote"}} {{.Result.QuoteDate}}</small></article>
+        <article class="metric accent"><p>{{tr "Hypothetical scenario price"}}</p><h2>{{money .Result.ScenarioPU}}</h2><small>{{tr "Yield"}} {{percent .Result.ScenarioYield}} {{tr "· per bond"}}</small></article>
+        <article class="metric"><p>{{tr "Gross scenario change"}}</p><h2>{{change .Result.Variation}}</h2><small>{{tr "Relative to the official baseline"}}</small></article>
       </div>
       <div class="panel explanation">
-        <h2>Why does the price respond?</h2>
-        <p><a href="/learn#price-yield">Learn about price, yield, and basis points</a>.</p>
-        <p>{{if .IPCA}}IPCA+ links its principal to inflation. Here the indexation base stays fixed: only the real yield, the rate above inflation, changes on the selected date. No future inflation or future maturity amount is assumed.{{else}}A fixed-rate bond pays a fixed nominal amount at maturity. Holding the remaining term constant, a lower yield corresponds to a higher price; a higher yield corresponds to a lower price.{{end}}</p>
-        <p>Here, only the assumed yield changes. Settlement remains <strong>{{.Result.SettlementDate}}</strong>, with <strong>{{.Result.BusinessDays}} business days</strong> to maturity.</p>
-        {{if .Result.Amount}}<p class="amount-result">A hypothetical gross amount of <strong>{{money .Result.Amount}}</strong> becomes <strong>{{money .Result.ScenarioAmount}}</strong> in this scenario. Taxes and fees are not included.</p>{{end}}
+        <h2>{{tr "Why does the price respond?"}}</h2>
+        <p><a href="/learn#price-yield">{{tr "Learn about price, yield, and basis points"}}</a>.</p>
+        <p>{{if .IPCA}}{{tr "IPCA+ links its principal to inflation. Here the indexation base stays fixed: only the real yield, the rate above inflation, changes on the selected date. No future inflation or future maturity amount is assumed."}}{{else}}{{tr "A fixed-rate bond pays a fixed nominal amount at maturity. Holding the remaining term constant, a lower yield corresponds to a higher price; a higher yield corresponds to a lower price."}}{{end}}</p>
+        <p>{{tr "Here, only the assumed yield changes. Settlement remains"}} <strong>{{.Result.SettlementDate}}</strong>{{tr ", with"}} <strong>{{.Result.BusinessDays}} {{tr "business days"}}</strong> {{tr "to maturity."}}</p>
+        {{if .Result.Amount}}<p class="amount-result">{{tr "A hypothetical gross amount of"}} <strong>{{money .Result.Amount}}</strong> {{tr "becomes"}} <strong>{{money .Result.ScenarioAmount}}</strong> {{tr "in this scenario. Taxes and fees are not included."}}</p>{{end}}
       </div>
       <div class="panel chart-panel">
-        {{if .ShockError}}<p>{{.ShockError}}</p>{{else}}
-        <div class="chart-heading"><h2>One date. Different yields.</h2><span>Hypothetical prices</span></div>
+        {{if .ShockError}}<p>{{tr .ShockError}}</p>{{else}}
+        <div class="chart-heading"><h2>{{tr "One date. Different yields."}}</h2><span>{{tr "Hypothetical prices"}}</span></div>
         <svg viewBox="0 0 560 230" role="img" aria-labelledby="chart-title chart-description">
-          <title id="chart-title">Price decreases as the assumed yield increases</title>
-          <desc id="chart-description">Nine same-date scenarios around the official yield. Exact values and scenario links are in the table below.</desc>
+          <title id="chart-title">{{tr "Price decreases as the assumed yield increases"}}</title>
+          <desc id="chart-description">{{tr "Nine same-date scenarios around the official yield. Exact values and scenario links are in the table below."}}</desc>
           <path class="axis" d="M40 15 V190 H530"></path>
           <polyline class="curve" points="{{.Curve}}"></polyline>
-          <text x="40" y="218">Lower yield</text><text x="440" y="218">Higher yield</text>
+          <text x="40" y="218">{{tr "Lower yield"}}</text><text x="440" y="218">{{tr "Higher yield"}}</text>
         </svg>
-        <div class="table-wrap" role="region" aria-label="Scenario values" tabindex="0"><table>
-          <caption>Default yield shocks · click a yield to inspect that scenario</caption>
-          <thead><tr><th scope="col">Change (bps)</th><th scope="col">Yield</th><th scope="col">Simulated price</th><th scope="col">Gross change</th></tr></thead>
+        <div class="table-wrap" role="region" aria-label="{{tr "Scenario values"}}" tabindex="0"><table>
+          <caption>{{tr "Default yield shocks · click a yield to inspect that scenario"}}</caption>
+          <thead><tr><th scope="col">{{tr "Change (bps)"}}</th><th scope="col">{{tr "Yield"}}</th><th scope="col">{{tr "Simulated price"}}</th><th scope="col">{{tr "Gross change"}}</th></tr></thead>
           <tbody>{{range .Points}}<tr><td>{{printf "%+d" .BasisPoints}}</td><td><a class="shock" href="{{shockURL $.Result .Yield}}" data-yield="{{yield .Yield}}">{{percent .Yield}}</a></td><td>{{money .PU}}</td><td>{{change .Variation}}</td></tr>{{end}}</tbody>
         </table></div>
-        <p class="hint">100 basis points (bps) = 1 percentage point. These are hypothetical yield changes, not future market quotes.</p>
+        <p class="hint">{{tr "100 basis points (bps) = 1 percentage point. These are hypothetical yield changes, not future market quotes."}}</p>
         {{end}}
       </div>
       <details class="panel technical" id="technical">
-        <summary>Advanced · inspect the math and reproduce it</summary>
+        <summary>{{tr "Advanced · inspect the math and reproduce it"}}</summary>
         <dl>
-          <dt>Instrument</dt><dd>{{.Result.BondID}}</dd>
-          <dt>Yield meaning</dt><dd>{{.Result.YieldType}} annual yield{{if .IPCA}}; inflation/indexation base held constant{{end}}</dd>
-          <dt>Source / context</dt><dd>{{.Result.Source}} / {{.Result.Basis}}</dd>
-          <dt>Official baseline PU / yield</dt><dd>{{decimal .Result.BasePU}} / {{decimal .Result.BaseYield}}</dd>
-          <dt>Scenario PU / yield</dt><dd>{{decimal .Result.ScenarioPU}} / {{decimal .Result.ScenarioYield}}</dd>
-          <dt>Quote / settlement / maturity</dt><dd>{{.Result.QuoteDate}} / {{.Result.SettlementDate}} / {{.Result.Maturity}}</dd>
-          <dt>Business days / convention</dt><dd>{{.Result.BusinessDays}} / 252 per year; settlement inclusive, maturity exclusive</dd>
-          {{if .Result.Quantity}}<dt>Hypothetical quantity</dt><dd>{{decimal .Result.Quantity}}</dd>{{end}}
-          <dt>Calendar</dt><dd>{{.Result.CalendarVersion}}</dd>
-          {{if .Result.FixtureVersion}}<dt>Demo fixture</dt><dd>{{.Result.FixtureVersion}}</dd>{{end}}
-          {{if .Persistent}}<dt>Imported at (UTC, not a market date)</dt><dd>{{if .Result.ImportedAt}}{{.Result.ImportedAt}}{{else}}Unavailable{{end}}</dd>{{end}}
-          <dt>Settlement convention / version</dt><dd>{{.Result.SettlementConvention}} / {{.Result.SettlementVersion}}</dd>
-          <dt>Calculation / build</dt><dd>{{.Result.CalculationVersion}} / {{.Result.BuildVersion}}</dd>
+          <dt>{{tr "Instrument"}}</dt><dd>{{.Result.BondID}}</dd>
+          <dt>{{tr "Yield meaning"}}</dt><dd>{{.Result.YieldType}} {{tr "annual yield"}}{{if .IPCA}}{{tr "; inflation/indexation base held constant"}}{{end}}</dd>
+          <dt>{{tr "Source / context"}}</dt><dd>{{.Result.Source}} / {{.Result.Basis}}</dd>
+          <dt>{{tr "Official baseline PU / yield"}}</dt><dd>{{decimal .Result.BasePU}} / {{decimal .Result.BaseYield}}</dd>
+          <dt>{{tr "Scenario PU / yield"}}</dt><dd>{{decimal .Result.ScenarioPU}} / {{decimal .Result.ScenarioYield}}</dd>
+          <dt>{{tr "Quote / settlement / maturity"}}</dt><dd>{{.Result.QuoteDate}} / {{.Result.SettlementDate}} / {{.Result.Maturity}}</dd>
+          <dt>{{tr "Business days / convention"}}</dt><dd>{{.Result.BusinessDays}} {{tr "/ 252 per year; settlement inclusive, maturity exclusive"}}</dd>
+          {{if .Result.Quantity}}<dt>{{tr "Hypothetical quantity"}}</dt><dd>{{decimal .Result.Quantity}}</dd>{{end}}
+          <dt>{{tr "Calendar"}}</dt><dd>{{.Result.CalendarVersion}}</dd>
+          {{if .Result.FixtureVersion}}<dt>{{tr "Demo fixture"}}</dt><dd>{{.Result.FixtureVersion}}</dd>{{end}}
+          {{if .Persistent}}<dt>{{tr "Imported at (UTC, not a market date)"}}</dt><dd>{{if .Result.ImportedAt}}{{.Result.ImportedAt}}{{else}}{{tr "Unavailable"}}{{end}}</dd>{{end}}
+          <dt>{{tr "Settlement convention / version"}}</dt><dd>{{.Result.SettlementConvention}} / {{.Result.SettlementVersion}}</dd>
+          <dt>{{tr "Calculation / build"}}</dt><dd>{{.Result.CalculationVersion}} / {{.Result.BuildVersion}}</dd>
         </dl>
         <p><code>PU = official_PU × ((1 + official_yield) / (1 + simulated_yield))^(DU / 252)</code></p>
-        <p>The scenario is anchored to the official rounded price. An unchanged yield preserves that price. No intermediate display rounding is applied.</p>
-        <h3>Reproduce from the repository root</h3><pre><code>{{.Result.Command}}</code></pre>
-        <p><a href="/api/scenario?{{.Result.Values.Encode}}">Inspect the same result as JSON</a> · <a href="/playground?{{.Result.Values.Encode}}">Link to this scenario</a></p>
-        {{if .Persistent}}<p>Baseline: <a href="{{.Result.Provenance}}" rel="noreferrer">official Tesouro Transparente source</a>. Calendar: ANBIMA national holiday tables, verified coverage 2002–2050. Official source corrections can change a stored quote; reproduction requires the same quote contents and calendar/calculation versions.</p>
-        <p>Purchase pairs the official buy PU and buy yield at D+1. Mark-to-market pairs the official base PU and sell yield at D0. These anchored scenarios do not certify cent-perfect settlement values. Early redemption pairs the official sell PU and sell yield: D+1 before 2021-09-13, D0 on/after that date. Prefixado redemption quotes must pass standalone validation. IPCA+ uses the official price as a fixed indexation anchor; it does not reconstruct an official VNA. This models the morning quote under normal market conditions, not requests after 13:00, suspended trading, or actual execution.</p>
-        {{else if .IPCA}}<p>Baseline: <a href="{{.Result.Provenance}}" rel="noreferrer">official Tesouro Transparente historical CSV</a>. Calendar: ANBIMA verified coverage 2012–2015. Indexation stays fixed for each same-date scenario; no future IPCA is projected. This demo cannot synchronize official data.</p>
-        {{else}}<p>Baseline: <a href="{{.Result.Provenance}}" rel="noreferrer">official Tesouro Direto methodology, pages 1–3</a>. Transcribed worked example, not a live CSV quote. Calendar: ANBIMA national holiday tables, verified coverage 2012–2015.</p>
-        <p>Sell/base quote fields are missing in this fixture. This demo cannot synchronize official data. Use the IPCA+ example to explore real-yield changes. Selic has no yield-shock analysis. Portfolio edits in demo mode are temporary.</p>{{end}}
+        <p>{{tr "The scenario is anchored to the official rounded price. An unchanged yield preserves that price. No intermediate display rounding is applied."}}</p>
+        <h3>{{tr "Reproduce from the repository root"}}</h3><pre><code>{{.Result.Command}}</code></pre>
+        <p><a href="/api/scenario?{{.Result.Values.Encode}}">{{tr "Inspect the same result as JSON"}}</a> · <a href="/playground?{{.Result.Values.Encode}}">{{tr "Link to this scenario"}}</a></p>
+        {{if .Persistent}}<p>{{tr "Baseline:"}} <a href="{{.Result.Provenance}}" rel="noreferrer">{{tr "official Tesouro Transparente source"}}</a>{{tr ". Calendar: ANBIMA national holiday tables, verified coverage 2002–2050. Official source corrections can change a stored quote; reproduction requires the same quote contents and calendar/calculation versions."}}</p>
+        <p>{{tr "Purchase pairs the official buy PU and buy yield at D+1. Mark-to-market pairs the official base PU and sell yield at D0. These anchored scenarios do not certify cent-perfect settlement values. Early redemption pairs the official sell PU and sell yield: D+1 before 2021-09-13, D0 on/after that date. Prefixado redemption quotes must pass standalone validation. IPCA+ uses the official price as a fixed indexation anchor; it does not reconstruct an official VNA. This models the morning quote under normal market conditions, not requests after 13:00, suspended trading, or actual execution."}}</p>
+        {{else if .IPCA}}<p>{{tr "Baseline:"}} <a href="{{.Result.Provenance}}" rel="noreferrer">{{tr "official Tesouro Transparente historical CSV"}}</a>{{tr ". Calendar: ANBIMA verified coverage 2012–2015. Indexation stays fixed for each same-date scenario; no future IPCA is projected. This demo cannot synchronize official data."}}</p>
+        {{else}}<p>{{tr "Baseline:"}} <a href="{{.Result.Provenance}}" rel="noreferrer">{{tr "official Tesouro Direto methodology, pages 1–3"}}</a>{{tr ". Transcribed worked example, not a live CSV quote. Calendar: ANBIMA national holiday tables, verified coverage 2012–2015."}}</p>
+        <p>{{tr "Sell/base quote fields are missing in this fixture. This demo cannot synchronize official data. Use the IPCA+ example to explore real-yield changes. Selic has no yield-shock analysis. Portfolio edits in demo mode are temporary."}}</p>{{end}}
       </details>
       {{end}}
     </section>
   </div>
   {{end}}
 </main>
-<footer><span>TESOURO LAB</span><p>Official inputs. Explicit assumptions. Inspectable math.</p><small>Educational use · gross values · no investment advice</small></footer>
+<footer><span>TESOURO LAB</span><p>{{tr "Official inputs. Explicit assumptions. Inspectable math."}}</p><small>{{tr "Educational use · gross values · no investment advice"}}</small></footer>
 </body>
 </html>

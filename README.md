@@ -2,7 +2,7 @@
 
 A local educational lab for Brazilian government bonds, built around official data, transparent calculations, and hypothetical scenarios.
 
-**Status: M1–M4 implemented; M5 in progress.** Offline demos, official synchronization, IPCA+ scenarios, Selic quotes, and a local manual portfolio are available. M5 adds the Learn area with contextual explanations and historical scenario exercises. Synchronized scenarios use the verified ANBIMA calendar through 2050. Full accessibility, acceptance, and release validation remain pending. Run from source or build a local executable; no downloadable release has been published.
+**Status: V1 published as [v0.1.0](https://github.com/ViniciusReno/tlab/releases/tag/v0.1.0).** Offline demos, official synchronization, IPCA+ scenarios, Selic quotes, and a local manual portfolio are available. Learn provides contextual explanations and historical scenario exercises. Synchronized scenarios use the verified ANBIMA calendar through 2050. The [M5 audit](docs/M5_ACCEPTANCE.md) records browser/accessibility checks, acceptance evidence, and successful native release validation for all five targets. Download the archive for your operating system and architecture from the release page, verify its checksum, and follow the included `START_HERE.md`. Source execution remains available.
 
 Tesouro Lab helps beginners understand bond prices and yield changes while letting technical readers inspect the same inputs, formulas, calendars, and results. It does not recommend investments, predict yields, or execute transactions.
 
@@ -41,6 +41,12 @@ Windows PowerShell:
 Open `http://127.0.0.1:8080`. Stop the application with Ctrl+C.
 
 The compiled demo works offline without Go. Demo changes are temporary: each process uses a private in-memory SQLite database and never opens your persistent portfolio or synchronized data. Use `demo --port 8081` if port 8080 is occupied.
+
+## Browser language (M6 source builds)
+
+Choose **English** or **Português** above the main navigation. English is the default. The preference is stored only in a local browser cookie and works offline without JavaScript, accounts, or network access. Language links preserve the selected scenario or history query; `?lang=pt-BR` or `?lang=en` selects a language explicitly.
+
+Both languages keep explicit BRL amounts, decimal points, and ISO `YYYY-MM-DD` dates. Enter numbers without grouping separators, for example `10000.50` or a yield of `8.88`. Form hints explain these conventions in the selected language. CLI/API fields, raw official data, formulas, and reproduction commands remain canonical and unchanged. Private portfolio notes are preserved as entered.
 
 ## Persistent local storage
 
@@ -185,10 +191,10 @@ Source metadata, formulas, and limitations are documented in the [V1 specificati
 | M2 — Implemented official data and dates | Idempotent synchronization, history, explicit quote contexts, and accurate freshness states |
 | M3 — IPCA+ and Selic within verified coverage | Validated real-yield scenarios for IPCA+; explicitly limited Selic display/valuation |
 | M4 — Local portfolio | Quantity-only positions, optional acquisition cost, and gross Prefixado hold/early-exit comparison |
-| M5 — Validated candidate | Learn, navigation, browser/accessibility review, acceptance audit, packaging, and five-target native CI passed; release unpublished |
-| M6 — Planned after V1 | Brazilian Portuguese support and usability improvements across the existing user journeys |
+| M5 — V1 released | Learn, navigation, browser/accessibility review, acceptance audit, packaging, and five-target native CI passed; v0.1.0 published |
+| M6 — Implemented locally, unreleased | English/pt-BR browser interface, local language preference, explicit input conventions, and bilingual user-journey checks |
 
-M6 starts after M5 closes V1. Its [planned scope](docs/NEXT_STEPS.md#m6--brazilian-portuguese-and-usability-planned-after-v1) includes language support, localized presentation/input rules, and improvements to navigation, forms, and explanations. V1 remains English-only; no localization is implemented yet.
+The released `v0.1.0` remains English-only. Current source builds include the approved post-V1 [M6 implementation](docs/M6_IMPLEMENTATION.md). Remote CI and cross-platform release checks for M6 have not run yet.
 
 Every milestone includes relevant tests and documentation. Financial tests use small official fixtures, independently checked nonzero-shock expectations, explicit tolerances, and maturity/numeric boundary cases. Routine tests must not depend on live internet access.
 
@@ -201,6 +207,7 @@ The [CI workflow](.github/workflows/ci.yml) covers formatting, static analysis, 
 - [Official datasource contract](docs/OFFICIAL_DATASOURCE.md): verified CKAN/CSV contract and parser limitations.
 - [M3 implementation](docs/M3_IMPLEMENTATION.md): IPCA+/Selic behavior, financial validation, and explicit limitations.
 - [M4 implementation](docs/M4_IMPLEMENTATION.md): local positions, official gross valuation, and Prefixado comparison.
+- [M6 implementation](docs/M6_IMPLEMENTATION.md): language conventions, browser journeys, validation, and release limitations.
 - [M5 acceptance audit](docs/M5_ACCEPTANCE.md): current evidence and remaining release gates.
 - [Release launch guide](docs/RELEASE_GUIDE.md): extracted-package commands and compatibility.
 - [Next steps](docs/NEXT_STEPS.md): current checkpoint, V1 implementation checklist, and planned post-V1 M6.
