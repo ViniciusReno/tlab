@@ -2,6 +2,8 @@
 package web
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -18,6 +20,7 @@ import (
 )
 
 type page struct {
+	LanguageLinks        languageLinks
 	Result               app.Result
 	Points               []app.Point
 	Curve                string
@@ -51,11 +54,30 @@ func New(service *app.Service) (http.Handler, error) {
 }
 
 func newHandler(service *app.Service, now func() time.Time) (http.Handler, error) {
+	var random [32]byte
+	if _, err := rand.Read(random[:]); err != nil {
+		return nil, err
+	}
+	token := hex.EncodeToString(random[:])
+	handlers := make(map[string]http.Handler)
+	for _, locale := range []string{"en", "pt-BR"} {
+		h, err := newLocaleHandler(service, now, locale, token)
+		if err != nil {
+			return nil, err
+		}
+		handlers[locale] = h
+	}
+	return securityHandler(languageHandler(handlers)), nil
+}
+
+func newLocaleHandler(service *app.Service, now func() time.Time, locale string, token string) (http.Handler, error) {
 	tmpl, err := template.New("page.html").Funcs(template.FuncMap{
-		"money":   money,
-		"percent": func(n float64) string { return fmt.Sprintf("%.2f%%", n*100) },
-		"change":  func(n float64) string { return fmt.Sprintf("%+.2f%%", n*100) },
-		"decimal": app.Decimal,
+		"tr":       translator(locale),
+		"language": func() string { return locale },
+		"money":    money,
+		"percent":  func(n float64) string { return fmt.Sprintf("%.2f%%", n*100) },
+		"change":   func(n float64) string { return fmt.Sprintf("%+.2f%%", n*100) },
+		"decimal":  app.Decimal,
 		"shockURL": func(r app.Result, yield float64) string {
 			v := r.Values()
 			v.Set("yield", app.Decimal(yield*100))
@@ -65,19 +87,19 @@ func newHandler(service *app.Service, now func() time.Time) (http.Handler, error
 		"value": func(v url.Values, key string) string { return v.Get(key) },
 		"date": func(t time.Time) string {
 			if t.IsZero() {
-				return "Unavailable"
+				return translator(locale)("Unavailable")
 			}
 			return t.Format(time.DateOnly)
 		},
 		"quoteMoney": func(n *float64) string {
 			if n == nil {
-				return "Unavailable"
+				return translator(locale)("Unavailable")
 			}
 			return money(*n)
 		},
 		"quoteYield": func(n *float64) string {
 			if n == nil {
-				return "Unavailable"
+				return translator(locale)("Unavailable")
 			}
 			return fmt.Sprintf("%.2f%%", *n*100)
 		},
@@ -109,7 +131,7 @@ func newHandler(service *app.Service, now func() time.Time) (http.Handler, error
 		return nil, err
 	}
 	mux := http.NewServeMux()
-	portfolio, err := portfolioHandler(service, tmpl, now)
+	portfolio, err := portfolioHandler(service, tmpl, now, token)
 	if err != nil {
 		return nil, err
 	}
@@ -117,18 +139,21 @@ func newHandler(service *app.Service, now func() time.Time) (http.Handler, error
 	mux.HandleFunc("POST /portfolio", portfolio)
 	mux.HandleFunc("GET /learn", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		tmpl.ExecuteTemplate(w, "learn.html", service.Source() == "demo")
+		tmpl.ExecuteTemplate(w, "learn.html", struct {
+			Demo          bool
+			LanguageLinks languageLinks
+		}{service.Source() == "demo", languageURLs(r)})
 	})
 	render := func(w http.ResponseWriter, r *http.Request) {
 		if len(r.URL.RawQuery) > 4096 {
-			http.Error(w, "Request query is too large.", http.StatusRequestURITooLong)
+			http.Error(w, translator(locale)("Request query is too large."), http.StatusRequestURITooLong)
 			return
 		}
 		values, err := url.ParseQuery(r.URL.RawQuery)
 		if err == nil && service.Source() == "synced" && len(values) == 0 && r.URL.Path != "/api/scenario" {
 			hasQuotes, readErr := service.HasQuotes(r.Context())
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")
-			p := page{Persistent: true, HasQuotes: hasQuotes, SelectionRequired: true}
+			p := page{LanguageLinks: languageURLs(r), Persistent: true, HasQuotes: hasQuotes, SelectionRequired: true}
 			if readErr != nil {
 				p.Error = "Unable to read local data. Restart the application and check the database file."
 				w.WriteHeader(http.StatusInternalServerError)
@@ -164,7 +189,7 @@ func newHandler(service *app.Service, now func() time.Time) (http.Handler, error
 			json.NewEncoder(w).Encode(result)
 			return
 		}
-		p := page{Result: result, Values: values, Persistent: service.Source() == "synced", IPCA: strings.HasPrefix(values.Get("bond"), "ipca:")}
+		p := page{LanguageLinks: languageURLs(r), Result: result, Values: values, Persistent: service.Source() == "synced", IPCA: strings.HasPrefix(values.Get("bond"), "ipca:")}
 		if p.Persistent {
 			market, readErr := service.Market(r.Context(), now(), true)
 			if readErr == nil {
@@ -219,6 +244,10 @@ func newHandler(service *app.Service, now func() time.Time) (http.Handler, error
 	mux.HandleFunc("GET /playground", render)
 	mux.HandleFunc("GET /api/scenario", render)
 	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServerFS(static)))
+	return mux, nil
+}
+
+func securityHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
@@ -226,6 +255,6 @@ func newHandler(service *app.Service, now func() time.Time) (http.Handler, error
 		// referrers to external sites. no-referrer makes browser POST Origins null.
 		w.Header().Set("Referrer-Policy", "same-origin")
 		w.Header().Set("Cache-Control", "no-store")
-		mux.ServeHTTP(w, r)
-	}), nil
+		next.ServeHTTP(w, r)
+	})
 }

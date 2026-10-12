@@ -1,0 +1,7 @@
+{{define "languagePicker"}}
+<nav class="language-picker" aria-label="{{tr "Language"}}">
+  <span>{{tr "Language"}}:</span>
+  <a href="{{.English}}" lang="en" hreflang="en"{{if eq language "en"}} aria-current="true"{{end}}>English</a> ·
+  <a href="{{.Portuguese}}" lang="pt-BR" hreflang="pt-BR"{{if eq language "pt-BR"}} aria-current="true"{{end}}>Português</a>
+</nav>
+{{end}}

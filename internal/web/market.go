@@ -11,6 +11,7 @@ import (
 )
 
 type marketPage struct {
+	LanguageLinks             languageLinks
 	Market                    app.Market
 	History                   app.History
 	IsHistory, IncludeMatured bool
@@ -19,10 +20,10 @@ type marketPage struct {
 
 func renderMarket(w http.ResponseWriter, r *http.Request, service *app.Service, tmpl *template.Template, now time.Time) {
 	if len(r.URL.RawQuery) > 4096 {
-		http.Error(w, "Request query is too large.", http.StatusRequestURITooLong)
+		http.Error(w, translateRequest(r, "Request query is too large."), http.StatusRequestURITooLong)
 		return
 	}
-	p := marketPage{IsHistory: r.URL.Path == "/history"}
+	p := marketPage{LanguageLinks: languageURLs(r), IsHistory: r.URL.Path == "/history"}
 	values, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
 		err = bond.InvalidInput

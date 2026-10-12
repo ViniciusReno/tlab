@@ -4,6 +4,11 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+    inputs:
+      version:
+        description: Version stamped into the native packages
+        required: true
+        default: '1.0.0-ci'
 
 permissions:
   contents: read
@@ -26,6 +31,8 @@ jobs:
             target: darwin/arm64
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 20
+    env:
+      TLAB_VERSION: ${{ inputs.version || '1.0.0-ci' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -40,7 +47,7 @@ jobs:
       - name: Build native archive and checksum
         env:
           TLAB_TARGET: ${{ matrix.target }}
-        run: python scripts/package_release.py --version 0.1.0-ci --out dist --target "$TLAB_TARGET"
+        run: python scripts/package_release.py --version "$TLAB_VERSION" --out dist --target "$TLAB_TARGET"
         shell: bash
       - name: Verify checksum and extract archive
         shell: python
@@ -62,8 +69,9 @@ jobs:
         shell: python
         run: |
           from pathlib import Path
+          import os
           import subprocess
           import sys
           binary = next(file for file in Path('extracted').glob('*/tesouro-lab*') if file.is_file())
           subprocess.run([sys.executable, 'scripts/smoke_release.py', str(binary),
-                          '--version', '0.1.0-ci'], check=True)
+                          '--version', os.environ['TLAB_VERSION']], check=True)

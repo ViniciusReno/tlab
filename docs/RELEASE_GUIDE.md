@@ -39,6 +39,18 @@ The demo works offline with embedded historical fixtures and a private in-memory
 database. Its portfolio edits disappear at shutdown. It never opens your persistent
 database or synchronizes official quotes. External attribution links need internet.
 
+## Browser language and input formats
+
+Choose **English** or **Português** above the main navigation. English is the
+default; a local browser cookie remembers an explicit choice. Both languages
+work offline and without JavaScript. CLI help and JSON remain English/canonical.
+
+Both interfaces use explicit BRL amounts, decimal points, and ISO `YYYY-MM-DD`
+dates. Enter numbers without grouping separators, such as `10000.50` for an
+amount or `8.88` for a yield percentage. The interface explains these conventions
+in the selected language. Raw official data and private portfolio notes are
+preserved unchanged.
+
 ## Persistent local data
 
 Run `./tesouro-lab sync`, then `./tesouro-lab` (PowerShell:

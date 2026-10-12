@@ -1,6 +1,14 @@
-# V1 release candidate — unpublished
+# Release notes
 
-This is a candidate validation record, not an announcement of a published release.
+## Unreleased — M6
+
+Browser screens, explanations, forms, and application validation messages now support English and Brazilian Portuguese. English remains the default; an explicit language link saves a local browser preference. Language changes preserve selected scenario inputs, including after asynchronous updates. No-JavaScript navigation and forms remain available. Numeric/date entry instructions are visible in both languages; canonical BRL, decimal-point, and ISO formats remain unchanged.
+
+No dependencies, Go-version changes, migrations, financial formulas, calendar/settlement changes, or CLI/API changes. Existing data and private notes are preserved. Local checks and bilingual Chrome journeys passed; see `docs/M6_IMPLEMENTATION.md`. Remote CI and native release validation remain pending. This increment is not published.
+
+## 0.1.0 — 2026-10-09
+
+[Published V1](https://github.com/ViniciusReno/tlab/releases/tag/v0.1.0), tag commit `1d4c64d`. Packaged notes retain the pre-publication candidate record; the GitHub release notes record publication validation.
 
 Implemented behavior:
 
@@ -33,5 +41,6 @@ Validation evidence and remaining release gates are tracked in
 [five-target native release workflow](https://github.com/ViniciusReno/tlab/actions/runs/37848148688)
 passed for code commit `84caae5` on 2026-10-08. Local formatting, vet, unit/race
 tests, Chrome demo/persistent journeys, and network-isolated extracted macOS
-demos also passed. Review and publication remain maintainer actions. No package
-is signed or notarized, and no publication has been performed.
+demos also passed. The merge commit also passed both workflows, as recorded in the M5 audit.
+All five platform archives and SHA-256 checksums were published. No package
+is signed or notarized.

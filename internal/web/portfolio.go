@@ -1,9 +1,7 @@
 package web
 
 import (
-	"crypto/rand"
 	"crypto/subtle"
-	"encoding/hex"
 	"html/template"
 	"mime"
 	"net/http"
@@ -16,30 +14,26 @@ import (
 )
 
 type portfolioPage struct {
-	Data         app.Portfolio
-	Demo         bool
-	Token, Error string
-	Values       url.Values
+	LanguageLinks languageLinks
+	Data          app.Portfolio
+	Demo          bool
+	Token, Error  string
+	Values        url.Values
 }
 
-func portfolioHandler(service *app.Service, tmpl *template.Template, now func() time.Time) (http.HandlerFunc, error) {
-	var random [32]byte
-	if _, err := rand.Read(random[:]); err != nil {
-		return nil, err
-	}
-	token := hex.EncodeToString(random[:])
+func portfolioHandler(service *app.Service, tmpl *template.Template, now func() time.Time, token string) (http.HandlerFunc, error) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		p := portfolioPage{Demo: service.Source() == "demo", Token: token, Values: make(url.Values)}
+		p := portfolioPage{LanguageLinks: languageURLs(r), Demo: service.Source() == "demo", Token: token, Values: make(url.Values)}
 		status := http.StatusOK
 		if r.Method == http.MethodPost {
 			r.Body = http.MaxBytesReader(w, r.Body, 16<<10)
 			media, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
 			if err != nil || media != "application/x-www-form-urlencoded" {
-				http.Error(w, "Use a form submission.", http.StatusUnsupportedMediaType)
+				http.Error(w, translateRequest(r, "Use a form submission."), http.StatusUnsupportedMediaType)
 				return
 			}
 			if err = r.ParseForm(); err != nil {
-				http.Error(w, "Invalid or oversized form.", http.StatusBadRequest)
+				http.Error(w, translateRequest(r, "Invalid or oversized form."), http.StatusBadRequest)
 				return
 			}
 			origin := r.Header.Get("Origin")
@@ -48,7 +42,7 @@ func portfolioHandler(service *app.Service, tmpl *template.Template, now func() 
 				scheme = "https"
 			}
 			if subtle.ConstantTimeCompare([]byte(r.PostForm.Get("token")), []byte(token)) != 1 || (origin != "" && origin != scheme+"://"+r.Host) || r.Header.Get("Sec-Fetch-Site") == "cross-site" {
-				http.Error(w, "This form is no longer valid. Reload the portfolio and try again.", http.StatusForbidden)
+				http.Error(w, translateRequest(r, "This form is no longer valid. Reload the portfolio and try again."), http.StatusForbidden)
 				return
 			}
 			p.Values = r.PostForm
@@ -81,17 +75,17 @@ func portfolioHandler(service *app.Service, tmpl *template.Template, now func() 
 		var err error
 		p.Data, err = service.Portfolio(r.Context(), now())
 		if err != nil {
-			http.Error(w, "Unable to read the local portfolio.", http.StatusInternalServerError)
+			http.Error(w, translateRequest(r, "Unable to read the local portfolio."), http.StatusInternalServerError)
 			return
 		}
 		if r.Method == http.MethodGet {
 			if len(r.URL.RawQuery) > 4096 {
-				http.Error(w, "Query is too large.", http.StatusRequestURITooLong)
+				http.Error(w, translateRequest(r, "Query is too large."), http.StatusRequestURITooLong)
 				return
 			}
 			v, err := url.ParseQuery(r.URL.RawQuery)
 			if err != nil {
-				http.Error(w, "Invalid query.", http.StatusBadRequest)
+				http.Error(w, translateRequest(r, "Invalid query."), http.StatusBadRequest)
 				return
 			}
 			if id := v.Get("edit"); id != "" {
