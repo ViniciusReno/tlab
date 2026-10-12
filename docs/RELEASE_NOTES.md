@@ -1,10 +1,12 @@
 # Release notes
 
-## Unreleased — M6
+## 1.0.0 — 2026-10-12
 
 Browser screens, explanations, forms, and application validation messages now support English and Brazilian Portuguese. English remains the default; an explicit language link saves a local browser preference. Language changes preserve selected scenario inputs, including after asynchronous updates. No-JavaScript navigation and forms remain available. Numeric/date entry instructions are visible in both languages; canonical BRL, decimal-point, and ISO formats remain unchanged.
 
-No dependencies, Go-version changes, migrations, financial formulas, calendar/settlement changes, or CLI/API changes. Existing data and private notes are preserved. Local checks and bilingual Chrome journeys passed; see `docs/M6_IMPLEMENTATION.md`. Remote CI and native release validation remain pending. This increment is not published.
+No dependencies, Go-version changes, migrations, financial formulas, calendar/settlement changes, or CLI/API changes. Existing data and private notes are preserved. Local checks and bilingual Chrome journeys passed; see `docs/M6_IMPLEMENTATION.md`. The [Go checks](https://github.com/ViniciusReno/tlab/actions/runs/38308467948) and [five-target native checks with version 1.0.0](https://github.com/ViniciusReno/tlab/actions/runs/38308470160) passed for M6 merge commit `5752a97`. Both extracted macOS builds additionally passed with empty PATH and OS-level external-network denial. A live official sync to an isolated temporary database succeeded on 2026-10-12: 177,260 source records read, 68,577 supported records stored, maximum official quote date 2026-10-09. The initial free scope is complete; see the project closure record for publication status.
+
+This stable release includes all M1–M6 capabilities: official quote/history synchronization, offline demos, transparent Prefixado/IPCA+ scenarios, Selic quote/base-PU valuation, local portfolios, Prefixado gross comparisons, and Learn. Linux amd64/arm64, Windows amd64, and macOS amd64/arm64 packages ship SHA-256 checksums. Values remain gross; coupon-bearing instruments, Selic yield scenarios, tax/net calculations, inflation forecasts, brokerage integration, and recommendations remain outside scope. Packages are unsigned/unnotarized; screen-reader certification and other browser engines were not evaluated.
 
 ## 0.1.0 — 2026-10-09
 
