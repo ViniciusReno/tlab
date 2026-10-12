@@ -26,6 +26,12 @@ def main():
     # Fail before launch if another application owns the test address. Never
     # mistake its pages for the extracted binary under review.
     with socket.socket() as probe:
+        if os.name == "nt":
+            probe.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        else:
+            # Ignore a prior completed check's TIME_WAIT sockets; an active
+            # listener still prevents this exact-address bind on Unix.
+            probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         probe.bind(("127.0.0.1", args.port))
     base_url = f"http://127.0.0.1:{args.port}"
     binary = args.binary.resolve(strict=True)
