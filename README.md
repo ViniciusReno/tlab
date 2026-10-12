@@ -8,23 +8,11 @@ Tesouro Lab helps beginners understand bond prices and yield changes while letti
 
 ## Try the application
 
-With Go 1.25 or newer installed, run from the repository root:
-
-```sh
-go run ./cmd/tesouro-lab demo
-```
-
-The first build may download Go dependencies. Open `http://127.0.0.1:8080` and stop with Ctrl+C. No Docker, Node/npm, configuration file, or separate database process is required.
-
-Open **Learn** in the navigation for explanations of bond types, price/yield changes, quote contexts, maturity, and gross values. In demo mode, its exercises open explicit historical scenarios in the Playground. In persistent mode, start from a stored quote in Market. Learning content and examples work without JavaScript; external official-source links require internet access.
-
-To produce a standalone executable with embedded web assets, migrations, and fixtures:
-
-```sh
-go build ./cmd/tesouro-lab
-```
-
-Then start the compiled application:
+Download the archive for your operating system and processor from the
+[stable v1.0.0 release](https://github.com/ViniciusReno/tlab/releases/tag/v1.0.0).
+Verify its SHA-256 against `SHA256SUMS`, extract it, and open a terminal in the
+extracted directory. The included `START_HERE.md` explains verification and launch.
+No Go, Python, Node.js, Docker, database setup, or configuration file is required.
 
 Linux/macOS:
 
@@ -38,9 +26,34 @@ Windows PowerShell:
 .\tesouro-lab.exe demo
 ```
 
-Open `http://127.0.0.1:8080`. Stop the application with Ctrl+C.
+Open `http://127.0.0.1:8080`. Stop the application with Ctrl+C. If port 8080 is
+occupied, use `demo --port 8081` and open the URL printed by the application.
+The release demo works offline. Each process uses a private in-memory database;
+portfolio edits disappear at shutdown, and persistent data is never opened.
 
-The compiled demo works offline without Go. Demo changes are temporary: each process uses a private in-memory SQLite database and never opens your persistent portfolio or synchronized data. Use `demo --port 8081` if port 8080 is occupied.
+Open **Learn** in the navigation for explanations of bond types, price/yield
+changes, quote contexts, maturity, and gross values. In demo mode, its exercises
+open explicit historical scenarios in the Playground. In persistent mode, start
+from a stored quote in Market. Learning content and examples work without
+JavaScript; external official-source links require internet access.
+
+## Run from source
+
+With Go 1.25 or newer installed, run from the repository root:
+
+```sh
+go run ./cmd/tesouro-lab demo
+```
+
+The first source build may download Go dependencies. Open the same local URL and
+stop with Ctrl+C. To produce a standalone executable with embedded web assets,
+migrations, and fixtures:
+
+```sh
+go build ./cmd/tesouro-lab
+```
+
+The resulting executable uses the same launch commands shown above.
 
 ## Browser language
 
@@ -50,7 +63,7 @@ Both languages keep explicit BRL amounts, decimal points, and ISO `YYYY-MM-DD` d
 
 ## Persistent local storage
 
-Run `go run ./cmd/tesouro-lab` (or `./tesouro-lab` after building) to create/open the local database and start the server. Persistent mode opens the market screen with locally stored quotes, or an empty state before import. Purchase, official base PU, and validated morning early-redemption scenarios use the stored quotes. No demo quotes are copied into persistent storage.
+Run `./tesouro-lab` (PowerShell: `.\tesouro-lab.exe`) to create/open the local database and start the server. The source equivalent is `go run ./cmd/tesouro-lab`. Persistent mode opens the market screen with locally stored quotes, or an empty state before import. Purchase, official base PU, and validated morning early-redemption scenarios use the stored quotes. No demo quotes are copied into persistent storage.
 
 The database filename is `tesouro-lab.db`. The default directory follows Go's `os.UserConfigDir` convention:
 
@@ -67,8 +80,10 @@ New directories/files request owner-only permissions on Unix; Windows access fol
 Run an explicit import from Tesouro Transparente:
 
 ```sh
-go run ./cmd/tesouro-lab sync
+./tesouro-lab sync
 ```
+
+Windows PowerShell: `.\tesouro-lab.exe sync`. From source: `go run ./cmd/tesouro-lab sync`.
 
 For a custom database, use `go run ./cmd/tesouro-lab sync --data-dir ./local-data`, and start the server with the same `--data-dir`. The compiled equivalent is `./tesouro-lab sync` (`.\tesouro-lab.exe sync` in Windows PowerShell).
 
