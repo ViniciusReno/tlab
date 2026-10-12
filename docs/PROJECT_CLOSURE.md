@@ -1,9 +1,8 @@
 # Planned free scope — closure record
 
-Date: 2026-10-12. M1–M6 implementation and validation are complete. The final
-administrative step is publishing stable release `v1.0.0`; no additional features
-are required to satisfy the approved plan. The repository remains available for
-maintenance and contributions.
+Date: 2026-10-12. M1–M6 implementation, validation, and publication are complete.
+Stable [v1.0.0](https://github.com/ViniciusReno/tlab/releases/tag/v1.0.0) is public. No additional features are required to satisfy the approved plan.
+The repository remains available for maintenance and contributions.
 
 ## Completed scope
 
@@ -16,7 +15,7 @@ maintenance and contributions.
 - [x] English/pt-BR browser interface, canonical number/date formats, keyboard and narrow-screen review, and no-JavaScript workflows.
 - [x] Formatting, vet, unit/race tests, CGO-free builds, and five-target extracted-binary checks.
 - [x] License/source/dependency attribution, launch instructions, migration notes, and documented limitations.
-- [ ] Stable `v1.0.0` publication and final repository checkpoint.
+- [x] Stable `v1.0.0` publication and final repository checkpoint.
 
 ## Evidence
 
@@ -43,6 +42,28 @@ temporary database on 2026-10-12: 177,260 records read, 68,577 supported records
 stored, dataset maximum official quote date 2026-10-09. Unsupported rows were
 explicitly counted and excluded. No private portfolio or persistent user data
 was used. Market dates are not inferred from the date of this check.
+
+## Stable publication
+
+[v1.0.0](https://github.com/ViniciusReno/tlab/releases/tag/v1.0.0) was published
+on 2026-10-12 at 21:35 UTC, neither a draft nor a prerelease. The tag and embedded
+Git revision resolve to `2cbe402108456a4c8e28a2e204d9dca8fea83646`. The
+[Go checks](https://github.com/ViniciusReno/tlab/actions/runs/38309935739) and
+[exact-version five-target native checks](https://github.com/ViniciusReno/tlab/actions/runs/38309943069)
+passed for that release commit after the acceptance documentation merged.
+
+Five platform archives and `SHA256SUMS` were uploaded. All six GitHub asset
+SHA-256 digests matched the local files; every archive contains launch/release
+notes and project/dependency/source attribution. The final extracted macOS
+archives also passed bilingual smoke checks on default port 8080 under OS-level
+external-network denial. Go build metadata confirmed the tag revision, CGO
+disabled, and `vcs.modified=false`. Subsequent publication-checkpoint changes
+are documentation only and do not alter the shipped software.
+
+The original empty, unrelated npm lockfile was preserved outside the repository
+and is absent from source/release artifacts. The application has no Node/npm
+runtime. Implementation and release documentation were committed and merged
+through protected-main pull requests. There is no remaining planned milestone.
 
 ## Deliberate limits
 

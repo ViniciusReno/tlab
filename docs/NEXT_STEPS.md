@@ -6,7 +6,7 @@ This is a continuation checklist, not a replacement for the [V1 specification](V
 
 ## Current status
 
-M1–M6 implementation and validation are complete. The stable `1.0.0` publication is the final closure step; see [project closure](PROJECT_CLOSURE.md) for current status and evidence. Milestone notes below are historical records; pending statements in dated entries describe that earlier date.
+M1–M6 implementation and validation are complete. Stable [v1.0.0](https://github.com/ViniciusReno/tlab/releases/tag/v1.0.0) is published; the planned free scope is closed. See [project closure](PROJECT_CLOSURE.md) for status and evidence. Milestone notes below are historical records; pending statements in dated entries describe that earlier date.
 
 ## Historical checkpoint
 
@@ -96,6 +96,8 @@ M6 introduces the localization needed for this approved post-V1 scope. Code iden
 M6 validation (2026-10-09): local formatting, vet, unit/race tests, a CGO-free build, translation coverage, source isolation, canonical-result parity, and Chrome checks in both languages passed. Chrome review covered demo and isolated official-fixture persistent data at 375px and 1280px, keyboard language/skip links, asynchronous scenarios, unavailable-context recovery, and no-JavaScript scenario/portfolio workflows. See [M6 implementation notes](M6_IMPLEMENTATION.md). No M6 commit, remote CI, native release run, or publication has been performed; `v0.1.0` remains the published English-only build.
 
 Stable release closure (2026-10-12): the maintainer authorized committing all project changes, remote validation, merge, and publication to complete the planned free application. Version `1.0.0` is the stable closure target. The empty, unrelated npm lockfile was preserved outside the repository. Local fmt/vet/unit/race checks passed again; native smoke checks now include both languages and reject occupied test ports. Remote checks and publication are in progress.
+
+Final publication (2026-10-12): [v1.0.0](https://github.com/ViniciusReno/tlab/releases/tag/v1.0.0) is public with five platform archives and `SHA256SUMS`; all six uploaded hashes matched local files. Tag/build revision `2cbe402` passed [Go checks](https://github.com/ViniciusReno/tlab/actions/runs/38309935739) and [exact-version native checks](https://github.com/ViniciusReno/tlab/actions/runs/38309943069). Default-port, network-denied macOS smoke checks passed on the final archives. The planned M1–M6 scope is complete; subsequent work is maintenance or a separately approved new scope.
 
 ## Maintenance checkpoint
 

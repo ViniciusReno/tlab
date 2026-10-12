@@ -103,4 +103,4 @@ Locally, all five 1.0.0 archives cross-built without CGO and their checksums pas
 
 A live official sync on 2026-10-12 used only an isolated temporary database: 177,260 source rows read, 68,577 supported rows stored, maximum official quote date 2026-10-09. Unsupported types were counted and excluded. No personal portfolio was accessed.
 
-The implementation and release validation are complete. See [project closure](PROJECT_CLOSURE.md) for publication and repository status.
+The implementation, release validation, and publication are complete. Stable [v1.0.0](https://github.com/ViniciusReno/tlab/releases/tag/v1.0.0) ships both languages on all five targets. Release commit `2cbe402` passed [Go checks](https://github.com/ViniciusReno/tlab/actions/runs/38309935739) and [exact-version native checks](https://github.com/ViniciusReno/tlab/actions/runs/38309943069). All six uploaded file hashes matched local files. See [project closure](PROJECT_CLOSURE.md) for the final repository checkpoint.
